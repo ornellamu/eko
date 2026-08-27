@@ -1,0 +1,8 @@
+{
+  "name": "Eko Restaurant",
+  "description": "Luxury fine-dining restaurant in Kigali offering gourmet culinary experiences, table reservations, and premium online ordering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

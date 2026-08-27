@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #0a0a0c;
+    color: #f4f4f6;
+  }
+
+  h1, h2, h3, h4, .font-luxury-serif {
+    font-family: var(--font-serif);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Custom Luxury Theme Utilities */
+.bg-luxury-black {
+  background-color: #0a0a0c;
+}
+
+.bg-luxury-dark {
+  background-color: #121215;
+}
+
+.bg-luxury-card {
+  background-color: #16161a;
+}
+
+.text-luxury-gold {
+  color: #d4af37;
+}
+
+.text-luxury-gold-light {
+  color: #f3e5ab;
+}
+
+.border-luxury-gold {
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.border-luxury-gold-focus {
+  border-color: #d4af37;
+}
+
+.bg-luxury-gold {
+  background-color: #d4af37;
+}
+
+.bg-luxury-gold-hover:hover {
+  background-color: #c5a028;
+}
