@@ -52,9 +52,9 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       {
         category_id: starterCat?.id || 1,
         name: 'Avocado Carpaccio',
-        description: 'Delicately sliced Hass avocado infused with cold-pressed citrus oil, shaved baby radishes, toasted pine nuts, and micro-herbs.',
+        description: 'Delicately sliced ripe Hass avocado and sweet yellow mango arranged in an elegant rosette fan, garnished with whipped goat cheese rosettes, fresh garden basil, and cracked black pepper.',
         price: 6000,
-        image_url: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+        image_url: '/images/avocado-carpaccio.jpg',
         type: 'food',
         is_available: 1,
         is_popular: 1
@@ -326,6 +326,110 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       localStorage.insert('gallery', g);
     }
     console.log(`[Database] Seeded ${galleryItems.length} gallery images.`);
+  }
+
+  // Ensure the 6 new menu creations are registered in the menu catalog
+  const newCulinaryCreations = [
+    {
+      category_slug: 'cocktails',
+      name: 'Pornstar Martini',
+      description: 'Exquisite cocktail blending premium vanilla vodka, Passoã passion fruit liqueur, fresh passion fruit puree, and lime, served with a chilled shot of sparkling Prosecco.',
+      price: 9000,
+      image_url: '/images/pornstar-martini.jpg',
+      type: 'drink',
+      is_available: 1,
+      is_popular: 1
+    },
+    {
+      category_slug: 'cocktails',
+      name: 'Pink Gin & Tonic Spritz',
+      description: 'Vibrant pink botanical gin infused with wild berries and hibiscus, paired with artisanal Indian tonic, fresh pink grapefruit wheel, and crushed crystal ice.',
+      price: 8000,
+      image_url: '/images/pink-gin-spritz.jpg',
+      type: 'drink',
+      is_available: 1,
+      is_popular: 1
+    },
+    {
+      category_slug: 'cocktails',
+      name: 'The Sommelier Craft Cocktail Trio',
+      description: 'Curated tasting flight featuring our Classic Dry Martini with olive skewer, Chili-Rimmed Spiced Guava Margarita, and Smoked Hibiscus Mezcal Cooler.',
+      price: 16500,
+      image_url: '/images/sommelier-cocktail-trio.jpg',
+      type: 'drink',
+      is_available: 1,
+      is_popular: 1
+    },
+    {
+      category_slug: 'main-courses',
+      name: 'Prime Grilled Ribeye Steak',
+      description: '350g char-grilled aged prime beef ribeye steak cooked to perfection, served with crispy roasted hasselback potato, butter-glazed asparagus, and rich red wine jus.',
+      price: 22000,
+      image_url: '/images/prime-ribeye-steak.jpg',
+      type: 'food',
+      is_available: 1,
+      is_popular: 1
+    },
+    {
+      category_slug: 'main-courses',
+      name: 'Crispy Chicken Schnitzel Fettuccine',
+      description: 'Golden panko-crusted chicken cutlet served atop handmade ribbon fettuccine in a velvety garlic-Parmigiano cream sauce, with roasted cherry tomatoes and crispy sage.',
+      price: 14500,
+      image_url: '/images/chicken-schnitzel-fettuccine.jpg',
+      type: 'food',
+      is_available: 1,
+      is_popular: 1
+    },
+    {
+      category_slug: 'starters',
+      name: 'Confit Byaldi (Layered Ratatouille)',
+      description: 'Artfully spiraled medallions of golden squash, green zucchini, Japanese eggplant, and ripe vine tomatoes slow-baked over charred bell pepper and herb de Provence piperade coulis.',
+      price: 9500,
+      image_url: '/images/confit-byaldi-ratatouille.jpg',
+      type: 'food',
+      is_available: 1,
+      is_popular: 1
+    }
+  ];
+
+  for (const item of newCulinaryCreations) {
+    const existing = localStorage.findOne('menu_items', (i) => i.name.toLowerCase() === item.name.toLowerCase());
+    const cat = localStorage.findOne('categories', (c) => c.slug === item.category_slug);
+    const category_id = cat ? cat.id : (item.type === 'food' ? 2 : 12);
+    
+    if (existing) {
+      localStorage.update('menu_items', existing.id, {
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        image_url: item.image_url,
+        type: item.type,
+        category_id,
+        is_available: 1,
+        is_popular: 1
+      });
+    } else {
+      localStorage.insert('menu_items', {
+        category_id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        image_url: item.image_url,
+        type: item.type,
+        is_available: 1,
+        is_popular: 1
+      });
+    }
+  }
+
+  // Ensure Avocado Carpaccio has the updated image asset
+  const avocadoItems = localStorage.find('menu_items', (item) => item.name.toLowerCase().includes('avocado'));
+  for (const item of avocadoItems) {
+    localStorage.update('menu_items', item.id, {
+      name: 'Mango & Avocado Carpaccio',
+      image_url: '/images/avocado-carpaccio.jpg',
+      description: 'Delicately sliced ripe Hass avocado and sweet yellow mango arranged in an elegant rosette fan, garnished with whipped goat cheese rosettes, fresh garden basil, and cracked black pepper.'
+    });
   }
 
   console.log('[Database] Migrations and seeding completed successfully.');

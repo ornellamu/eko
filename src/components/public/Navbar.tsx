@@ -11,7 +11,9 @@ import {
   ShieldCheck, 
   Clock,
   Sparkles,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Truck,
+  UserCheck
 } from 'lucide-react';
 import { PageView, AuthUser } from '../../types';
 
@@ -38,9 +40,10 @@ export function Navbar({
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks: { label: string; page: PageView }[] = [
+  const navLinks: { label: string; page: PageView; icon?: any }[] = [
     { label: 'Home', page: 'home' },
-    { label: 'Menu', page: 'menu' },
+    { label: 'Menu (35)', page: 'menu' },
+    { label: 'Track Order', page: 'track', icon: Truck },
     { label: 'About Us', page: 'about' },
     { label: 'Ambiance Gallery', page: 'gallery' },
     { label: 'Contact & Hours', page: 'contact' },
@@ -115,13 +118,14 @@ export function Navbar({
               <button
                 key={link.page}
                 onClick={() => onNavigate(link.page)}
-                className={`px-3 py-2 rounded-lg text-xs uppercase tracking-widest font-semibold transition-all relative ${
+                className={`px-3 py-2 rounded-lg text-xs uppercase tracking-widest font-semibold transition-all relative flex items-center gap-1.5 ${
                   currentPage === link.page
                     ? 'text-[#E5C158] bg-[#1C1A17] border border-[#D4AF37]/30 shadow-sm'
                     : 'text-neutral-300 hover:text-white hover:bg-neutral-900/60'
                 }`}
               >
-                {link.label}
+                {link.icon && <link.icon className="w-3.5 h-3.5 text-[#D4AF37]" />}
+                <span>{link.label}</span>
               </button>
             ))}
           </nav>
@@ -155,18 +159,44 @@ export function Navbar({
               )}
             </button>
 
+            {/* Admin Portal Direct Button */}
+            <button
+              onClick={() => {
+                if (currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin') {
+                  onNavigate('admin');
+                } else {
+                  onOpenAuth('admin');
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#E5C158] bg-[#1C1A17] border border-[#D4AF37]/40 hover:bg-[#2A2620] hover:border-[#D4AF37] transition-all shadow-sm"
+              title="Restaurant Executive Management"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="hidden sm:inline">Admin Portal</span>
+              <span className="sm:hidden">Admin</span>
+            </button>
+
             {/* User Account / Auth Dropdown */}
             {currentUser ? (
               <div className="hidden sm:flex items-center gap-2 bg-[#181715] border border-neutral-800 px-3 py-1.5 rounded-xl text-xs">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-neutral-200 font-medium truncate max-w-[100px]">
-                  {currentUser.username || currentUser.full_name || 'Guest'}
-                </span>
-                {currentUser.role === 'admin' && (
-                  <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono font-semibold">
-                    Admin
+                <button
+                  onClick={() => onNavigate(currentUser.role === 'admin' || (currentUser as any)?.role === 'superadmin' ? 'admin' : 'account')}
+                  className="flex items-center gap-1.5 hover:text-[#D4AF37] transition-colors"
+                >
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-neutral-200 font-medium truncate max-w-[100px]">
+                    {currentUser.username || currentUser.full_name || 'Guest'}
                   </span>
-                )}
+                  {currentUser.role === 'admin' || (currentUser as any)?.role === 'superadmin' ? (
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono font-semibold">
+                      Admin
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 text-[10px] font-mono">
+                      Account
+                    </span>
+                  )}
+                </button>
                 <button
                   onClick={onLogout}
                   className="text-neutral-400 hover:text-rose-400 ml-1 transition-colors"
@@ -207,13 +237,14 @@ export function Navbar({
                   onNavigate(link.page);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold ${
+                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2 ${
                   currentPage === link.page
                     ? 'bg-[#E5C158]/20 text-[#E5C158] border border-[#D4AF37]/30'
                     : 'text-neutral-300 hover:bg-neutral-800/60'
                 }`}
               >
-                {link.label}
+                {link.icon && <link.icon className="w-4 h-4 text-[#D4AF37]" />}
+                <span>{link.label}</span>
               </button>
             ))}
           </div>
@@ -230,17 +261,45 @@ export function Navbar({
               <span>Book a Table</span>
             </button>
 
+            {/* Direct Admin Portal link in mobile */}
+            <button
+              onClick={() => {
+                if (currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin') {
+                  onNavigate('admin');
+                } else {
+                  onOpenAuth('admin');
+                }
+                setMobileMenuOpen(false);
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/40 text-[#E5C158] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm hover:bg-[#2A2620]"
+            >
+              <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
+              <span>Admin Portal</span>
+            </button>
+
             {currentUser ? (
-              <button
-                onClick={() => {
-                  onLogout();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-neutral-900 text-rose-300 text-xs font-semibold flex items-center justify-center gap-2 border border-rose-900/40"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout ({currentUser.username || 'User'})</span>
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    onNavigate(currentUser.role === 'admin' || (currentUser as any)?.role === 'superadmin' ? 'admin' : 'account');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-semibold flex items-center justify-center gap-2 border border-neutral-700"
+                >
+                  <UserCheck className="w-4 h-4 text-[#D4AF37]" />
+                  <span>My Dashboard ({currentUser.username || 'User'})</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 rounded-xl bg-rose-950/40 text-rose-300 text-xs font-semibold flex items-center justify-center gap-2 border border-rose-900/40"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {

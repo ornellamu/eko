@@ -9,8 +9,12 @@ import healthRoutes from './server/routes/healthRoutes';
 import databaseRoutes from './server/routes/databaseRoutes';
 import foundationRoutes from './server/routes/foundationRoutes';
 import authRoutes from './server/routes/authRoutes';
+import orderRoutes from './server/routes/orderRoutes';
+import reservationRoutes from './server/routes/reservationRoutes';
+import adminRoutes from './server/routes/adminRoutes';
 import { errorHandler } from './server/middleware/errorHandler';
 import { requestLogger } from './server/middleware/logger';
+import { securityHeaders, sanitizeInputs, rateLimiter } from './server/middleware/security';
 import { runMigrationsAndSeed } from './server/db/migrations';
 
 async function startServer() {
@@ -20,14 +24,22 @@ async function startServer() {
   // Run database migrations and seeds
   await runMigrationsAndSeed();
 
+  // Stage 14: Security Headers
+  app.use(securityHeaders);
+
   // Basic middleware & CORS
   app.use(cors({
     origin: true,
     credentials: true
   }));
   app.use(cookieParser());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '5mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+  
+  // Stage 14: Input Sanitization
+  app.use(sanitizeInputs);
+
+  // Request logger
   app.use(requestLogger);
 
   // Session middleware configuration
@@ -44,14 +56,25 @@ async function startServer() {
     })
   );
 
+  // Rate limiters for sensitive endpoints (Stage 14)
+  const authLimiter = rateLimiter({ maxRequests: 60, windowMs: 60 * 1000, message: 'Too many authentication attempts. Please wait a minute.' });
+  const orderLimiter = rateLimiter({ maxRequests: 100, windowMs: 60 * 1000, message: 'Order submission limit reached. Please wait a moment.' });
+
   // API Routes
   app.use('/api', healthRoutes);
   app.use('/api/db', databaseRoutes);
   app.use('/api/v1', foundationRoutes);
-  app.use('/api/v1/auth', authRoutes);
+  app.use('/api/v1/auth', authLimiter, authRoutes);
+  app.use('/api/v1/orders', orderLimiter, orderRoutes);
+  app.use('/api/v1/reservations', reservationRoutes);
+  app.use('/api/v1/admin', adminRoutes);
+
+  // Serve static assets from public folder
+  app.use('/images', express.static(path.join(process.cwd(), 'public/images')));
+  app.use(express.static(path.join(process.cwd(), 'public')));
 
   // Global Error Handler for API routes
-  app.use('/api', errorHandler);
+  app.use(errorHandler);
 
   // Vite middleware for development or Static files for production
   if (config.nodeEnv !== 'production') {

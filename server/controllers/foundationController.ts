@@ -139,3 +139,33 @@ export function validateCartPrice(req: Request, res: Response, next: NextFunctio
     next(err);
   }
 }
+
+// Stage 15: Full System Automated Test Suite
+export async function runTestSuite(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const { TestSuiteService } = await import('../services/testSuiteService');
+    const report = await TestSuiteService.runFullSystemTests();
+    return sendSuccess({
+      res,
+      message: `System Diagnostics Completed — ${report.overallStatus} (${report.passedCount}/${report.totalTests} tests passed)`,
+      data: report
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Stage 16: Production Readiness Verification
+export async function getProductionCheck(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const { TestSuiteService } = await import('../services/testSuiteService');
+    const readiness = TestSuiteService.getProductionReadinessReport();
+    return sendSuccess({
+      res,
+      message: 'Production readiness report generated',
+      data: readiness
+    });
+  } catch (err) {
+    next(err);
+  }
+}

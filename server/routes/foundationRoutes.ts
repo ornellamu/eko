@@ -7,11 +7,17 @@ import {
   getMenuItemDetail, 
   validateCartPrice,
   getGallery,
-  submitContact
+  submitContact,
+  runTestSuite,
+  getProductionCheck
 } from '../controllers/foundationController';
 import { validateBody, validateQuery } from '../middleware/validate';
 
 const router = Router();
+
+// Stage 15 & 16: Diagnostics & Production Checks
+router.get('/system/test-suite', runTestSuite);
+router.get('/system/production-check', getProductionCheck);
 
 // 1. Restaurant public info
 router.get('/info', getPublicInfo);

@@ -15,11 +15,13 @@ import { ReservationPage } from './public/ReservationPage';
 import { AboutPage } from './public/AboutPage';
 import { GalleryPage } from './public/GalleryPage';
 import { ContactPage } from './public/ContactPage';
+import { OrderTrackerPage } from './public/OrderTrackerPage';
+import { CustomerDashboard } from './public/CustomerDashboard';
 import { CartDrawer } from './public/CartDrawer';
 import { AuthModal } from './public/AuthModal';
 import { AdminDashboard } from './admin/AdminDashboard';
 import { StageVerification } from './StageVerification';
-import { Sparkles, Layers } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export function EkoApp() {
   const [currentPage, setCurrentPage] = useState<PageView>('home');
@@ -29,6 +31,7 @@ export function EkoApp() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'admin'>('login');
+  const [trackedOrderRef, setTrackedOrderRef] = useState<string | null>(null);
   
   // Auth state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -101,9 +104,17 @@ export function EkoApp() {
     localStorage.removeItem('eko_auth_token');
     setAuthToken(null);
     setCurrentUser(null);
+    setCurrentPage('home');
+  };
+
+  const handleNavigateToTrack = (reference: string) => {
+    setTrackedOrderRef(reference);
+    setCurrentPage('track');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const isAdmin = currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin';
 
   // If developer toggles the Verification Matrix
   if (showDevTracker) {
@@ -123,7 +134,7 @@ export function EkoApp() {
   }
 
   // If Admin is active on Admin Dashboard
-  if (currentPage === 'admin' && currentUser?.role === 'admin') {
+  if (currentPage === 'admin' && isAdmin) {
     return (
       <AdminDashboard
         currentUser={currentUser}
@@ -140,7 +151,7 @@ export function EkoApp() {
       <Navbar
         currentPage={currentPage}
         onNavigate={(page) => {
-          if (page === 'admin' && currentUser?.role !== 'admin') {
+          if (page === 'admin' && !isAdmin) {
             setAuthMode('admin');
             setIsAuthOpen(true);
           } else {
@@ -180,7 +191,31 @@ export function EkoApp() {
           />
         )}
 
-        {currentPage === 'reservation' && <ReservationPage />}
+        {currentPage === 'reservation' && (
+          <ReservationPage 
+            authToken={authToken}
+            currentUser={currentUser}
+          />
+        )}
+
+        {currentPage === 'track' && (
+          <OrderTrackerPage
+            initialReference={trackedOrderRef}
+            onNavigateToMenu={() => setCurrentPage('menu')}
+          />
+        )}
+
+        {currentPage === 'account' && currentUser && authToken && (
+          <CustomerDashboard
+            user={currentUser}
+            token={authToken}
+            onLogout={handleLogout}
+            onTrackOrder={handleNavigateToTrack}
+            onNavigateToMenu={() => setCurrentPage('menu')}
+            onNavigateToReservation={() => setCurrentPage('reservation')}
+          />
+        )}
+
         {currentPage === 'about' && (
           <AboutPage
             onNavigate={(page) => {
@@ -189,6 +224,7 @@ export function EkoApp() {
             }}
           />
         )}
+
         {currentPage === 'gallery' && (
           <GalleryPage
             onNavigate={(page) => {
@@ -197,13 +233,14 @@ export function EkoApp() {
             }}
           />
         )}
+
         {currentPage === 'contact' && <ContactPage />}
       </main>
 
       {/* Footer */}
       <Footer
         onNavigate={(page) => {
-          if (page === 'admin' && currentUser?.role !== 'admin') {
+          if (page === 'admin' && !isAdmin) {
             setAuthMode('admin');
             setIsAuthOpen(true);
           } else {
@@ -222,9 +259,12 @@ export function EkoApp() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         items={cart}
+        authToken={authToken}
+        currentUser={currentUser}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={() => setCart([])}
+        onTrackOrder={handleNavigateToTrack}
       />
 
       {/* Auth Modal */}
@@ -235,8 +275,11 @@ export function EkoApp() {
         onLoginSuccess={(user, token) => {
           setCurrentUser(user);
           setAuthToken(token);
-          if (user.role === 'admin') {
+          const userIsAdmin = user.role === 'admin' || (user as any).role === 'superadmin';
+          if (userIsAdmin) {
             setCurrentPage('admin');
+          } else {
+            setCurrentPage('account');
           }
         }}
       />

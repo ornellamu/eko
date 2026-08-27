@@ -9,17 +9,71 @@
         "id": 2,
         "created_at": "2026-08-27T03:32:18.228Z",
         "updated_at": "2026-08-27T03:32:18.228Z"
+      },
+      {
+        "full_name": "Jean Paul",
+        "email": "test_user1@eko.rw",
+        "phone": "+250788123456",
+        "password_hash": "$2b$10$ODM/i9H.NWn9otT.7RJI7OU1tgs4qstbUz1PLjC7MA0hpkvLjh85.",
+        "id": 3,
+        "created_at": "2026-08-27T14:52:45.208Z",
+        "updated_at": "2026-08-27T14:52:45.208Z"
+      },
+      {
+        "full_name": "Gisa Kevin",
+        "email": "gisakevin_1787842446009@eko.rw",
+        "phone": "+250788999888",
+        "password_hash": "$2b$10$LvfkCt1L/u9PCdC52dPWxeXwrUwpAtUTL4z80Y2nAyDVNI2tGtIPO",
+        "id": 4,
+        "created_at": "2026-08-27T14:54:06.310Z",
+        "updated_at": "2026-08-27T14:54:06.310Z"
+      },
+      {
+        "full_name": "Aline Umutoni",
+        "email": "aline_1787842446330@eko.rw",
+        "phone": "",
+        "password_hash": "$2b$10$jo1jVrNo2JosJbf7/HF4hODZMvLYyGynsG9EQHEPCKwZKbH3uWnGi",
+        "id": 5,
+        "created_at": "2026-08-27T14:54:06.447Z",
+        "updated_at": "2026-08-27T14:54:06.447Z"
+      },
+      {
+        "full_name": "Patrick Ndayizeye",
+        "email": "patrick_1787842446451@eko.rw",
+        "phone": "",
+        "password_hash": "$2b$10$Z2V4itzoOJTIsjtHFBKKueOMhnki8Ir.r/8UqUeGnTk7.kK0WC7Ne",
+        "id": 6,
+        "created_at": "2026-08-27T14:54:06.574Z",
+        "updated_at": "2026-08-27T14:54:06.574Z"
+      },
+      {
+        "full_name": "First User",
+        "email": "dup_1787842446579@eko.rw",
+        "phone": "",
+        "password_hash": "$2b$10$VhbuTk8EMoZvgLgnA0AaL.sUdJLU8pFoG.kpGmqC7WcJ21DUQQpku",
+        "id": 7,
+        "created_at": "2026-08-27T14:54:06.710Z",
+        "updated_at": "2026-08-27T14:54:06.710Z"
       }
     ],
     "admins": [
       {
-        "username": "admin",
-        "email": "mugishamp7@gmail.com",
-        "password_hash": "$2b$10$EsjjukzJtSZeKZqrXGr1JupoxwEx/WERfOZxx7ZznM.u7XGHyo6uy",
-        "role": "superadmin",
         "id": 1,
-        "created_at": "2026-08-27T03:23:50.949Z",
-        "updated_at": "2026-08-27T03:23:50.949Z"
+        "username": "admin",
+        "email": "murasa320@gmail.com",
+        "password_hash": "$2b$10$DIy8DFgKi0i.fVHbsTGkyeF9f0oxDCYdvZOKy0FkgKCETWwqZs5Ha",
+        "role": "superadmin",
+        "created_at": "2026-08-27T14:48:15.469Z",
+        "updated_at": "2026-08-27T14:48:15.470Z"
+      },
+      {
+        "id": 2,
+        "username": "murasa",
+        "email": "admin@eko.rw",
+        "password_hash": "$2b$10$DIy8DFgKi0i.fVHbsTGkyeF9f0oxDCYdvZOKy0FkgKCETWwqZs5Ha",
+        "role": "superadmin",
+        "created_at": "2026-08-27T14:48:15.470Z",
+        "updated_at": "2026-08-27T14:48:15.470Z"
       }
     ],
     "categories": [
@@ -177,16 +231,16 @@
     "menu_items": [
       {
         "category_id": 1,
-        "name": "Avocado Carpaccio",
-        "description": "Delicately sliced Hass avocado infused with cold-pressed citrus oil, shaved baby radishes, toasted pine nuts, and micro-herbs.",
+        "name": "Mango & Avocado Carpaccio",
+        "description": "Delicately sliced ripe Hass avocado and sweet yellow mango arranged in an elegant rosette fan, garnished with whipped goat cheese rosettes, fresh garden basil, and cracked black pepper.",
         "price": 6000,
-        "image_url": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+        "image_url": "/images/avocado-carpaccio.jpg",
         "type": "food",
         "is_available": 1,
         "is_popular": 1,
         "id": 1,
         "created_at": "2026-08-27T03:23:50.817Z",
-        "updated_at": "2026-08-27T03:23:50.817Z"
+        "updated_at": "2026-08-27T14:54:02.170Z"
       },
       {
         "category_id": 1,
@@ -382,6 +436,84 @@
         "id": 16,
         "created_at": "2026-08-27T03:23:50.819Z",
         "updated_at": "2026-08-27T03:23:50.819Z"
+      },
+      {
+        "category_id": 12,
+        "name": "Pornstar Martini",
+        "description": "Exquisite cocktail blending premium vanilla vodka, Passoã passion fruit liqueur, fresh passion fruit puree, and lime, served with a chilled shot of sparkling Prosecco.",
+        "price": 9000,
+        "image_url": "/images/pornstar-martini.jpg",
+        "type": "drink",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 17,
+        "created_at": "2026-08-27T14:09:12.423Z",
+        "updated_at": "2026-08-27T14:54:02.167Z"
+      },
+      {
+        "category_id": 12,
+        "name": "Pink Gin & Tonic Spritz",
+        "description": "Vibrant pink botanical gin infused with wild berries and hibiscus, paired with artisanal Indian tonic, fresh pink grapefruit wheel, and crushed crystal ice.",
+        "price": 8000,
+        "image_url": "/images/pink-gin-spritz.jpg",
+        "type": "drink",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 18,
+        "created_at": "2026-08-27T14:09:12.424Z",
+        "updated_at": "2026-08-27T14:54:02.169Z"
+      },
+      {
+        "category_id": 12,
+        "name": "The Sommelier Craft Cocktail Trio",
+        "description": "Curated tasting flight featuring our Classic Dry Martini with olive skewer, Chili-Rimmed Spiced Guava Margarita, and Smoked Hibiscus Mezcal Cooler.",
+        "price": 16500,
+        "image_url": "/images/sommelier-cocktail-trio.jpg",
+        "type": "drink",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 19,
+        "created_at": "2026-08-27T14:09:12.424Z",
+        "updated_at": "2026-08-27T14:54:02.169Z"
+      },
+      {
+        "category_id": 2,
+        "name": "Prime Grilled Ribeye Steak",
+        "description": "350g char-grilled aged prime beef ribeye steak cooked to perfection, served with crispy roasted hasselback potato, butter-glazed asparagus, and rich red wine jus.",
+        "price": 22000,
+        "image_url": "/images/prime-ribeye-steak.jpg",
+        "type": "food",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 20,
+        "created_at": "2026-08-27T14:09:12.424Z",
+        "updated_at": "2026-08-27T14:54:02.169Z"
+      },
+      {
+        "category_id": 2,
+        "name": "Crispy Chicken Schnitzel Fettuccine",
+        "description": "Golden panko-crusted chicken cutlet served atop handmade ribbon fettuccine in a velvety garlic-Parmigiano cream sauce, with roasted cherry tomatoes and crispy sage.",
+        "price": 14500,
+        "image_url": "/images/chicken-schnitzel-fettuccine.jpg",
+        "type": "food",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 21,
+        "created_at": "2026-08-27T14:09:12.425Z",
+        "updated_at": "2026-08-27T14:54:02.170Z"
+      },
+      {
+        "category_id": 1,
+        "name": "Confit Byaldi (Layered Ratatouille)",
+        "description": "Artfully spiraled medallions of golden squash, green zucchini, Japanese eggplant, and ripe vine tomatoes slow-baked over charred bell pepper and herb de Provence piperade coulis.",
+        "price": 9500,
+        "image_url": "/images/confit-byaldi-ratatouille.jpg",
+        "type": "food",
+        "is_available": 1,
+        "is_popular": 1,
+        "id": 22,
+        "created_at": "2026-08-27T14:09:12.425Z",
+        "updated_at": "2026-08-27T14:54:02.170Z"
       }
     ],
     "orders": [],
@@ -390,44 +522,76 @@
     "payments": [],
     "gallery": [
       {
+        "id": 1,
+        "title": "Prime Grilled Ribeye Steak",
+        "description": "350g char-grilled aged prime beef ribeye steak with hasselback potato and red wine jus.",
+        "image_url": "/images/prime-ribeye-steak.jpg",
+        "category": "Food",
+        "display_order": 1
+      },
+      {
+        "id": 2,
+        "title": "Pornstar Martini & Prosecco",
+        "description": "Exquisite vanilla vodka, passion fruit purée, and a chilled side shot of sparkling Prosecco.",
+        "image_url": "/images/pornstar-martini.jpg",
+        "category": "Bar",
+        "display_order": 2
+      },
+      {
+        "id": 3,
+        "title": "Mango & Avocado Carpaccio",
+        "description": "Delicately sliced Hass avocado and sweet mango fan with whipped goat cheese and basil.",
+        "image_url": "/images/avocado-carpaccio.jpg",
+        "category": "Food",
+        "display_order": 3
+      },
+      {
+        "id": 4,
+        "title": "The Sommelier Craft Cocktail Trio",
+        "description": "Dry Martini, Chili-Rimmed Spiced Guava Margarita, and Smoked Mezcal Cooler.",
+        "image_url": "/images/sommelier-cocktail-trio.jpg",
+        "category": "Bar",
+        "display_order": 4
+      },
+      {
+        "id": 5,
+        "title": "Pink Gin & Tonic Spritz",
+        "description": "Botanical gin with wild berries, artisanal tonic, and fresh pink grapefruit wheel.",
+        "image_url": "/images/pink-gin-spritz.jpg",
+        "category": "Bar",
+        "display_order": 5
+      },
+      {
+        "id": 6,
+        "title": "Crispy Chicken Schnitzel Fettuccine",
+        "description": "Golden panko chicken over ribbon fettuccine in garlic-Parmigiano cream sauce.",
+        "image_url": "/images/chicken-schnitzel-fettuccine.jpg",
+        "category": "Food",
+        "display_order": 6
+      },
+      {
+        "id": 7,
+        "title": "Confit Byaldi (Layered Ratatouille)",
+        "description": "Medallions of squash, zucchini, eggplant, and tomato over piperade coulis.",
+        "image_url": "/images/confit-byaldi-ratatouille.jpg",
+        "category": "Food",
+        "display_order": 7
+      },
+      {
+        "id": 8,
         "title": "Grand Dining Hall",
-        "description": "Immerse yourself in understated luxury with warm ambient lighting and bespoke table settings.",
+        "description": "Gold acoustic accents and bespoke velvet booth seating.",
         "image_url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
         "category": "Interior",
-        "display_order": 1,
-        "id": 1,
-        "created_at": "2026-08-27T03:23:50.953Z",
-        "updated_at": "2026-08-27T03:23:50.953Z"
+        "display_order": 8
       },
       {
-        "title": "Gastronomic Artistry",
-        "description": "Every plate is an orchestrated balance of texture, color, and exquisite flavor.",
-        "image_url": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80",
-        "category": "Food",
-        "display_order": 2,
-        "id": 2,
-        "created_at": "2026-08-27T03:23:50.953Z",
-        "updated_at": "2026-08-27T03:23:50.953Z"
-      },
-      {
-        "title": "The Golden Bar",
-        "description": "Handcrafted signature cocktails curated by master mixologists.",
-        "image_url": "https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=1200&q=80",
-        "category": "Bar",
-        "display_order": 3,
-        "id": 3,
-        "created_at": "2026-08-27T03:23:50.953Z",
-        "updated_at": "2026-08-27T03:23:50.953Z"
-      },
-      {
-        "title": "Private Dining Suite",
-        "description": "Exclusive, intimate dining sanctuary for business dinners and celebratory occasions.",
-        "image_url": "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&w=1200&q=80",
-        "category": "Interior",
-        "display_order": 4,
-        "id": 4,
-        "created_at": "2026-08-27T03:23:50.954Z",
-        "updated_at": "2026-08-27T03:23:50.954Z"
+        "id": 9,
+        "title": "Kigali Sunset Terrace",
+        "description": "Panoramic views overlooking the illuminated rolling hills of Kigali.",
+        "image_url": "https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?auto=format&fit=crop&w=1200&q=80",
+        "category": "Terrace",
+        "display_order": 9
       }
     ],
     "restaurant_settings": [
@@ -546,9 +710,45 @@
         "record_id": 1,
         "description": "Admin 'admin' logged in successfully",
         "ip_address": "127.0.0.1",
-        "id": 1,
-        "created_at": "2026-08-27T03:32:12.669Z",
-        "updated_at": "2026-08-27T03:32:12.669Z"
+        "id": 6,
+        "created_at": "2026-08-27T14:48:46.923Z",
+        "updated_at": "2026-08-27T14:48:46.923Z"
+      },
+      {
+        "admin_id": 1,
+        "admin_username": "admin",
+        "action_type": "LOGIN",
+        "record_type": "AUTH",
+        "record_id": 1,
+        "description": "Admin 'admin' logged in successfully",
+        "ip_address": "127.0.0.1",
+        "id": 5,
+        "created_at": "2026-08-27T14:45:43.805Z",
+        "updated_at": "2026-08-27T14:45:43.805Z"
+      },
+      {
+        "admin_id": 2,
+        "admin_username": "murasa",
+        "action_type": "LOGIN",
+        "record_type": "AUTH",
+        "record_id": 2,
+        "description": "Admin 'murasa' logged in successfully",
+        "ip_address": "127.0.0.1",
+        "id": 4,
+        "created_at": "2026-08-27T14:41:48.045Z",
+        "updated_at": "2026-08-27T14:41:48.045Z"
+      },
+      {
+        "admin_id": 1,
+        "admin_username": "admin",
+        "action_type": "LOGIN",
+        "record_type": "AUTH",
+        "record_id": 1,
+        "description": "Admin 'admin' logged in successfully",
+        "ip_address": "127.0.0.1",
+        "id": 3,
+        "created_at": "2026-08-27T14:41:47.908Z",
+        "updated_at": "2026-08-27T14:41:47.908Z"
       },
       {
         "admin_id": 1,
@@ -561,14 +761,26 @@
         "id": 2,
         "created_at": "2026-08-27T03:32:15.537Z",
         "updated_at": "2026-08-27T03:32:15.537Z"
+      },
+      {
+        "admin_id": 1,
+        "admin_username": "admin",
+        "action_type": "LOGIN",
+        "record_type": "AUTH",
+        "record_id": 1,
+        "description": "Admin 'admin' logged in successfully",
+        "ip_address": "127.0.0.1",
+        "id": 1,
+        "created_at": "2026-08-27T03:32:12.669Z",
+        "updated_at": "2026-08-27T03:32:12.669Z"
       }
     ]
   },
   "autoIncrements": {
-    "users": 3,
+    "users": 8,
     "admins": 2,
     "categories": 16,
-    "menu_items": 17,
+    "menu_items": 23,
     "orders": 1,
     "order_items": 1,
     "reservations": 1,
@@ -576,6 +788,6 @@
     "gallery": 5,
     "restaurant_settings": 14,
     "contact_messages": 1,
-    "activity_logs": 3
+    "activity_logs": 7
   }
 }

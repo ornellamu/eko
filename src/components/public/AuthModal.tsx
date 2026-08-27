@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   User, 
@@ -9,7 +9,8 @@ import {
   Sparkles, 
   CheckCircle2,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  HelpCircle
 } from 'lucide-react';
 import { AuthUser } from '../../types';
 import { customerLogin, customerRegister, adminLogin } from '../../services/api';
@@ -36,7 +37,19 @@ export function AuthModal({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('admin');
+
+  // Sync mode whenever initialMode changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError(null);
+      if (initialMode === 'admin') {
+        setUsername('admin');
+        setPassword('admin123');
+      }
+    }
+  }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
 
@@ -53,7 +66,7 @@ export function AuthModal({
         });
         if (res.data.token && res.data.admin) {
           localStorage.setItem('eko_auth_token', res.data.token);
-          onLoginSuccess(res.data.admin, res.data.token);
+          onLoginSuccess({ ...res.data.admin, role: 'admin' }, res.data.token);
           onClose();
         }
       } else if (mode === 'register') {
@@ -73,14 +86,15 @@ export function AuthModal({
           emailOrUsername: email,
           password
         });
-        if (res.data.token && res.data.user) {
+        if (res.data.token && (res.data.user || res.data.admin)) {
+          const authenticatedUser = res.data.user || res.data.admin!;
           localStorage.setItem('eko_auth_token', res.data.token);
-          onLoginSuccess(res.data.user, res.data.token);
+          onLoginSuccess(authenticatedUser, res.data.token);
           onClose();
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -92,11 +106,11 @@ export function AuthModal({
     try {
       const res = await adminLogin({
         emailOrUsername: 'admin',
-        password: 'Admin@Eko2026!'
+        password: 'admin123'
       });
       if (res.data.token && res.data.admin) {
         localStorage.setItem('eko_auth_token', res.data.token);
-        onLoginSuccess(res.data.admin, res.data.token);
+        onLoginSuccess({ ...res.data.admin, role: 'admin' }, res.data.token);
         onClose();
       }
     } catch (err: any) {

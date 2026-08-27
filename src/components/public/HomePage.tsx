@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowRight, 
   Sparkles, 
@@ -10,19 +10,30 @@ import {
   ShieldCheck, 
   Calendar,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  ShoppingBag,
+  Flame,
+  Info,
+  X
 } from 'lucide-react';
 import { PageView, MenuItemData } from '../../types';
 
 interface HomePageProps {
   onNavigate: (page: PageView) => void;
   featuredItems: MenuItemData[];
-  onAddToCart: (item: MenuItemData) => void;
+  onAddToCart: (item: MenuItemData, quantity?: number) => void;
 }
 
 export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePageProps) {
-  // Select highlight chef signatures
-  const chefSignatures = featuredItems.slice(0, 4);
+  const [activeItemModal, setActiveItemModal] = useState<MenuItemData | null>(null);
+  const [modalQuantity, setModalQuantity] = useState<number>(1);
+
+  // Prioritize signature and new highlighted creations for the homepage
+  const [selectedHomeCategory, setSelectedHomeCategory] = useState<'all' | 'food' | 'drink'>('all');
+  
+  const chefSignatures = featuredItems
+    .filter(item => selectedHomeCategory === 'all' || item.type === selectedHomeCategory)
+    .slice(0, 8);
 
   return (
     <div className="space-y-24 pb-20 font-sans text-neutral-200">
@@ -130,13 +141,48 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
             </p>
           </div>
 
-          <button
-            onClick={() => onNavigate('menu')}
-            className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#E5C158] hover:text-white transition-colors"
-          >
-            <span>View Full 35-Item Menu</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex bg-[#141312] p-1 rounded-xl border border-neutral-800 text-xs font-mono">
+              <button
+                onClick={() => setSelectedHomeCategory('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  selectedHomeCategory === 'all'
+                    ? 'bg-[#D4AF37] text-black font-bold'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                All Creations
+              </button>
+              <button
+                onClick={() => setSelectedHomeCategory('food')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  selectedHomeCategory === 'food'
+                    ? 'bg-[#D4AF37] text-black font-bold'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Fine Dining
+              </button>
+              <button
+                onClick={() => setSelectedHomeCategory('drink')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  selectedHomeCategory === 'drink'
+                    ? 'bg-[#D4AF37] text-black font-bold'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Cocktails & Bar
+              </button>
+            </div>
+
+            <button
+              onClick={() => onNavigate('menu')}
+              className="hidden sm:flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#E5C158] hover:text-white transition-colors"
+            >
+              <span>View Full Menu</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Dishes Cards Grid */}
@@ -144,7 +190,11 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
           {chefSignatures.map((item) => (
             <div
               key={item.id}
-              className="bg-[#141312] border border-neutral-800/80 hover:border-[#D4AF37]/50 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+              onClick={() => {
+                setActiveItemModal(item);
+                setModalQuantity(1);
+              }}
+              className="bg-[#141312] border border-neutral-800/80 hover:border-[#D4AF37]/50 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] cursor-pointer"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-neutral-900">
                 <img
@@ -177,8 +227,11 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
                   </span>
 
                   <button
-                    onClick={() => onAddToCart(item)}
-                    className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddToCart(item, 1);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95"
                   >
                     Add to Order
                   </button>
@@ -309,6 +362,136 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
           </div>
         </div>
       </section>
+
+      {/* Dish Detail Exploration Modal */}
+      {activeItemModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in overflow-y-auto"
+          onClick={() => setActiveItemModal(null)}
+        >
+          <div 
+            className="bg-[#141312] border border-[#D4AF37]/40 rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.9)] relative my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header Bar with Close Button */}
+            <div className="absolute top-3 right-3 z-20">
+              <button
+                onClick={() => setActiveItemModal(null)}
+                className="p-2 rounded-full bg-black/80 text-white hover:bg-neutral-800 border border-neutral-700 hover:border-[#D4AF37] transition-colors shadow-lg"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content Container */}
+            <div className="overflow-y-auto flex-1 custom-scrollbar">
+              {/* Image Section */}
+              <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full bg-neutral-900 overflow-hidden">
+                <img
+                  src={activeItemModal.image_url || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'}
+                  alt={activeItemModal.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-3 left-3 bg-black/90 backdrop-blur-md px-3.5 py-1 rounded-xl border border-[#D4AF37]/60 text-[#E5C158] font-mono text-sm sm:text-base font-bold shadow-xl">
+                  {activeItemModal.price.toLocaleString()} RWF
+                </div>
+                <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                  <span className="bg-[#0D0C0B]/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-mono uppercase text-neutral-300 border border-neutral-800">
+                    {activeItemModal.type}
+                  </span>
+                  {activeItemModal.is_chef_special && (
+                    <span className="bg-[#D4AF37] text-black px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase flex items-center gap-1 shadow-md">
+                      <Sparkles className="w-3 h-3" />
+                      Chef Special
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Dish Information */}
+              <div className="p-5 sm:p-6 space-y-5">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#D4AF37] px-2 py-0.5 rounded bg-[#1C1A17] border border-[#D4AF37]/30">
+                      {activeItemModal.type === 'food' ? 'Culinary Creation' : 'Artisanal Beverage'}
+                    </span>
+                    {activeItemModal.is_chef_special && (
+                      <span className="text-[10px] font-mono uppercase text-amber-300 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+                        Executive Recommendation
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">{activeItemModal.name}</h2>
+                  <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed mt-2.5">{activeItemModal.description}</p>
+                </div>
+
+                {/* Culinary Details Badges */}
+                <div className="grid grid-cols-2 gap-2.5 p-3.5 bg-[#0D0C0B] rounded-2xl border border-neutral-800/80 text-xs">
+                  <div className="flex items-center gap-2 text-neutral-300">
+                    <Clock className="w-4 h-4 text-[#D4AF37] shrink-0" />
+                    <span>Prep: <strong className="text-white">~{activeItemModal.prep_time_minutes || 20} mins</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-neutral-300">
+                    <Flame className="w-4 h-4 text-rose-500 shrink-0" />
+                    <span>Spice: <strong className="text-white">{activeItemModal.spicy_level ? `${activeItemModal.spicy_level}/3` : 'Mild'}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-neutral-300">
+                    <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+                    <span>Origin: <strong className="text-white">Authentic Kigali</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-neutral-300">
+                    <UtensilsCrossed className="w-4 h-4 text-[#D4AF37]" />
+                    <span>Fulfillment: <strong className="text-white">Dine-in / Delivery</strong></span>
+                  </div>
+                </div>
+
+                {/* Additional Culinary Notes */}
+                <div className="p-3 bg-[#181715] rounded-xl border border-neutral-800/60 text-[11px] text-neutral-400 space-y-1">
+                  <div className="flex items-center gap-1.5 text-neutral-300 font-medium">
+                    <Info className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>Dietary & Kitchen Notes</span>
+                  </div>
+                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Custom dietary preferences or allergen inquiries can also be noted during checkout.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sticky Modal Footer for Instant Order Action */}
+            <div className="p-4 sm:p-5 bg-[#100F0E] border-t border-neutral-800 flex items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center bg-[#0D0C0B] border border-neutral-700 rounded-xl p-1 shrink-0">
+                <button
+                  onClick={() => setModalQuantity(Math.max(1, modalQuantity - 1))}
+                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  -
+                </button>
+                <span className="w-8 text-center font-mono font-bold text-white text-sm">{modalQuantity}</span>
+                <button
+                  onClick={() => setModalQuantity(modalQuantity + 1)}
+                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  onAddToCart(activeItemModal, modalQuantity);
+                  setActiveItemModal(null);
+                }}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-serif font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span className="truncate">Add {modalQuantity} to Order • {(activeItemModal.price * modalQuantity).toLocaleString()} RWF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

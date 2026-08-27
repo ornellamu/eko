@@ -16,7 +16,8 @@ class LocalRelationalStorage {
     gallery: [],
     restaurant_settings: [],
     contact_messages: [],
-    activity_logs: []
+    activity_logs: [],
+    notifications: []
   };
   private autoIncrements: Record<string, number> = {
     users: 1,
@@ -30,7 +31,8 @@ class LocalRelationalStorage {
     gallery: 1,
     restaurant_settings: 1,
     contact_messages: 1,
-    activity_logs: 1
+    activity_logs: 1,
+    notifications: 1
   };
   private storageFile: string;
 

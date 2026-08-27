@@ -5,9 +5,7 @@ import {
   Utensils, 
   Calendar, 
   ShoppingBag, 
-  MessageSquare, 
   Settings, 
-  Activity, 
   LogOut, 
   Search, 
   Plus, 
@@ -23,17 +21,31 @@ import {
   Eye,
   AlertCircle,
   Sparkles,
-  ChevronRight,
-  Database
+  Database,
+  ArrowRight,
+  Sliders,
+  Check,
+  X,
+  Image as ImageIcon,
+  Trash2
 } from 'lucide-react';
-import { AuthUser, MenuItemData, CategoryItem } from '../../types';
+import { AuthUser, MenuItemData, CategoryItem, OrderData, ReservationData } from '../../types';
 import { 
   fetchMenuItems, 
   fetchCategories, 
-  fetchTableData, 
-  fetchPublicInfo, 
-  userLogout,
-  verifyAdminAccess
+  fetchAdminStats,
+  fetchAdminOrders,
+  updateAdminOrderStatus,
+  fetchAdminReservations,
+  updateAdminReservationStatus,
+  toggleAdminMenuItemAvailability,
+  createAdminMenuItem,
+  fetchAdminActivityLogs,
+  fetchPublicGallery,
+  createAdminGalleryItem,
+  deleteAdminGalleryItem,
+  fetchAdminSettings,
+  updateAdminSettings
 } from '../../services/api';
 
 interface AdminDashboardProps {
@@ -49,111 +61,75 @@ export function AdminDashboard({
   onLogout,
   onOpenStageVerification
 }: AdminDashboardProps) {
-  const [activeSection, setActiveSection] = useState<'overview' | 'menu' | 'reservations' | 'orders' | 'messages' | 'settings' | 'audit'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'menu' | 'reservations' | 'orders' | 'gallery' | 'settings' | 'logs'>('overview');
   
   // Data states
+  const [metrics, setMetrics] = useState<any>(null);
+  const [orders, setOrders] = useState<OrderData[]>([]);
+  const [reservations, setReservations] = useState<ReservationData[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [restaurantInfo, setRestaurantInfo] = useState<any>(null);
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [restaurantSettings, setRestaurantSettings] = useState<Record<string, string>>({});
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
-  const [contactMessages, setContactMessages] = useState<any[]>([]);
-  const [usersCount, setUsersCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedType, setSelectedType] = useState<'all' | 'food' | 'drink'>('all');
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Mock initial orders for rich operational management
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-10492',
-      customer: 'Jean-Luc Bizimana',
-      phone: '0788 123 456',
-      address: 'Nyarutarama, Kigali',
-      items: '2x Grilled Prime Ribeye, 1x Chateau Musar Red',
-      total: 76000,
-      status: 'In Kitchen',
-      time: '12 mins ago'
-    },
-    {
-      id: 'ORD-10491',
-      customer: 'Aline Umutoni',
-      phone: '0788 987 654',
-      address: 'Kiyovu, Kigali KK 28',
-      items: '1x Pan-Seared Salmon Fillet, 1x Sparkling San Pellegrino',
-      total: 31000,
-      status: 'Ready for Pickup',
-      time: '28 mins ago'
-    },
-    {
-      id: 'ORD-10490',
-      customer: 'David Nshimiyimana',
-      phone: '0788 444 333',
-      address: 'Kimihurura, Kigali',
-      items: '3x Kigali Sunset Cocktails, 1x Truffle Risotto',
-      total: 48000,
-      status: 'Delivered',
-      time: '1 hour ago'
-    }
-  ]);
+  // New Menu Item Form Modal
+  const [showAddMenuModal, setShowAddMenuModal] = useState(false);
+  const [newMenuItem, setNewMenuItem] = useState({
+    categoryId: 1,
+    name: '',
+    description: '',
+    price: 15000,
+    imageUrl: '',
+    isChefSpecial: false,
+    spicyLevel: 0,
+    prepTimeMinutes: 20
+  });
 
-  // Mock initial reservations
-  const [reservations, setReservations] = useState([
-    {
-      id: 'RES-8821',
-      guestName: 'Eric Manzi',
-      phone: '0701537890',
-      email: 'eric.manzi@eko.rw',
-      date: 'Tonight',
-      time: '19:30',
-      guests: 4,
-      seating: 'Kigali Sunset Terrace',
-      status: 'Confirmed'
-    },
-    {
-      id: 'RES-8820',
-      guestName: 'Grace Uwase',
-      phone: '0788 555 111',
-      email: 'grace@example.com',
-      date: 'Tonight',
-      time: '20:00',
-      guests: 2,
-      seating: 'VIP Private Suite',
-      status: 'Confirmed'
-    },
-    {
-      id: 'RES-8819',
-      guestName: 'Marc Habimana',
-      phone: '0788 222 999',
-      email: 'marc@example.com',
-      date: 'Tomorrow',
-      time: '13:00',
-      guests: 6,
-      seating: 'Grand Dining Hall',
-      status: 'Pending Review'
-    }
-  ]);
+  // New Gallery Item Modal
+  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [newGalleryItem, setNewGalleryItem] = useState({
+    title: '',
+    description: '',
+    imageUrl: '',
+    category: 'Interior',
+    displayOrder: 1
+  });
+
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setNotice({ type, text });
+    setTimeout(() => setNotice(null), 3500);
+  };
 
   const loadData = async () => {
+    if (!authToken) return;
     try {
       setLoading(true);
-      const [menuRes, catRes, infoRes, logsRes, msgRes, usersRes] = await Promise.all([
-        fetchMenuItems(),
-        fetchCategories(),
-        fetchPublicInfo(),
-        fetchTableData('activity_logs').catch(() => ({ data: [] })),
-        fetchTableData('contact_messages').catch(() => ({ data: [] })),
-        fetchTableData('users').catch(() => ({ count: 0 }))
+      const [statsRes, ordersRes, resRes, menuRes, catRes, logsRes, galRes, setRes] = await Promise.all([
+        fetchAdminStats(authToken).catch(() => ({ data: { metrics: null } })),
+        fetchAdminOrders(authToken).catch(() => ({ data: { orders: [] } })),
+        fetchAdminReservations(authToken).catch(() => ({ data: { reservations: [] } })),
+        fetchMenuItems().catch(() => ({ data: [] })),
+        fetchCategories().catch(() => ({ data: [] })),
+        fetchAdminActivityLogs(authToken).catch(() => ({ data: { logs: [] } })),
+        fetchPublicGallery().catch(() => ({ data: { gallery: [] } })),
+        fetchAdminSettings(authToken).catch(() => ({ data: { settings: {} } }))
       ]);
 
+      setMetrics(statsRes.data?.metrics || null);
+      setOrders(ordersRes.data?.orders || []);
+      setReservations(resRes.data?.reservations || []);
       setMenuItems(menuRes.data || []);
       setCategories(catRes.data || []);
-      setRestaurantInfo(infoRes.data || null);
-      setActivityLogs(logsRes.data || []);
-      setContactMessages(msgRes.data || []);
-      setUsersCount(usersRes.count || 0);
+      setActivityLogs(logsRes.data?.logs || []);
+      setGalleryItems(galRes.data?.gallery || []);
+      setRestaurantSettings(setRes.data?.settings || {});
     } catch (err: any) {
-      console.error('Failed to load admin data', err);
+      showToast('error', err.message || 'Failed to load dashboard metrics');
     } finally {
       setLoading(false);
     }
@@ -161,83 +137,166 @@ export function AdminDashboard({
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [authToken]);
 
-  const handleUpdateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders((prev) =>
-      prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
-    );
-    setNotice({ type: 'success', text: `Order ${orderId} updated to '${newStatus}'` });
+  const handleOrderStatusUpdate = async (orderId: number, newStatus: string) => {
+    if (!authToken) return;
+    try {
+      await updateAdminOrderStatus(authToken, orderId, newStatus);
+      showToast('success', `Order #${orderId} marked as ${newStatus}`);
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to update order');
+    }
   };
 
-  const handleUpdateReservationStatus = (resId: string, newStatus: string) => {
-    setReservations((prev) =>
-      prev.map((res) => (res.id === resId ? { ...res, status: newStatus } : res))
-    );
-    setNotice({ type: 'success', text: `Reservation ${resId} marked as '${newStatus}'` });
+  const handleReservationStatusUpdate = async (resId: number, newStatus: string) => {
+    if (!authToken) return;
+    try {
+      await updateAdminReservationStatus(authToken, resId, newStatus);
+      showToast('success', `Reservation #${resId} marked as ${newStatus}`);
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to update reservation');
+    }
   };
 
-  const handleToggleItemAvailability = (itemId: number) => {
-    setMenuItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, is_available: !item.is_available } : item
-      )
-    );
-    setNotice({ type: 'success', text: `Menu item availability toggled` });
+  const handleToggleItem = async (itemId: number) => {
+    if (!authToken) return;
+    try {
+      await toggleAdminMenuItemAvailability(authToken, itemId);
+      showToast('success', 'Item availability updated in live menu');
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to toggle item');
+    }
   };
 
-  const filteredMenuItems = menuItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const handleCreateMenuItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authToken) return;
+    try {
+      await createAdminMenuItem(authToken, newMenuItem);
+      showToast('success', `"${newMenuItem.name}" created and added to live menu`);
+      setShowAddMenuModal(false);
+      setNewMenuItem({
+        categoryId: 1,
+        name: '',
+        description: '',
+        price: 15000,
+        imageUrl: '',
+        isChefSpecial: false,
+        spicyLevel: 0,
+        prepTimeMinutes: 20
+      });
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to create item');
+    }
+  };
+
+  const handleCreateGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authToken) return;
+    try {
+      await createAdminGalleryItem(authToken, newGalleryItem);
+      showToast('success', `Gallery photo "${newGalleryItem.title}" published`);
+      setShowAddGalleryModal(false);
+      setNewGalleryItem({
+        title: '',
+        description: '',
+        imageUrl: '',
+        category: 'Interior',
+        displayOrder: 1
+      });
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to add gallery item');
+    }
+  };
+
+  const handleDeleteGalleryItem = async (id: number) => {
+    if (!authToken) return;
+    try {
+      await deleteAdminGalleryItem(authToken, id);
+      showToast('success', 'Gallery photo deleted');
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to delete gallery item');
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authToken) return;
+    try {
+      await updateAdminSettings(authToken, restaurantSettings);
+      showToast('success', 'Restaurant settings saved and live');
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to save settings');
+    }
+  };
+
+  // Filtered menu
+  const filteredMenu = menuItems.filter((item) => {
     const matchesType = selectedType === 'all' || item.type === selectedType;
-    return matchesSearch && matchesType;
+    const matchesSearch = 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesSearch;
   });
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] flex flex-col font-sans selection:bg-[#d4af37]/30 selection:text-[#f3e5ab]">
-      {/* Top Admin Navigation Header */}
-      <header className="border-b border-[#27272a] bg-[#111114]/95 backdrop-blur-md sticky top-0 z-50">
+    <div className="min-h-screen bg-[#0A0908] text-neutral-200 font-sans">
+      {/* Toast Notice */}
+      {notice && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-semibold text-xs border animate-in fade-in slide-in-from-bottom-2 ${
+          notice.type === 'success' ? 'bg-[#D4AF37] text-black border-amber-300' : 'bg-rose-900 text-rose-100 border-rose-700'
+        }`}>
+          {notice.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          <span>{notice.text}</span>
+        </div>
+      )}
+
+      {/* Admin Header */}
+      <header className="border-b border-neutral-800/80 bg-[#121110]/95 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] text-black flex items-center justify-center font-serif font-bold text-xl shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-              E
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#B8860B] flex items-center justify-center text-black font-bold shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif font-bold tracking-wider text-lg text-white">EKO RESTAURANT</span>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[#d4af37] text-[10px] font-mono uppercase font-bold tracking-wider">
-                  Admin Portal
+                <span className="font-serif text-xl font-bold tracking-wider text-white">EKO EXECUTIVE PORTAL</span>
+                <span className="text-[10px] font-mono uppercase bg-amber-950/70 border border-amber-800/50 text-[#D4AF37] px-2 py-0.5 rounded-full">
+                  Admin • Master Suite
                 </span>
               </div>
-              <p className="text-[11px] text-[#a1a1aa] font-mono">
-                Kigali Executive Management Console
-              </p>
+              <p className="text-xs text-neutral-400 font-light">Kigali KK 554 • Live Operations & Governance</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {onOpenStageVerification && (
               <button
                 onClick={onOpenStageVerification}
-                className="px-3 py-1.5 rounded-lg bg-[#18181c] hover:bg-[#222228] border border-[#27272a] text-neutral-300 text-xs font-mono flex items-center gap-1.5 transition-all"
+                className="px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37]/60 text-neutral-300 hover:text-white text-xs font-mono flex items-center gap-2 transition-colors"
               >
-                <Layers className="w-3.5 h-3.5 text-[#d4af37]" />
+                <Database className="w-3.5 h-3.5 text-[#D4AF37]" />
                 <span>Verification Matrix</span>
               </button>
             )}
 
-            <div className="hidden sm:flex items-center gap-3 bg-[#18181c] border border-[#27272a] px-3.5 py-1.5 rounded-xl text-xs">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <div>
-                <span className="font-semibold text-white">{currentUser.username || currentUser.full_name || 'Admin'}</span>
-                <span className="text-[10px] text-[#d4af37] block font-mono">Role: Administrator</span>
-              </div>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-white font-medium">{currentUser.full_name || currentUser.username}</span>
             </div>
 
             <button
               onClick={onLogout}
-              className="p-2 rounded-xl bg-red-950/40 hover:bg-red-900/50 border border-red-800/40 text-red-300 transition-colors"
-              title="Logout from Admin Portal"
+              className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-rose-400 hover:border-rose-900/50 transition-colors"
+              title="Logout"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -245,558 +304,839 @@ export function AdminDashboard({
         </div>
       </header>
 
-      {/* Main Admin Workspace Layout */}
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col md:flex-row gap-8">
-        {/* Left Navigation Sidebar */}
-        <aside className="w-full md:w-64 shrink-0 space-y-2">
-          <div className="p-3 bg-[#121216] border border-[#27272a] rounded-2xl space-y-1">
-            <button
-              onClick={() => setActiveSection('overview')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'overview'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span>Operations Overview</span>
-            </button>
+      {/* Navigation Sub-bar */}
+      <div className="border-b border-neutral-800/60 bg-[#0E0D0C]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto py-2">
+          <button
+            onClick={() => setActiveSection('overview')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'overview'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Overview Metrics</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('menu')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'menu'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <Utensils className="w-4 h-4" />
-              <span>Menu Items ({menuItems.length})</span>
-            </button>
+          <button
+            onClick={() => setActiveSection('orders')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'orders'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Orders Dispatch ({orders.length})</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('orders')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'orders'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Live Orders ({orders.length})</span>
-            </button>
+          <button
+            onClick={() => setActiveSection('reservations')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'reservations'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Maître d' Reservations ({reservations.length})</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('reservations')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'reservations'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Reservations ({reservations.length})</span>
-            </button>
+          <button
+            onClick={() => setActiveSection('menu')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'menu'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Utensils className="w-3.5 h-3.5" />
+            <span>Menu Catalog ({menuItems.length})</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('messages')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'messages'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>Inquiries ({contactMessages.length})</span>
-            </button>
+          <button
+            onClick={() => setActiveSection('gallery')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'gallery'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>Ambiance Gallery ({galleryItems.length})</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('settings')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'settings'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Restaurant Details</span>
-            </button>
+          <button
+            onClick={() => setActiveSection('settings')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'settings'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Restaurant Settings</span>
+          </button>
 
-            <button
-              onClick={() => setActiveSection('audit')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeSection === 'audit'
-                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-bold shadow-lg'
-                  : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181c]'
-              }`}
-            >
-              <Activity className="w-4 h-4" />
-              <span>Audit Logs</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setActiveSection('logs')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'logs'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Audit Trail</span>
+          </button>
+        </div>
+      </div>
 
-          {/* Quick Info Box */}
-          <div className="p-4 bg-[#121216] border border-[#27272a] rounded-2xl text-xs space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#d4af37] block">
-              Kigali Concierge
-            </span>
-            <p className="text-neutral-300">
-              Address: <strong className="text-white">KK 554</strong>
-            </p>
-            <p className="text-neutral-300">
-              Hotline: <strong className="text-white">0701537890</strong>
-            </p>
-            <p className="text-neutral-300">
-              Hours: <strong className="text-white">10:00 – 23:00</strong>
-            </p>
-          </div>
-        </aside>
-
-        {/* Right Main Content Panel */}
-        <main className="flex-1 space-y-6">
-          {notice && (
-            <div className={`p-4 rounded-xl border flex items-center justify-between ${
-              notice.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
-            }`}>
-              <div className="flex items-center gap-2 text-xs font-semibold">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{notice.text}</span>
+      {/* Main Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Section 1: Overview Metrics */}
+        {activeSection === 'overview' && (
+          <div className="space-y-8 animate-in fade-in">
+            {/* Top Metric Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-2 shadow-xl">
+                <div className="flex items-center justify-between text-neutral-400 text-xs font-mono">
+                  <span>Gross Revenue</span>
+                  <DollarSign className="w-4 h-4 text-[#D4AF37]" />
+                </div>
+                <div className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  {(metrics?.totalRevenueRwf || 0).toLocaleString()} <span className="text-xs font-sans text-amber-300">RWF</span>
+                </div>
+                <p className="text-[11px] text-neutral-500">Combined Kigali delivery & dine-in orders</p>
               </div>
-              <button onClick={() => setNotice(null)} className="text-xs opacity-70 hover:opacity-100">
-                Dismiss
-              </button>
+
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-2 shadow-xl">
+                <div className="flex items-center justify-between text-neutral-400 text-xs font-mono">
+                  <span>Total Placed Orders</span>
+                  <ShoppingBag className="w-4 h-4 text-[#D4AF37]" />
+                </div>
+                <div className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  {orders.length}
+                </div>
+                <p className="text-[11px] text-emerald-400">
+                  {orders.filter(o => o.status === 'delivered' || o.status === 'completed').length} completed
+                </p>
+              </div>
+
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-2 shadow-xl">
+                <div className="flex items-center justify-between text-neutral-400 text-xs font-mono">
+                  <span>Table Reservations</span>
+                  <Calendar className="w-4 h-4 text-[#D4AF37]" />
+                </div>
+                <div className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  {reservations.length}
+                </div>
+                <p className="text-[11px] text-neutral-500">Terrace, Grand Hall & VIP Suite</p>
+              </div>
+
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-2 shadow-xl">
+                <div className="flex items-center justify-between text-neutral-400 text-xs font-mono">
+                  <span>Active Menu Dishes</span>
+                  <Utensils className="w-4 h-4 text-[#D4AF37]" />
+                </div>
+                <div className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  {menuItems.filter(m => m.is_available).length} / {menuItems.length}
+                </div>
+                <p className="text-[11px] text-neutral-500">Live on customer ordering menu</p>
+              </div>
             </div>
-          )}
 
-          {/* SECTION 1: OVERVIEW METRICS */}
-          {activeSection === 'overview' && (
-            <div className="space-y-6 animate-fadeIn">
-              {/* Metric Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-[#121216] border border-[#27272a] space-y-2">
-                  <div className="flex items-center justify-between text-[#a1a1aa]">
-                    <span className="text-xs font-mono uppercase">Today's Revenue</span>
-                    <DollarSign className="w-4 h-4 text-[#d4af37]" />
-                  </div>
-                  <p className="font-serif text-2xl font-bold text-white">
-                    155,000 <span className="text-xs font-mono text-[#d4af37]">RWF</span>
-                  </p>
-                  <p className="text-[11px] text-emerald-400">+18% from yesterday</p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#121216] border border-[#27272a] space-y-2">
-                  <div className="flex items-center justify-between text-[#a1a1aa]">
-                    <span className="text-xs font-mono uppercase">Active Orders</span>
-                    <ShoppingBag className="w-4 h-4 text-[#d4af37]" />
-                  </div>
-                  <p className="font-serif text-2xl font-bold text-white">
-                    {orders.length} <span className="text-xs font-mono text-neutral-400">orders</span>
-                  </p>
-                  <p className="text-[11px] text-amber-300">2 In Kitchen, 1 Ready</p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#121216] border border-[#27272a] space-y-2">
-                  <div className="flex items-center justify-between text-[#a1a1aa]">
-                    <span className="text-xs font-mono uppercase">Table Bookings</span>
-                    <Calendar className="w-4 h-4 text-[#d4af37]" />
-                  </div>
-                  <p className="font-serif text-2xl font-bold text-white">
-                    {reservations.length} <span className="text-xs font-mono text-neutral-400">tables</span>
-                  </p>
-                  <p className="text-[11px] text-emerald-400">Terrace & VIP Suite booked</p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#121216] border border-[#27272a] space-y-2">
-                  <div className="flex items-center justify-between text-[#a1a1aa]">
-                    <span className="text-xs font-mono uppercase">Menu Items</span>
-                    <Utensils className="w-4 h-4 text-[#d4af37]" />
-                  </div>
-                  <p className="font-serif text-2xl font-bold text-white">
-                    {menuItems.length} <span className="text-xs font-mono text-neutral-400">dishes/drinks</span>
-                  </p>
-                  <p className="text-[11px] text-neutral-400">Across {categories.length} categories</p>
-                </div>
-              </div>
-
-              {/* Live Kitchen & Orders Board */}
-              <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-[#d4af37]" />
-                    <h3 className="font-serif text-lg font-bold text-white">Live Kitchen Orders</h3>
-                  </div>
-                  <button
-                    onClick={() => setActiveSection('orders')}
-                    className="text-xs text-[#d4af37] hover:underline font-mono"
-                  >
-                    View All Orders →
+            {/* Quick Orders & Reservations Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Orders */}
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+                  <h3 className="font-serif text-lg font-bold text-white">Live Dispatches</h3>
+                  <button onClick={() => setActiveSection('orders')} className="text-xs text-[#D4AF37] hover:underline">
+                    View all orders
                   </button>
                 </div>
-
-                <div className="divide-y divide-neutral-800">
-                  {orders.map((ord) => (
-                    <div key={ord.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-3">
+                  {orders.slice(0, 5).map((o) => (
+                    <div key={o.id} className="p-3 bg-[#0D0C0B] border border-neutral-800/80 rounded-2xl flex items-center justify-between text-xs">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-[#d4af37]">{ord.id}</span>
-                          <span className="text-sm font-semibold text-white">{ord.customer}</span>
-                          <span className="text-[10px] text-neutral-500 font-mono">({ord.time})</span>
-                        </div>
-                        <p className="text-xs text-neutral-400 mt-0.5">{ord.items}</p>
-                        <p className="text-[11px] text-neutral-500">{ord.address} • {ord.phone}</p>
+                        <span className="font-mono text-amber-300 font-bold block">{o.order_number}</span>
+                        <span className="text-neutral-400">{o.customer_name} • {o.order_type}</span>
                       </div>
+                      <div className="text-right">
+                        <span className="font-bold text-white block">{o.total_amount.toLocaleString()} RWF</span>
+                        <span className="text-[10px] uppercase font-bold text-amber-400">{o.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-sm font-bold text-white">
-                          {ord.total.toLocaleString()} RWF
-                        </span>
-                        <select
-                          value={ord.status}
-                          onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
-                          className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-700 text-xs text-amber-300 font-semibold focus:outline-none"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="In Kitchen">In Kitchen</option>
-                          <option value="Ready for Pickup">Ready for Pickup</option>
-                          <option value="Out for Delivery">Out for Delivery</option>
-                          <option value="Delivered">Delivered</option>
-                        </select>
+              {/* Recent Reservations */}
+              <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+                  <h3 className="font-serif text-lg font-bold text-white">Upcoming Table Bookings</h3>
+                  <button onClick={() => setActiveSection('reservations')} className="text-xs text-[#D4AF37] hover:underline">
+                    View all bookings
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {reservations.slice(0, 5).map((r) => (
+                    <div key={r.id} className="p-3 bg-[#0D0C0B] border border-neutral-800/80 rounded-2xl flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-mono text-amber-300 font-bold block">{r.reservation_code}</span>
+                        <span className="text-neutral-400">{r.guest_name} • {r.guests_count} Guests</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-white block">{r.reservation_date} @ {r.reservation_time}</span>
+                        <span className="text-[10px] uppercase font-bold text-emerald-400">{r.status}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* SECTION 2: MENU MANAGEMENT */}
-          {activeSection === 'menu' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-serif text-2xl font-bold text-white">Menu Catalog Management</h3>
-                  <p className="text-xs text-neutral-400">Manage all 35 authentic Kigali food & beverage offerings</p>
+        {/* Section 2: Orders Management */}
+        {activeSection === 'orders' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Live Orders Dispatch</h3>
+                <p className="text-xs text-neutral-400">Track and advance order states across Kigali delivery, pickup, and dine-in</p>
+              </div>
+              <button
+                onClick={loadData}
+                className="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 hover:text-white flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Refresh Orders</span>
+              </button>
+            </div>
+
+            <div className="bg-[#141312] border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+              <table className="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-neutral-800 text-neutral-500 uppercase bg-[#0D0C0B]/60">
+                    <th className="p-4">Reference</th>
+                    <th className="p-4">Customer</th>
+                    <th className="p-4">Type</th>
+                    <th className="p-4">Total Amount</th>
+                    <th className="p-4">Payment</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 text-right">Advance Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-800/60">
+                  {orders.map((o) => (
+                    <tr key={o.id} className="hover:bg-neutral-900/40 transition-colors">
+                      <td className="p-4 font-bold text-amber-300">{o.order_number}</td>
+                      <td className="p-4">
+                        <span className="font-bold text-white block">{o.customer_name}</span>
+                        <span className="text-[11px] text-neutral-400">{o.customer_phone}</span>
+                      </td>
+                      <td className="p-4 uppercase text-neutral-400">{o.order_type}</td>
+                      <td className="p-4 font-bold text-white">{o.total_amount.toLocaleString()} RWF</td>
+                      <td className="p-4 uppercase text-neutral-400">{o.payment_method}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          o.status === 'delivered' || o.status === 'completed'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40'
+                            : o.status === 'preparing' || o.status === 'out_for_delivery'
+                            ? 'bg-amber-950 text-amber-300 border border-amber-800/40'
+                            : 'bg-neutral-800 text-neutral-300'
+                        }`}>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <select
+                          value={o.status}
+                          onChange={(e) => handleOrderStatusUpdate(o.id, e.target.value)}
+                          className="bg-[#0D0C0B] border border-neutral-700 text-white rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#D4AF37]"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="preparing">Preparing</option>
+                          <option value="ready">Ready</option>
+                          <option value="out_for_delivery">Out for Delivery</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Section 3: Reservations Management */}
+        {activeSection === 'reservations' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Maître d' Table Reservations</h3>
+                <p className="text-xs text-neutral-400">Manage seating across Kigali Sunset Terrace, Grand Hall, and VIP Suite</p>
+              </div>
+              <button
+                onClick={loadData}
+                className="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 hover:text-white flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Refresh Reservations</span>
+              </button>
+            </div>
+
+            <div className="bg-[#141312] border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+              <table className="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-neutral-800 text-neutral-500 uppercase bg-[#0D0C0B]/60">
+                    <th className="p-4">Code</th>
+                    <th className="p-4">Guest</th>
+                    <th className="p-4">Date & Time</th>
+                    <th className="p-4">Guests</th>
+                    <th className="p-4">Zone</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 text-right">Seating Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-800/60">
+                  {reservations.map((r) => (
+                    <tr key={r.id} className="hover:bg-neutral-900/40 transition-colors">
+                      <td className="p-4 font-bold text-amber-300">{r.reservation_code}</td>
+                      <td className="p-4">
+                        <span className="font-bold text-white block">{r.guest_name}</span>
+                        <span className="text-[11px] text-neutral-400">{r.guest_phone}</span>
+                      </td>
+                      <td className="p-4 text-white">{r.reservation_date} • {r.reservation_time}</td>
+                      <td className="p-4 text-amber-300 font-bold">{r.guests_count} Guests</td>
+                      <td className="p-4 capitalize text-neutral-300">{r.seating_preference || 'Grand Hall'}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          r.status === 'confirmed' || r.status === 'seated'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40'
+                            : 'bg-neutral-800 text-neutral-300'
+                        }`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <select
+                          value={r.status}
+                          onChange={(e) => handleReservationStatusUpdate(r.id, e.target.value)}
+                          className="bg-[#0D0C0B] border border-neutral-700 text-white rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#D4AF37]"
+                        >
+                          <option value="confirmed">Confirmed</option>
+                          <option value="seated">Seated</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Section 4: Menu Items Management */}
+        {activeSection === 'menu' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Menu Catalog & Pricing</h3>
+                <p className="text-xs text-neutral-400">Control availability and exact RWF pricing for all dishes and beverages</p>
+              </div>
+              <button
+                onClick={() => setShowAddMenuModal(true)}
+                className="px-4 py-2 bg-[#D4AF37] hover:bg-amber-400 text-black font-bold text-xs uppercase rounded-xl flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Dish / Wine</span>
+              </button>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-[#141312] p-4 rounded-2xl border border-neutral-800">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedType('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                    selectedType === 'all' ? 'bg-[#D4AF37] text-black font-bold' : 'bg-neutral-900 text-neutral-400'
+                  }`}
+                >
+                  All Items ({menuItems.length})
+                </button>
+                <button
+                  onClick={() => setSelectedType('food')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                    selectedType === 'food' ? 'bg-[#D4AF37] text-black font-bold' : 'bg-neutral-900 text-neutral-400'
+                  }`}
+                >
+                  Cuisine Only
+                </button>
+                <button
+                  onClick={() => setSelectedType('drink')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                    selectedType === 'drink' ? 'bg-[#D4AF37] text-black font-bold' : 'bg-neutral-900 text-neutral-400'
+                  }`}
+                >
+                  Beverages & Wines
+                </button>
+              </div>
+
+              <div className="relative w-72">
+                <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filter by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+            </div>
+
+            {/* Menu Items Table */}
+            <div className="bg-[#141312] border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+              <table className="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-neutral-800 text-neutral-500 uppercase bg-[#0D0C0B]/60">
+                    <th className="p-4">Dish / Beverage</th>
+                    <th className="p-4">Type</th>
+                    <th className="p-4">Price (RWF)</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 text-right">Availability Toggle</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-800/60">
+                  {filteredMenu.map((item) => (
+                    <tr key={item.id} className="hover:bg-neutral-900/40 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={item.image_url || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=100&q=80'}
+                            alt={item.name}
+                            className="w-10 h-10 rounded-lg object-cover bg-neutral-900"
+                          />
+                          <div>
+                            <p className="font-serif text-sm font-bold text-white">{item.name}</p>
+                            <p className="text-[11px] text-neutral-400 truncate max-w-xs font-sans">{item.description}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 uppercase text-neutral-400">{item.type}</td>
+                      <td className="p-4 font-bold text-amber-300">{item.price.toLocaleString()} RWF</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          item.is_available 
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40' 
+                            : 'bg-rose-950 text-rose-400 border border-rose-800/40'
+                        }`}>
+                          {item.is_available ? 'Available' : 'Sold Out'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => handleToggleItem(item.id)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                            item.is_available
+                              ? 'bg-neutral-800 hover:bg-rose-950 hover:text-rose-300 text-neutral-300'
+                              : 'bg-emerald-950 text-emerald-300 border border-emerald-700/50'
+                          }`}
+                        >
+                          {item.is_available ? 'Disable Item' : 'Enable Item'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Section 5: Gallery Management (Stage 13) */}
+        {activeSection === 'gallery' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Ambiance Gallery Management</h3>
+                <p className="text-xs text-neutral-400">Curate photo visual assets across Sunset Terrace, Dining Halls, Bar, and Cuisine</p>
+              </div>
+              <button
+                onClick={() => setShowAddGalleryModal(true)}
+                className="px-4 py-2 bg-[#D4AF37] hover:bg-amber-400 text-black font-bold text-xs uppercase rounded-xl flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Gallery Photo</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryItems.map((item) => (
+                <div key={item.id} className="bg-[#141312] border border-neutral-800 rounded-3xl overflow-hidden shadow-xl group">
+                  <div className="aspect-[4/3] overflow-hidden relative">
+                    <img
+                      src={item.image_url}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md border border-neutral-700 text-[#D4AF37] text-[10px] font-mono uppercase px-2.5 py-1 rounded-full">
+                      {item.category || 'Interior'}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteGalleryItem(item.id)}
+                      className="absolute top-3 right-3 p-2 rounded-xl bg-black/80 text-neutral-400 hover:text-rose-400 border border-neutral-700 hover:border-rose-900 transition-colors"
+                      title="Delete Photo"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="p-5 space-y-1">
+                    <h4 className="font-serif text-base font-bold text-white">{item.title}</h4>
+                    <p className="text-xs text-neutral-400 line-clamp-2">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Section 6: Restaurant Settings Management (Stage 13) */}
+        {activeSection === 'settings' && (
+          <div className="space-y-6 animate-in fade-in max-w-3xl">
+            <div>
+              <h3 className="font-serif text-2xl font-bold text-white">Dynamic Restaurant Metadata</h3>
+              <p className="text-xs text-neutral-400">Edit real-time location address, contact numbers, slogan, opening hours and delivery fees</p>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">Restaurant Name</label>
+                  <input
+                    type="text"
+                    value={restaurantSettings.restaurant_name || 'Eko Restaurant'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, restaurant_name: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedType('all')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      selectedType === 'all' ? 'bg-[#d4af37] text-black' : 'bg-neutral-800 text-neutral-300'
-                    }`}
-                  >
-                    All ({menuItems.length})
-                  </button>
-                  <button
-                    onClick={() => setSelectedType('food')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      selectedType === 'food' ? 'bg-[#d4af37] text-black' : 'bg-neutral-800 text-neutral-300'
-                    }`}
-                  >
-                    Food
-                  </button>
-                  <button
-                    onClick={() => setSelectedType('drink')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      selectedType === 'drink' ? 'bg-[#d4af37] text-black' : 'bg-neutral-800 text-neutral-300'
-                    }`}
-                  >
-                    Drinks
-                  </button>
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">Location Address</label>
+                  <input
+                    type="text"
+                    value={restaurantSettings.address || 'Kigali, KK 554'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, address: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">Phone Number</label>
+                  <input
+                    type="text"
+                    value={restaurantSettings.phone || '0701537890'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, phone: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">WhatsApp Concierge</label>
+                  <input
+                    type="text"
+                    value={restaurantSettings.whatsapp || '0701537890'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, whatsapp: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">Email Address</label>
+                  <input
+                    type="email"
+                    value={restaurantSettings.email || 'mugishamp7@gmail.com'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, email: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400 font-mono">Opening Hours</label>
+                  <input
+                    type="text"
+                    value={restaurantSettings.opening_hours || 'Every day, 10:00–23:00'}
+                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, opening_hours: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
                 </div>
               </div>
 
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="space-y-1">
+                <label className="text-xs text-neutral-400 font-mono">Brand Slogan</label>
                 <input
                   type="text"
-                  placeholder="Search dishes, beverages, ingredients..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-neutral-900 border border-neutral-700 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#d4af37]"
+                  value={restaurantSettings.slogan || 'A Symphony of Flavors, Where Kigali Meets Culinary Artistry'}
+                  onChange={(e) => setRestaurantSettings({ ...restaurantSettings, slogan: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                 />
               </div>
 
-              {/* Table of Menu Items */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-neutral-800 text-neutral-400 font-mono uppercase text-[11px]">
-                      <th className="py-3 px-2">Item</th>
-                      <th className="py-3 px-2">Type / Category</th>
-                      <th className="py-3 px-2">Price (RWF)</th>
-                      <th className="py-3 px-2">Status</th>
-                      <th className="py-3 px-2 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-800/60">
-                    {filteredMenuItems.map((item) => (
-                      <tr key={item.id} className="hover:bg-neutral-900/40">
-                        <td className="py-3 px-2 font-medium text-white flex items-center gap-3">
-                          <img
-                            src={item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=80&q=80'}
-                            alt={item.name}
-                            className="w-10 h-10 rounded-lg object-cover bg-neutral-800 shrink-0"
-                          />
-                          <div>
-                            <span className="font-semibold block">{item.name}</span>
-                            <span className="text-[10px] text-neutral-500 line-clamp-1">{item.description}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-2">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase ${
-                            item.type === 'food' ? 'bg-amber-500/10 text-amber-300' : 'bg-sky-500/10 text-sky-300'
-                          }`}>
-                            {item.type}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2 font-mono font-bold text-amber-300">
-                          {item.price.toLocaleString()} RWF
-                        </td>
-                        <td className="py-3 px-2">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            item.is_available !== false
-                              ? 'bg-emerald-500/20 text-emerald-300'
-                              : 'bg-rose-500/20 text-rose-300'
-                          }`}>
-                            {item.is_available !== false ? 'Available' : 'Unavailable'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2 text-right">
-                          <button
-                            onClick={() => handleToggleItemAvailability(item.id)}
-                            className="px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-[11px] text-neutral-300 hover:text-white"
-                          >
-                            Toggle Stock
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-1">
+                <label className="text-xs text-neutral-400 font-mono">About Story</label>
+                <textarea
+                  rows={3}
+                  value={restaurantSettings.about_story || 'Eko Restaurant celebrates the vibrant tapestry of Kigali fine-dining with artisanal local ingredients and international culinary technique.'}
+                  onChange={(e) => setRestaurantSettings({ ...restaurantSettings, about_story: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                />
               </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-[#D4AF37] hover:bg-amber-400 text-black font-bold text-xs uppercase rounded-xl shadow-lg flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Restaurant Settings</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Section 7: Activity Logs */}
+        {activeSection === 'logs' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div>
+              <h3 className="font-serif text-2xl font-bold text-white">System & Security Audit Trail</h3>
+              <p className="text-xs text-neutral-400">Security audit trail of administrator and automated dispatch events</p>
             </div>
-          )}
 
-          {/* SECTION 3: ORDERS */}
-          {activeSection === 'orders' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Live Orders Management</h3>
-                <p className="text-xs text-neutral-400">Track delivery dispatched orders & kitchen queue</p>
-              </div>
-
-              <div className="space-y-4">
-                {orders.map((ord) => (
-                  <div key={ord.id} className="p-5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-[#d4af37]">{ord.id}</span>
-                        <span className="font-semibold text-white">{ord.customer}</span>
-                        <span className="text-xs text-neutral-400 font-mono">({ord.phone})</span>
-                      </div>
-                      <p className="text-xs text-neutral-300">{ord.items}</p>
-                      <p className="text-xs text-neutral-400 flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{ord.address}</span>
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <span className="text-[10px] text-neutral-500 font-mono block">Order Total</span>
-                        <span className="font-serif text-lg font-bold text-amber-300 font-mono">
-                          {ord.total.toLocaleString()} RWF
-                        </span>
-                      </div>
-
-                      <select
-                        value={ord.status}
-                        onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
-                        className="px-3 py-1.5 rounded-lg bg-neutral-800 border border-neutral-700 text-xs text-white font-semibold focus:outline-none focus:border-[#d4af37]"
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="In Kitchen">In Kitchen</option>
-                        <option value="Ready for Pickup">Ready for Pickup</option>
-                        <option value="Out for Delivery">Out for Delivery</option>
-                        <option value="Delivered">Delivered</option>
-                      </select>
-                    </div>
+            <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-3 font-mono text-xs shadow-2xl">
+              {activityLogs.map((log, idx) => (
+                <div key={idx} className="p-3 bg-[#0D0C0B] border border-neutral-800 rounded-xl flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="px-2 py-0.5 rounded bg-neutral-800 text-[#D4AF37] font-bold text-[10px]">
+                      {log.action}
+                    </span>
+                    <span className="text-neutral-300">{log.details}</span>
                   </div>
-                ))}
-              </div>
+                  <span className="text-[11px] text-neutral-500 shrink-0">
+                    {new Date(log.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* SECTION 4: RESERVATIONS */}
-          {activeSection === 'reservations' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Table Reservations Maître d'</h3>
-                <p className="text-xs text-neutral-400">Review seating allocation and guest arrival times</p>
-              </div>
-
-              <div className="space-y-4">
-                {reservations.map((res) => (
-                  <div key={res.id} className="p-5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-[#d4af37]">{res.id}</span>
-                        <span className="font-semibold text-white">{res.guestName}</span>
-                        <span className="text-xs text-amber-300 font-bold font-mono">({res.guests} Guests)</span>
-                      </div>
-                      <p className="text-xs text-neutral-300">
-                        <strong className="text-white">{res.date} at {res.time}</strong> • Seating: {res.seating}
-                      </p>
-                      <p className="text-xs text-neutral-400 font-mono">
-                        Phone: {res.phone} • Email: {res.email}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        res.status === 'Confirmed'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                      }`}>
-                        {res.status}
-                      </span>
-
-                      <button
-                        onClick={() => handleUpdateReservationStatus(res.id, res.status === 'Confirmed' ? 'Seated' : 'Confirmed')}
-                        className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs text-white"
-                      >
-                        {res.status === 'Confirmed' ? 'Mark Seated' : 'Confirm Table'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* SECTION 5: MESSAGES / INQUIRIES */}
-          {activeSection === 'messages' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Customer Inquiries & Concierge</h3>
-                <p className="text-xs text-neutral-400">Direct messages submitted by Kigali guests</p>
-              </div>
-
-              {contactMessages.length === 0 ? (
-                <div className="p-12 text-center text-neutral-500 bg-neutral-900/40 rounded-xl border border-neutral-800">
-                  <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No new contact messages in the queue.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {contactMessages.map((msg: any) => (
-                    <div key={msg.id} className="p-5 rounded-xl bg-neutral-900/80 border border-neutral-800 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white text-sm">{msg.full_name}</span>
-                          <span className="text-xs text-neutral-400 font-mono">({msg.email})</span>
-                        </div>
-                        <span className="text-[10px] text-neutral-500 font-mono">
-                          {new Date(msg.created_at).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-xs font-semibold text-[#d4af37]">{msg.subject}</p>
-                      <p className="text-xs text-neutral-300 leading-relaxed bg-black/40 p-3 rounded-lg border border-neutral-800">
-                        {msg.message}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* SECTION 6: SETTINGS */}
-          {activeSection === 'settings' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Restaurant Profile & Details</h3>
-                <p className="text-xs text-neutral-400">Live configuration for Eko Restaurant Kigali</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Restaurant Slogan</span>
-                  <p className="font-serif text-sm font-semibold text-white">
-                    "A Symphony of Flavors, Where Kigali Meets Culinary Artistry"
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Physical Location</span>
-                  <p className="font-semibold text-white">Kigali, KK 554, Rwanda</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Official Phone / WhatsApp</span>
-                  <p className="font-mono text-amber-300 font-semibold">0701537890</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Official Email</span>
-                  <p className="text-sky-300 font-mono">mugishamp7@gmail.com</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Service Hours</span>
-                  <p className="font-semibold text-white">Every day, 10:00 – 23:00</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400 block">Security Admin User</span>
-                  <p className="font-mono text-emerald-400 font-semibold">{currentUser.username || 'admin'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SECTION 7: AUDIT LOGS */}
-          {activeSection === 'audit' && (
-            <div className="p-6 rounded-2xl bg-[#121216] border border-[#27272a] space-y-6 animate-fadeIn">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Security & Activity Audit Logs</h3>
-                <p className="text-xs text-neutral-400">Server-side recorded administrative operations & logins</p>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse font-mono">
-                  <thead>
-                    <tr className="border-b border-neutral-800 text-neutral-400 uppercase text-[10px]">
-                      <th className="py-2.5 px-2">ID</th>
-                      <th className="py-2.5 px-2">Action</th>
-                      <th className="py-2.5 px-2">User / Role</th>
-                      <th className="py-2.5 px-2">Details</th>
-                      <th className="py-2.5 px-2 text-right">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-800/60">
-                    {activityLogs.map((log: any) => (
-                      <tr key={log.id} className="hover:bg-neutral-900/40">
-                        <td className="py-2.5 px-2 text-neutral-500">#{log.id}</td>
-                        <td className="py-2.5 px-2 font-bold text-amber-300">{log.action}</td>
-                        <td className="py-2.5 px-2 text-white">{log.user_type || 'admin'}</td>
-                        <td className="py-2.5 px-2 text-neutral-400">{log.details || '—'}</td>
-                        <td className="py-2.5 px-2 text-right text-neutral-500">
-                          {new Date(log.created_at).toLocaleTimeString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </main>
+          </div>
+        )}
       </div>
+
+      {/* Add Menu Item Modal */}
+      {showAddMenuModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#141312] border border-[#D4AF37]/40 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <h3 className="font-serif text-xl font-bold text-white">Add New Menu Item</h3>
+              <button
+                onClick={() => setShowAddMenuModal(false)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateMenuItem} className="space-y-4 text-xs font-sans">
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Category</label>
+                <select
+                  value={newMenuItem.categoryId}
+                  onChange={(e) => setNewMenuItem({ ...newMenuItem, categoryId: parseInt(e.target.value, 10) })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Item Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rwandan Lake Kivu Brochettes"
+                  value={newMenuItem.name}
+                  onChange={(e) => setNewMenuItem({ ...newMenuItem, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Description *</label>
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Culinary notes, marinade, origin..."
+                  value={newMenuItem.description}
+                  onChange={(e) => setNewMenuItem({ ...newMenuItem, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Price in RWF *</label>
+                  <input
+                    type="number"
+                    required
+                    min={1000}
+                    value={newMenuItem.price}
+                    onChange={(e) => setNewMenuItem({ ...newMenuItem, price: parseInt(e.target.value, 10) })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Prep Time (mins)</label>
+                  <input
+                    type="number"
+                    min={5}
+                    max={120}
+                    value={newMenuItem.prepTimeMinutes}
+                    onChange={(e) => setNewMenuItem({ ...newMenuItem, prepTimeMinutes: parseInt(e.target.value, 10) })}
+                    className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Image URL (Optional)</label>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={newMenuItem.imageUrl}
+                  onChange={(e) => setNewMenuItem({ ...newMenuItem, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMenuModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase shadow-md hover:brightness-110"
+                >
+                  Save Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Gallery Item Modal */}
+      {showAddGalleryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#141312] border border-[#D4AF37]/40 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <h3 className="font-serif text-xl font-bold text-white">Add New Ambiance Photo</h3>
+              <button
+                onClick={() => setShowAddGalleryModal(false)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateGalleryItem} className="space-y-4 text-xs font-sans">
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Category</label>
+                <select
+                  value={newGalleryItem.category}
+                  onChange={(e) => setNewGalleryItem({ ...newGalleryItem, category: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                >
+                  <option value="Interior">Interior (Dining Halls)</option>
+                  <option value="Terrace">Terrace (Sunset Views)</option>
+                  <option value="Food">Food (Plated Artistry)</option>
+                  <option value="Bar">Bar (Cocktails & Sommelier)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Photo Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. VIP Champagne Lounge"
+                  value={newGalleryItem.title}
+                  onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Caption / Description *</label>
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Atmosphere details..."
+                  value={newGalleryItem.description}
+                  onChange={(e) => setNewGalleryItem({ ...newGalleryItem, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Image URL *</label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://images.unsplash.com/..."
+                  value={newGalleryItem.imageUrl}
+                  onChange={(e) => setNewGalleryItem({ ...newGalleryItem, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddGalleryModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase shadow-md hover:brightness-110"
+                >
+                  Publish Photo
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
