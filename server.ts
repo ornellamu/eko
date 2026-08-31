@@ -53,7 +53,7 @@ async function startServer() {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
       }
-    })
+    }) as any
   );
 
   // Rate limiters for sensitive endpoints (Stage 14)

@@ -17,6 +17,11 @@ export class MenuService {
     search?: string;
   }): MenuItemRow[] {
     let items = localStorage.getTable('menu_items') as MenuItemRow[];
+    const categories = localStorage.getTable('categories') as CategoryRow[];
+    const catMap = new Map<number, CategoryRow>();
+    for (const c of categories) {
+      catMap.set(c.id, c);
+    }
     
     if (options?.categoryId) {
       items = items.filter((item) => item.category_id === Number(options.categoryId));
@@ -36,7 +41,17 @@ export class MenuService {
       );
     }
 
-    return items;
+    // Sort logically by category display order (First Foods -> Mains -> Desserts -> Drinks)
+    return items.sort((a, b) => {
+      const catA = catMap.get(a.category_id);
+      const catB = catMap.get(b.category_id);
+      const orderA = catA?.display_order ?? 99;
+      const orderB = catB?.display_order ?? 99;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return (a.id || 0) - (b.id || 0);
+    });
   }
 
   static getMenuItemById(id: number): MenuItemRow {

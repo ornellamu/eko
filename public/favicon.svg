@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ekoGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF0B9" />
+      <stop offset="30%" stop-color="#D4AF37" />
+      <stop offset="70%" stop-color="#AA7C11" />
+      <stop offset="100%" stop-color="#6A4E08" />
+    </linearGradient>
+    <linearGradient id="ekoDarkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#161514" />
+      <stop offset="100%" stop-color="#0A0A0A" />
+    </linearGradient>
+    <filter id="ekoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#D4AF37" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="56" fill="url(#ekoDarkBg)" stroke="url(#ekoGoldGrad)" stroke-width="3" />
+  <circle cx="60" cy="60" r="51" fill="none" stroke="#D4AF37" stroke-width="0.75" stroke-dasharray="2 3" opacity="0.6" />
+  
+  <!-- Outer Ornate Laurel Accent -->
+  <g filter="url(#ekoGlow)">
+    <!-- Stylized Monogram E with Fine Dining Elegance -->
+    <path d="M 45 35 L 75 35 Q 78 35 78 38 Q 78 41 75 41 L 52 41 L 52 56 L 70 56 Q 73 56 73 59 Q 73 62 70 62 L 52 62 L 52 79 L 76 79 Q 79 79 79 82 Q 79 85 76 85 L 45 85 Q 42 85 42 82 L 42 38 Q 42 35 45 35 Z" fill="url(#ekoGoldGrad)" />
+    
+    <!-- Fine Dining Fork & Diamond Accent -->
+    <polygon points="60,20 62.5,24 60,28 57.5,24" fill="#FBF0B9" />
+    <polygon points="60,92 62.5,96 60,100 57.5,96" fill="#FBF0B9" />
+  </g>
+</svg>

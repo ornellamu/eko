@@ -3,43 +3,31 @@ import {
   Search, 
   UtensilsCrossed, 
   Wine, 
-  ShoppingBag, 
-  Check, 
   Sparkles, 
-  Filter,
-  Plus,
-  Flame,
-  Clock,
-  Info,
-  X,
-  Award,
-  ChevronRight
+  Filter, 
+  Flame, 
+  Clock, 
+  Info, 
+  X, 
+  Award, 
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
-import { MenuItemData, CategoryItem } from '../../types';
+import { MenuItemData, CategoryItem, PageView } from '../../types';
 
 interface MenuPageProps {
   menuItems: MenuItemData[];
   categories: CategoryItem[];
-  onAddToCart: (item: MenuItemData, quantity?: number) => void;
+  onNavigate: (page: PageView) => void;
 }
 
-export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) {
+export function MenuPage({ menuItems, categories, onNavigate }: MenuPageProps) {
   const [selectedType, setSelectedType] = useState<'all' | 'food' | 'drink'>('all');
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterSpecialOnly, setFilterSpecialOnly] = useState<boolean>(false);
   const [filterSpicyOnly, setFilterSpicyOnly] = useState<boolean>(false);
-  const [addedNotice, setAddedNotice] = useState<string | null>(null);
   const [activeItemModal, setActiveItemModal] = useState<MenuItemData | null>(null);
-  const [modalQuantity, setModalQuantity] = useState<number>(1);
-
-  const handleAddItem = (item: MenuItemData, qty: number = 1) => {
-    onAddToCart(item, qty);
-    setAddedNotice(`Added ${qty}x "${item.name}" to your basket`);
-    setTimeout(() => {
-      setAddedNotice(null);
-    }, 2500);
-  };
 
   // Filter items
   const filteredItems = menuItems.filter((item) => {
@@ -71,17 +59,9 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
           The Eko Culinary Menu
         </h1>
         <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-light">
-          Explore all 35 authentic offerings priced strictly in Rwandan Francs (RWF). Every plate, grilled delicacy, and vintage wine is prepared fresh upon your order.
+          Explore our authentic culinary creations, specialty Rwandan coffees, and vintage sommelier reserves priced in Rwandan Francs (RWF).
         </p>
       </div>
-
-      {/* Notice Toast */}
-      {addedNotice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#D4AF37] text-black font-semibold text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-amber-300 animate-in fade-in slide-in-from-bottom-2">
-          <Check className="w-4 h-4 text-black stroke-[3]" />
-          <span>{addedNotice}</span>
-        </div>
-      )}
 
       {/* Filter and Search Bar Controls */}
       <div className="bg-[#141312] border border-neutral-800 p-6 rounded-2xl space-y-6 shadow-xl">
@@ -99,7 +79,7 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              All Offerings ({menuItems.length})
+              All Menu ({menuItems.length})
             </button>
             <button
               onClick={() => {
@@ -113,7 +93,7 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
               }`}
             >
               <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>Cuisine</span>
+              <span>Food</span>
             </button>
             <button
               onClick={() => {
@@ -127,7 +107,7 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
               }`}
             >
               <Wine className="w-3.5 h-3.5" />
-              <span>Beverages & Wines</span>
+              <span>Drinks</span>
             </button>
           </div>
 
@@ -206,7 +186,7 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
       {filteredItems.length === 0 ? (
         <div className="text-center py-20 bg-[#141312] rounded-3xl border border-neutral-800 space-y-3">
           <UtensilsCrossed className="w-10 h-10 text-neutral-600 mx-auto" />
-          <h3 className="font-serif text-lg text-white">No culinary items matched your criteria</h3>
+          <h3 className="font-serif text-lg text-white">No items matched your criteria</h3>
           <p className="text-xs text-neutral-400">Try adjusting your search query or category filters.</p>
           <button
             onClick={() => {
@@ -221,6 +201,200 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
             Reset Filters
           </button>
         </div>
+      ) : selectedType === 'all' && selectedCategory === 'all' && !searchQuery ? (
+        <div className="space-y-16">
+          {/* FOOD SECTION */}
+          {filteredItems.filter((i) => i.type === 'food').length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-[#D4AF37]/30 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#E5C158]">
+                    <UtensilsCrossed className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                      Food Menu
+                    </h2>
+                    <p className="text-xs text-neutral-400">
+                      Starters, main courses, artisanal pastas, and signature creations ({filteredItems.filter((i) => i.type === 'food').length} items)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedType('food')}
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-[#E5C158] hover:underline"
+                >
+                  <span>Filter Only Food</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.filter((i) => i.type === 'food').map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-[#141312] border border-neutral-800 hover:border-[#D4AF37]/60 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_25px_rgba(0,0,0,0.6)] cursor-pointer"
+                    onClick={() => {
+                      setActiveItemModal(item);
+                    }}
+                  >
+                    {/* Card Image */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-neutral-900">
+                      <img
+                        src={item.image_url || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80'}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 right-3 bg-black/85 backdrop-blur-md px-3 py-1 rounded-full border border-[#D4AF37]/40 text-[#E5C158] font-mono text-xs font-bold shadow-lg">
+                        {item.price.toLocaleString()} RWF
+                      </div>
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                        <span className="bg-[#0D0C0B]/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono uppercase text-neutral-300 border border-neutral-800">
+                          Food
+                        </span>
+                        {item.is_chef_special && (
+                          <span className="bg-[#D4AF37] text-black px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1 shadow-md">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            Special
+                          </span>
+                        )}
+                        {item.spicy_level && item.spicy_level > 0 && (
+                          <span className="bg-rose-900/90 text-rose-200 border border-rose-700/60 px-1.5 py-0.5 rounded text-[10px] font-mono flex items-center gap-0.5">
+                            <Flame className="w-2.5 h-2.5 text-rose-400" />
+                            {item.spicy_level > 1 ? `${item.spicy_level}x` : 'Hot'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="font-serif text-xl font-bold text-white group-hover:text-[#E5C158] transition-colors">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-neutral-400 leading-relaxed line-clamp-2">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-4 border-t border-neutral-800/80 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-400">
+                          <Clock className="w-3 h-3 text-[#D4AF37]" />
+                          <span>~{item.prep_time_minutes || 20} mins</span>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveItemModal(item);
+                          }}
+                          className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95 flex items-center gap-1"
+                        >
+                          <span>View Dish Details</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* DRINKS SECTION */}
+          {filteredItems.filter((i) => i.type === 'drink').length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-[#D4AF37]/30 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#E5C158]">
+                    <Wine className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                      Drinks Menu
+                    </h2>
+                    <p className="text-xs text-neutral-400">
+                      Artisanal coffees, signature cocktails, mocktails, and wine reserves ({filteredItems.filter((i) => i.type === 'drink').length} items)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedType('drink')}
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-[#E5C158] hover:underline"
+                >
+                  <span>Filter Only Drinks</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.filter((i) => i.type === 'drink').map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-[#141312] border border-neutral-800 hover:border-[#D4AF37]/60 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_25px_rgba(0,0,0,0.6)] cursor-pointer"
+                    onClick={() => {
+                      setActiveItemModal(item);
+                    }}
+                  >
+                    {/* Card Image */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-neutral-900">
+                      <img
+                        src={item.image_url || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80'}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 right-3 bg-black/85 backdrop-blur-md px-3 py-1 rounded-full border border-[#D4AF37]/40 text-[#E5C158] font-mono text-xs font-bold shadow-lg">
+                        {item.price.toLocaleString()} RWF
+                      </div>
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                        <span className="bg-[#0D0C0B]/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono uppercase text-neutral-300 border border-neutral-800">
+                          Drink
+                        </span>
+                        {item.is_chef_special && (
+                          <span className="bg-[#D4AF37] text-black px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1 shadow-md">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            Special
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="font-serif text-xl font-bold text-white group-hover:text-[#E5C158] transition-colors">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-neutral-400 leading-relaxed line-clamp-2">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-4 border-t border-neutral-800/80 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-400">
+                          <Clock className="w-3 h-3 text-[#D4AF37]" />
+                          <span>~{item.prep_time_minutes || 10} mins</span>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveItemModal(item);
+                          }}
+                          className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95 flex items-center gap-1"
+                        >
+                          <span>View Drink Details</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
@@ -229,7 +403,6 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
               className="bg-[#141312] border border-neutral-800 hover:border-[#D4AF37]/60 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_25px_rgba(0,0,0,0.6)] cursor-pointer"
               onClick={() => {
                 setActiveItemModal(item);
-                setModalQuantity(1);
               }}
             >
               {/* Card Image */}
@@ -244,7 +417,7 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
                 </div>
                 <div className="absolute top-3 left-3 flex items-center gap-1.5">
                   <span className="bg-[#0D0C0B]/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono uppercase text-neutral-300 border border-neutral-800">
-                    {item.type}
+                    {item.type === 'food' ? 'Food' : 'Drink'}
                   </span>
                   {item.is_chef_special && (
                     <span className="bg-[#D4AF37] text-black px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1 shadow-md">
@@ -281,12 +454,12 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAddItem(item, 1);
+                      setActiveItemModal(item);
                     }}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-semibold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+                    className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95 flex items-center gap-1"
                   >
-                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Add to Order</span>
+                    <span>View Details</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -370,12 +543,12 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
                     <span>Spice: <strong className="text-white">{activeItemModal.spicy_level ? `${activeItemModal.spicy_level}/3` : 'Mild'}</strong></span>
                   </div>
                   <div className="flex items-center gap-2 text-neutral-300">
-                    <Sparkles className="w-4 h-4 text-[#D4AF37] shrink-0" />
+                    <Sparkles className="w-4 h-4 text-[#D4AF37]" />
                     <span>Origin: <strong className="text-white">Authentic Kigali</strong></span>
                   </div>
                   <div className="flex items-center gap-2 text-neutral-300">
-                    <UtensilsCrossed className="w-4 h-4 text-[#D4AF37] shrink-0" />
-                    <span>Fulfillment: <strong className="text-white">Dine-in / Delivery</strong></span>
+                    <UtensilsCrossed className="w-4 h-4 text-[#D4AF37]" />
+                    <span>Experience: <strong className="text-white">Dine-in Excellence</strong></span>
                   </div>
                 </div>
 
@@ -385,40 +558,29 @@ export function MenuPage({ menuItems, categories, onAddToCart }: MenuPageProps) 
                     <Info className="w-3.5 h-3.5 text-[#D4AF37]" />
                     <span>Dietary & Kitchen Notes</span>
                   </div>
-                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Custom dietary preferences or allergen inquiries can also be noted during checkout.</p>
+                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Available for dine-in guests across our main dining room, terrace, and private suites.</p>
                 </div>
               </div>
             </div>
 
-            {/* Sticky Modal Footer for Instant Order Action */}
+            {/* Modal Footer with Table Reservation Action */}
             <div className="p-4 sm:p-5 bg-[#100F0E] border-t border-neutral-800 flex items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center bg-[#0D0C0B] border border-neutral-700 rounded-xl p-1 shrink-0">
-                <button
-                  onClick={() => setModalQuantity(Math.max(1, modalQuantity - 1))}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-white text-sm">{modalQuantity}</span>
-                <button
-                  onClick={() => setModalQuantity(modalQuantity + 1)}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
+              <button
+                onClick={() => setActiveItemModal(null)}
+                className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-neutral-300 transition-colors"
+              >
+                Close
+              </button>
 
               <button
                 onClick={() => {
-                  handleAddItem(activeItemModal, modalQuantity);
                   setActiveItemModal(null);
+                  onNavigate('reservation');
                 }}
                 className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-serif font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="truncate">Add {modalQuantity} to Order • {(activeItemModal.price * modalQuantity).toLocaleString()} RWF</span>
+                <Calendar className="w-4 h-4" />
+                <span>Reserve a Table to Experience This</span>
               </button>
             </div>
           </div>

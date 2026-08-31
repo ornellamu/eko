@@ -131,8 +131,13 @@ export function AuthModal({
         {/* Top Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] flex items-center justify-center text-black font-serif font-bold">
-              E
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] p-[1px] overflow-hidden flex items-center justify-center bg-[#0D0C0B]">
+              <img 
+                src="/images/eko-logo.jpg" 
+                alt="Eko Logo" 
+                referrerPolicy="no-referrer" 
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <h3 className="font-serif text-xl font-bold text-white">
               {mode === 'admin' ? 'Administrator Login' : mode === 'register' ? 'Join Eko Kigali' : 'Guest Sign In'}

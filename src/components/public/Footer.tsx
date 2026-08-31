@@ -27,10 +27,13 @@ export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
           {/* Brand & Slogan */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] p-[1px]">
-                <div className="w-full h-full rounded-full bg-[#080707] flex items-center justify-center">
-                  <span className="font-serif font-bold text-lg text-[#E5C158]">E</span>
-                </div>
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] p-[1.5px] shadow-[0_0_12px_rgba(212,175,55,0.25)] overflow-hidden bg-[#080707] flex items-center justify-center">
+                <img 
+                  src="/images/eko-logo.jpg" 
+                  alt="Eko Restaurant Logo" 
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <div>
                 <span className="font-serif text-xl font-bold tracking-widest text-white block">

@@ -11,7 +11,6 @@ import {
   Calendar,
   CheckCircle2,
   ChevronRight,
-  ShoppingBag,
   Flame,
   Info,
   X
@@ -21,12 +20,10 @@ import { PageView, MenuItemData } from '../../types';
 interface HomePageProps {
   onNavigate: (page: PageView) => void;
   featuredItems: MenuItemData[];
-  onAddToCart: (item: MenuItemData, quantity?: number) => void;
 }
 
-export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePageProps) {
+export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
   const [activeItemModal, setActiveItemModal] = useState<MenuItemData | null>(null);
-  const [modalQuantity, setModalQuantity] = useState<number>(1);
 
   // Prioritize signature and new highlighted creations for the homepage
   const [selectedHomeCategory, setSelectedHomeCategory] = useState<'all' | 'food' | 'drink'>('all');
@@ -52,10 +49,20 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 py-20">
-          {/* Subtle Tagline Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181714]/80 border border-[#D4AF37]/40 backdrop-blur-md text-[#E5C158] text-xs font-mono tracking-widest uppercase shadow-[0_0_15px_rgba(212,175,55,0.15)]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Kigali's Premier Gastronomic Destination</span>
+          {/* Brand Logo Crest & Subtle Tagline Badge */}
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-[2px] bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#8C6B0D] shadow-[0_0_35px_rgba(212,175,55,0.4)] overflow-hidden bg-[#0D0C0B]">
+              <img 
+                src="/images/eko-logo.jpg" 
+                alt="Eko Restaurant Crest Logo" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181714]/80 border border-[#D4AF37]/40 backdrop-blur-md text-[#E5C158] text-xs font-mono tracking-widest uppercase shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Kigali's Premier Gastronomic Destination</span>
+            </div>
           </div>
 
           {/* Slogan & Title */}
@@ -171,7 +178,7 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
-                Cocktails & Bar
+                Beverages & Coffee
               </button>
             </div>
 
@@ -192,7 +199,6 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
               key={item.id}
               onClick={() => {
                 setActiveItemModal(item);
-                setModalQuantity(1);
               }}
               className="bg-[#141312] border border-neutral-800/80 hover:border-[#D4AF37]/50 rounded-2xl overflow-hidden group flex flex-col justify-between transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] cursor-pointer"
             >
@@ -229,11 +235,12 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onAddToCart(item, 1);
+                      setActiveItemModal(item);
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95"
+                    className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-[#D4AF37] hover:text-black border border-neutral-700 hover:border-[#D4AF37] text-xs font-semibold text-neutral-200 transition-all active:scale-95 flex items-center gap-1"
                   >
-                    Add to Order
+                    <span>View Details</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -453,40 +460,29 @@ export function HomePage({ onNavigate, featuredItems, onAddToCart }: HomePagePro
                     <Info className="w-3.5 h-3.5 text-[#D4AF37]" />
                     <span>Dietary & Kitchen Notes</span>
                   </div>
-                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Custom dietary preferences or allergen inquiries can also be noted during checkout.</p>
+                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Available for dine-in guests across our main dining room, terrace, and private suites.</p>
                 </div>
               </div>
             </div>
 
-            {/* Sticky Modal Footer for Instant Order Action */}
+            {/* Modal Footer with Table Reservation Action */}
             <div className="p-4 sm:p-5 bg-[#100F0E] border-t border-neutral-800 flex items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center bg-[#0D0C0B] border border-neutral-700 rounded-xl p-1 shrink-0">
-                <button
-                  onClick={() => setModalQuantity(Math.max(1, modalQuantity - 1))}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-white text-sm">{modalQuantity}</span>
-                <button
-                  onClick={() => setModalQuantity(modalQuantity + 1)}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-white font-bold text-base hover:bg-neutral-800 rounded-lg transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
+              <button
+                onClick={() => setActiveItemModal(null)}
+                className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-neutral-300 transition-colors"
+              >
+                Close
+              </button>
 
               <button
                 onClick={() => {
-                  onAddToCart(activeItemModal, modalQuantity);
                   setActiveItemModal(null);
+                  onNavigate('reservation');
                 }}
                 className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-serif font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="truncate">Add {modalQuantity} to Order • {(activeItemModal.price * modalQuantity).toLocaleString()} RWF</span>
+                <Calendar className="w-4 h-4" />
+                <span>Reserve a Table to Experience This Dish</span>
               </button>
             </div>
           </div>

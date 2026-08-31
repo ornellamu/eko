@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Menu as MenuIcon, 
   X, 
-  ShoppingBag, 
   Calendar, 
   Phone, 
   MapPin, 
@@ -12,7 +11,6 @@ import {
   Clock,
   Sparkles,
   UtensilsCrossed,
-  Truck,
   UserCheck
 } from 'lucide-react';
 import { PageView, AuthUser } from '../../types';
@@ -20,8 +18,6 @@ import { PageView, AuthUser } from '../../types';
 interface NavbarProps {
   currentPage: PageView;
   onNavigate: (page: PageView) => void;
-  cartCount: number;
-  onOpenCart: () => void;
   currentUser: AuthUser | null;
   onOpenAuth: (mode?: 'login' | 'register' | 'admin') => void;
   onLogout: () => void;
@@ -31,8 +27,6 @@ interface NavbarProps {
 export function Navbar({
   currentPage,
   onNavigate,
-  cartCount,
-  onOpenCart,
   currentUser,
   onOpenAuth,
   onLogout,
@@ -43,7 +37,6 @@ export function Navbar({
   const navLinks: { label: string; page: PageView; icon?: any }[] = [
     { label: 'Home', page: 'home' },
     { label: 'Menu (35)', page: 'menu' },
-    { label: 'Track Order', page: 'track', icon: Truck },
     { label: 'About Us', page: 'about' },
     { label: 'Ambiance Gallery', page: 'gallery' },
     { label: 'Contact & Hours', page: 'contact' },
@@ -92,10 +85,13 @@ export function Navbar({
             onClick={() => onNavigate('home')}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#D4AF37] via-[#AA7C11] to-[#6A4E08] p-[1px] shadow-[0_0_15px_rgba(212,175,55,0.25)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all">
-              <div className="w-full h-full rounded-full bg-[#0D0C0B] flex items-center justify-center">
-                <span className="font-serif font-bold text-xl text-[#E5C158] tracking-widest">E</span>
-              </div>
+            <div className="relative w-11 h-11 rounded-full p-[1.5px] bg-gradient-to-br from-[#D4AF37] via-[#AA7C11] to-[#6A4E08] shadow-[0_0_16px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_24px_rgba(212,175,55,0.5)] transition-all overflow-hidden flex items-center justify-center bg-[#0D0C0B]">
+              <img 
+                src="/images/eko-logo.jpg" 
+                alt="Eko Restaurant Emblem" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -143,20 +139,6 @@ export function Navbar({
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book a Table</span>
-            </button>
-
-            {/* Shopping Bag Button */}
-            <button
-              onClick={onOpenCart}
-              className="relative p-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition-colors"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#D4AF37]" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center font-mono animate-bounce shadow-md">
-                  {cartCount}
-                </span>
-              )}
             </button>
 
             {/* Admin Portal Direct Button */}

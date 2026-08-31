@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PageView, MenuItemData, CategoryItem, AuthUser, CartItem } from '../types';
+import { PageView, MenuItemData, CategoryItem, AuthUser } from '../types';
 import { 
   fetchMenuItems, 
   fetchCategories, 
@@ -15,9 +15,7 @@ import { ReservationPage } from './public/ReservationPage';
 import { AboutPage } from './public/AboutPage';
 import { GalleryPage } from './public/GalleryPage';
 import { ContactPage } from './public/ContactPage';
-import { OrderTrackerPage } from './public/OrderTrackerPage';
 import { CustomerDashboard } from './public/CustomerDashboard';
-import { CartDrawer } from './public/CartDrawer';
 import { AuthModal } from './public/AuthModal';
 import { AdminDashboard } from './admin/AdminDashboard';
 import { StageVerification } from './StageVerification';
@@ -27,11 +25,8 @@ export function EkoApp() {
   const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'admin'>('login');
-  const [trackedOrderRef, setTrackedOrderRef] = useState<string | null>(null);
   
   // Auth state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -68,37 +63,6 @@ export function EkoApp() {
     });
   }, []);
 
-  // Cart operations
-  const handleAddToCart = (item: MenuItemData) => {
-    setCart((prev) => {
-      const existing = prev.find((ci) => ci.menu_item.id === item.id);
-      if (existing) {
-        return prev.map((ci) =>
-          ci.menu_item.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
-        );
-      }
-      return [...prev, { menu_item: item, quantity: 1 }];
-    });
-  };
-
-  const handleUpdateQuantity = (id: number, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((ci) => {
-          if (ci.menu_item.id === id) {
-            const newQty = ci.quantity + delta;
-            return newQty > 0 ? { ...ci, quantity: newQty } : null;
-          }
-          return ci;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  };
-
-  const handleRemoveItem = (id: number) => {
-    setCart((prev) => prev.filter((ci) => ci.menu_item.id !== id));
-  };
-
   const handleLogout = async () => {
     await userLogout().catch(() => {});
     localStorage.removeItem('eko_auth_token');
@@ -107,13 +71,6 @@ export function EkoApp() {
     setCurrentPage('home');
   };
 
-  const handleNavigateToTrack = (reference: string) => {
-    setTrackedOrderRef(reference);
-    setCurrentPage('track');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const isAdmin = currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin';
 
   // If developer toggles the Verification Matrix
@@ -159,8 +116,6 @@ export function EkoApp() {
           }
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
         currentUser={currentUser}
         onOpenAuth={(mode) => {
           setAuthMode(mode || 'login');
@@ -179,7 +134,6 @@ export function EkoApp() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             featuredItems={menuItems}
-            onAddToCart={handleAddToCart}
           />
         )}
 
@@ -187,7 +141,10 @@ export function EkoApp() {
           <MenuPage
             menuItems={menuItems}
             categories={categories}
-            onAddToCart={handleAddToCart}
+            onNavigate={(page) => {
+              setCurrentPage(page);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
 
@@ -198,19 +155,11 @@ export function EkoApp() {
           />
         )}
 
-        {currentPage === 'track' && (
-          <OrderTrackerPage
-            initialReference={trackedOrderRef}
-            onNavigateToMenu={() => setCurrentPage('menu')}
-          />
-        )}
-
         {currentPage === 'account' && currentUser && authToken && (
           <CustomerDashboard
             user={currentUser}
             token={authToken}
             onLogout={handleLogout}
-            onTrackOrder={handleNavigateToTrack}
             onNavigateToMenu={() => setCurrentPage('menu')}
             onNavigateToReservation={() => setCurrentPage('reservation')}
           />
@@ -252,19 +201,6 @@ export function EkoApp() {
           setAuthMode(mode || 'login');
           setIsAuthOpen(true);
         }}
-      />
-
-      {/* Cart Drawer Modal */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cart}
-        authToken={authToken}
-        currentUser={currentUser}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={() => setCart([])}
-        onTrackOrder={handleNavigateToTrack}
       />
 
       {/* Auth Modal */}

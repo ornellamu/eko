@@ -33,7 +33,7 @@ const DEFAULT_GALLERY = [
   {
     id: 2,
     title: 'Pornstar Martini & Prosecco',
-    category: 'Bar',
+    category: 'Drinks',
     image_url: '/images/pornstar-martini.jpg',
     description: 'Exquisite vanilla vodka, passion fruit purée, and a chilled side shot of sparkling Prosecco.'
   },
@@ -46,15 +46,15 @@ const DEFAULT_GALLERY = [
   },
   {
     id: 4,
-    title: 'The Sommelier Craft Cocktail Trio',
-    category: 'Bar',
-    image_url: '/images/sommelier-cocktail-trio.jpg',
-    description: 'Dry Martini, Chili-Rimmed Spiced Guava Margarita, and Smoked Mezcal Cooler.'
+    title: 'Golden Goss Cocktail',
+    category: 'Drinks',
+    image_url: '/images/golden-goss-cocktail.jpg',
+    description: 'Artisanal golden cocktail with subtle amber botanicals and dried citrus wheel.'
   },
   {
     id: 5,
     title: 'Pink Gin & Tonic Spritz',
-    category: 'Bar',
+    category: 'Drinks',
     image_url: '/images/pink-gin-spritz.jpg',
     description: 'Botanical gin with wild berries, artisanal tonic, and fresh pink grapefruit wheel.'
   },
