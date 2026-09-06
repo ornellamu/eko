@@ -97,6 +97,7 @@ export function EkoApp() {
         currentUser={currentUser}
         authToken={authToken}
         onLogout={handleLogout}
+        onNavigateToPublic={() => setCurrentPage('home')}
         onOpenStageVerification={() => setShowDevTracker(true)}
       />
     );

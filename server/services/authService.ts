@@ -133,7 +133,7 @@ export class AuthService {
       const salt = bcrypt.genSaltSync(10);
       const passwordHash = bcrypt.hashSync('admin123', salt);
       admin = localStorage.insert('admins', {
-        username: 'admin',
+        username: 'Admin',
         email: 'murasa320@gmail.com',
         password_hash: passwordHash,
         role: 'superadmin'
@@ -156,13 +156,13 @@ export class AuthService {
     const isMatch = isBcrypt || allowedMasterPasswords.includes(data.password.trim());
 
     if (!isMatch) {
-      throw new UnauthorizedError('Invalid admin password. Admin constant password is "admin123" (Username: "admin").');
+      throw new UnauthorizedError('Invalid admin password. Admin credentials: Username "Admin", Password "admin123".');
     }
 
     const payload: AuthTokenPayload = {
       id: admin.id,
       email: admin.email,
-      name: admin.username,
+      name: 'Admin',
       role: 'admin'
     };
 
@@ -184,6 +184,7 @@ export class AuthService {
     return {
       admin: {
         ...safeAdmin,
+        username: 'Admin',
         role: 'admin'
       },
       token

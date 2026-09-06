@@ -337,17 +337,63 @@ export async function fetchAdminReservations(token: string, status?: string) {
   return json;
 }
 
-export async function updateAdminReservationStatus(token: string, reservationId: number, status: string, adminNotes?: string) {
+export async function updateAdminReservationStatus(token: string, reservationId: number, status: string, adminNotes?: string, tableNumber?: string) {
   const res = await fetch(`/api/v1/admin/reservations/${reservationId}/status`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ status, adminNotes })
+    body: JSON.stringify({ status, adminNotes, tableNumber })
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error?.message || 'Failed to update reservation status');
+  return json;
+}
+
+export async function createAdminReservation(token: string, data: {
+  customerName: string;
+  customerEmail?: string;
+  customerPhone: string;
+  reservationDate: string;
+  reservationTime: string;
+  partySize: number;
+  seatingArea?: 'main_dining' | 'sunset_terrace' | 'vip_suite' | 'any';
+  tableNumber?: string;
+  specialRequests?: string;
+  occasion?: string;
+  status?: 'pending' | 'confirmed' | 'seated';
+}) {
+  const res = await fetch('/api/v1/admin/reservations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to record reservation');
+  return json;
+}
+
+export async function deleteAdminReservation(token: string, reservationId: number) {
+  const res = await fetch(`/api/v1/admin/reservations/${reservationId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to delete reservation');
+  return json;
+}
+
+export async function deleteAdminMenuItem(token: string, id: number) {
+  const res = await fetch(`/api/v1/admin/menu-items/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to delete menu item');
   return json;
 }
 

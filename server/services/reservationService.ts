@@ -51,7 +51,9 @@ export class ReservationService {
       seating_area: dto.seatingArea || 'main_dining',
       special_requests: dto.specialRequests || null,
       occasion: dto.occasion || null,
-      status: 'confirmed', // Auto-confirm reservation
+      table_number: (dto as any).tableNumber || null,
+      admin_notes: (dto as any).adminNotes || null,
+      status: (dto as any).status || 'pending', // Pending Maître d' verification
       created_at: now,
       updated_at: now
     });
@@ -97,22 +99,32 @@ export class ReservationService {
     return reservations;
   }
 
-  public static async updateReservationStatus(id: number, status: 'confirmed' | 'seated' | 'cancelled' | 'completed', adminNotes?: string) {
+  public static async updateReservationStatus(
+    id: number,
+    status: 'pending' | 'confirmed' | 'seated' | 'cancelled' | 'completed' | 'rejected' | string,
+    adminNotes?: string,
+    tableNumber?: string
+  ) {
     const reservation = localStorage.findById('reservations', id);
     if (!reservation) {
       throw new NotFoundError('Reservation not found');
     }
 
-    const updated = localStorage.update('reservations', id, {
+    const updates: any = {
       status,
-      admin_notes: adminNotes || reservation.admin_notes
-    });
+      admin_notes: adminNotes !== undefined ? adminNotes : reservation.admin_notes
+    };
+    if (tableNumber !== undefined) {
+      updates.table_number = tableNumber;
+    }
+
+    const updated = localStorage.update('reservations', id, updates);
 
     localStorage.insert('activity_logs', {
       actor_type: 'admin',
       actor_id: 1,
       action: 'RESERVATION_STATUS_UPDATED',
-      details: JSON.stringify({ id, code: reservation.reservation_code, newStatus: status }),
+      details: JSON.stringify({ id, code: reservation.reservation_code, newStatus: status, tableNumber }),
       ip_address: '127.0.0.1',
       created_at: new Date().toISOString()
     });

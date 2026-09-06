@@ -5,6 +5,8 @@ import { ReservationService } from '../services/reservationService';
 import { GalleryService } from '../services/galleryService';
 import { SettingsService } from '../services/settingsService';
 import { sendSuccess } from '../utils/response';
+import { localStorage } from '../db';
+import { NotFoundError } from '../utils/errors';
 
 export async function getDashboardStats(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -52,9 +54,47 @@ export async function getAllReservations(req: Request, res: Response, next: Next
 export async function updateReservationStatus(req: Request, res: Response, next: NextFunction) {
   try {
     const reservationId = parseInt(req.params.id, 10);
-    const { status, adminNotes } = req.body;
-    const updated = await ReservationService.updateReservationStatus(reservationId, status, adminNotes);
+    const { status, adminNotes, tableNumber } = req.body;
+    const updated = await ReservationService.updateReservationStatus(reservationId, status, adminNotes, tableNumber);
     return sendSuccess({ res, data: { reservation: updated }, message: 'Reservation status updated' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createReservationAdmin(req: Request, res: Response, next: NextFunction) {
+  try {
+    const reservation = await ReservationService.createReservation({
+      ...req.body,
+      status: req.body.status || 'confirmed'
+    });
+    return sendSuccess({ res, data: { reservation }, message: 'Reservation recorded successfully', statusCode: 201 });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteReservation(req: Request, res: Response, next: NextFunction) {
+  try {
+    const reservationId = parseInt(req.params.id, 10);
+    const deleted = localStorage.delete('reservations', reservationId);
+    if (!deleted) {
+      throw new NotFoundError('Reservation not found');
+    }
+    return sendSuccess({ res, data: { success: true }, message: 'Reservation deleted' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteMenuItem(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const deleted = localStorage.delete('menu_items', id);
+    if (!deleted) {
+      throw new NotFoundError('Menu item not found');
+    }
+    return sendSuccess({ res, data: { success: true }, message: 'Menu item deleted' });
   } catch (error) {
     next(error);
   }

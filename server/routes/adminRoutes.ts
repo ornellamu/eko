@@ -6,9 +6,12 @@ import {
   updateOrderStatus,
   getAllReservations,
   updateReservationStatus,
+  createReservationAdmin,
+  deleteReservation,
   createMenuItem,
   updateMenuItem,
   toggleMenuItem,
+  deleteMenuItem,
   getActivityLogs,
   getRestaurantSettings,
   updateRestaurantSettings,
@@ -38,10 +41,27 @@ router.put('/orders/:id/status', validateBody(updateOrderSchema), updateOrderSta
 // Reservation Management
 router.get('/reservations', getAllReservations);
 const updateReservationSchema = z.object({
-  status: z.enum(['confirmed', 'seated', 'cancelled', 'completed']),
-  adminNotes: z.string().optional()
+  status: z.enum(['pending', 'confirmed', 'seated', 'cancelled', 'completed', 'rejected']),
+  adminNotes: z.string().optional(),
+  tableNumber: z.string().optional()
 });
 router.put('/reservations/:id/status', validateBody(updateReservationSchema), updateReservationStatus);
+
+const adminReservationSchema = z.object({
+  customerName: z.string().min(2, 'Name is required'),
+  customerEmail: z.string().email('Valid email is required').optional().default('guest@eko-kigali.rw'),
+  customerPhone: z.string().min(8, 'Phone is required'),
+  reservationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date format must be YYYY-MM-DD'),
+  reservationTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time format must be HH:MM'),
+  partySize: z.number().int().min(1).max(25),
+  seatingArea: z.enum(['main_dining', 'sunset_terrace', 'vip_suite', 'any']).optional(),
+  tableNumber: z.string().optional(),
+  specialRequests: z.string().max(500).optional(),
+  occasion: z.string().max(100).optional(),
+  status: z.enum(['pending', 'confirmed', 'seated']).optional().default('confirmed')
+});
+router.post('/reservations', validateBody(adminReservationSchema), createReservationAdmin);
+router.delete('/reservations/:id', deleteReservation);
 
 // Menu Items Management
 const createMenuSchema = z.object({
@@ -59,6 +79,7 @@ const createMenuSchema = z.object({
 router.post('/menu-items', validateBody(createMenuSchema), createMenuItem);
 router.put('/menu-items/:id', updateMenuItem);
 router.patch('/menu-items/:id/toggle', toggleMenuItem);
+router.delete('/menu-items/:id', deleteMenuItem);
 
 // Activity Logs
 router.get('/activity-logs', getActivityLogs);

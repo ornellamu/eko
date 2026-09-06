@@ -37,7 +37,7 @@ export function AuthModal({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('Admin');
 
   // Sync mode whenever initialMode changes or modal opens
   useEffect(() => {
@@ -45,7 +45,7 @@ export function AuthModal({
       setMode(initialMode);
       setError(null);
       if (initialMode === 'admin') {
-        setUsername('admin');
+        setUsername('Admin');
         setPassword('admin123');
       }
     }
@@ -61,8 +61,8 @@ export function AuthModal({
     try {
       if (mode === 'admin') {
         const res = await adminLogin({
-          emailOrUsername: username || email || 'admin',
-          password: password || 'Admin@Eko2026!'
+          emailOrUsername: username || 'Admin',
+          password: password || 'admin123'
         });
         if (res.data.token && res.data.admin) {
           localStorage.setItem('eko_auth_token', res.data.token);
@@ -105,7 +105,7 @@ export function AuthModal({
     setLoading(true);
     try {
       const res = await adminLogin({
-        emailOrUsername: 'admin',
+        emailOrUsername: 'Admin',
         password: 'admin123'
       });
       if (res.data.token && res.data.admin) {
@@ -282,7 +282,7 @@ export function AuthModal({
               className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/50 text-[#E5C158] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#252320]"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Instant 1-Click Master Admin Login</span>
+              <span>Instant 1-Click Master Admin Login (Admin / admin123)</span>
             </button>
           )}
         </form>
