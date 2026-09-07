@@ -153,13 +153,21 @@ export class TestSuiteService {
       const orderObj = testOrderResult.order;
       const isOrderHealthy = orderObj !== null && orderObj.total_amount > 0;
 
+      // Clean up test order immediately so it doesn't pollute live data
+      if (orderObj?.id) {
+        localStorage.delete('orders', orderObj.id);
+        const orderItems = localStorage.getTable('order_items');
+        const filteredItems = orderItems.filter((item: any) => item.order_id !== orderObj.id);
+        localStorage.setTable('order_items', filteredItems);
+      }
+
       results.push({
         id: 'ORD-01',
         name: 'Live Order Dispatch & Kigali Delivery Math',
         category: 'orders',
         status: isOrderHealthy ? 'passed' : 'failed',
         durationMs: Date.now() - t0,
-        details: `Created order '${orderObj.order_number}' totaling ${orderObj.total_amount.toLocaleString()} RWF (including standard 3,000 RWF Kigali delivery).`
+        details: `Verified order calculation & dispatch pipeline cleanly.`
       });
     } catch (err: any) {
       results.push({
@@ -190,13 +198,20 @@ export class TestSuiteService {
       const foundRes = localStorage.findOne('reservations', (r: any) => r.reservation_code === resCode);
       const isResHealthy = foundRes !== null && foundRes.party_size === 4;
 
+      // Clean up test reservation immediately so it doesn't pollute live data
+      if (testRes?.id) {
+        localStorage.delete('reservations', testRes.id);
+      } else if (foundRes?.id) {
+        localStorage.delete('reservations', foundRes.id);
+      }
+
       results.push({
         id: 'RES-01',
         name: 'Table Reservation & Zone Allocation',
         category: 'reservations',
         status: isResHealthy ? 'passed' : 'failed',
         durationMs: Date.now() - t0,
-        details: `Successfully booked reservation code '${resCode}' for 4 guests on Sunset Terrace.`
+        details: `Verified reservation engine, booking codes & zone allocation.`
       });
     } catch (err: any) {
       results.push({

@@ -81,6 +81,11 @@ class LocalRelationalStorage {
     return this.data[table];
   }
 
+  public setTable(table: string, records: any[]): void {
+    this.data[table] = records;
+    this.save();
+  }
+
   public insert(table: string, record: any): any {
     const t = this.getTable(table);
     const id = record.id || (this.autoIncrements[table] ? this.autoIncrements[table]++ : t.length + 1);

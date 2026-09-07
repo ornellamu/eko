@@ -25,49 +25,49 @@ interface GalleryItem {
 const DEFAULT_GALLERY = [
   {
     id: 1,
-    title: 'Prime Grilled Ribeye Steak',
+    title: 'Ribeye Steak',
     category: 'Food',
     image_url: '/images/prime-ribeye-steak.jpg',
     description: '350g char-grilled aged prime beef ribeye steak with hasselback potato and red wine jus.'
   },
   {
     id: 2,
-    title: 'Pornstar Martini & Prosecco',
+    title: 'Pornstar Martini',
     category: 'Drinks',
     image_url: '/images/pornstar-martini.jpg',
     description: 'Exquisite vanilla vodka, passion fruit purée, and a chilled side shot of sparkling Prosecco.'
   },
   {
     id: 3,
-    title: 'Mango & Avocado Carpaccio',
+    title: 'Carpaccio',
     category: 'Food',
     image_url: '/images/avocado-carpaccio.jpg',
     description: 'Delicately sliced Hass avocado and sweet mango fan with whipped goat cheese and basil.'
   },
   {
     id: 4,
-    title: 'Golden Goss Cocktail',
+    title: 'Margarita',
     category: 'Drinks',
     image_url: '/images/golden-goss-cocktail.jpg',
-    description: 'Artisanal golden cocktail with subtle amber botanicals and dried citrus wheel.'
+    description: 'Artisanal cocktail with amber botanicals, fresh citrus, and delicate honeyed warmth.'
   },
   {
     id: 5,
-    title: 'Pink Gin & Tonic Spritz',
+    title: 'Gin & Tonic',
     category: 'Drinks',
     image_url: '/images/pink-gin-spritz.jpg',
     description: 'Botanical gin with wild berries, artisanal tonic, and fresh pink grapefruit wheel.'
   },
   {
     id: 6,
-    title: 'Crispy Chicken Schnitzel Fettuccine',
+    title: 'Chicken Schnitzel',
     category: 'Food',
     image_url: '/images/chicken-schnitzel-fettuccine.jpg',
     description: 'Golden panko chicken over ribbon fettuccine in garlic-Parmigiano cream sauce.'
   },
   {
     id: 7,
-    title: 'Confit Byaldi (Layered Ratatouille)',
+    title: 'Ratatouille',
     category: 'Food',
     image_url: '/images/confit-byaldi-ratatouille.jpg',
     description: 'Medallions of squash, zucchini, eggplant, and tomato over piperade coulis.'

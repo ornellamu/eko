@@ -44,20 +44,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       // 1. STARTERS / FIRST FOODS
       {
         category_id: starterCat?.id || 1,
-        name: 'Crispy Lake Kivu Sambaza',
-        description: 'Golden crispy miniature Lake Kivu silver fish dusted in smoked paprika and sea salt, served with house-whipped dill tartare and charred lemon wedges.',
-        price: 4500,
-        image_url: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 1,
-        prep_time_minutes: 15,
-        is_chef_special: 1,
-        spicy_level: 1
-      },
-      {
-        category_id: starterCat?.id || 1,
-        name: 'Mango & Avocado Carpaccio',
+        name: 'Carpaccio',
         description: 'Delicately sliced ripe Hass avocado and sweet yellow mango arranged in an elegant rosette fan, garnished with whipped goat cheese rosettes, fresh garden basil, and cracked black pepper.',
         price: 6000,
         image_url: '/images/avocado-carpaccio.jpg',
@@ -70,7 +57,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: starterCat?.id || 1,
-        name: 'Rwandan Akabenz Pork Crostini',
+        name: 'Akabenz',
         description: 'Succulent pan-crisped pork belly bites glazed in local spiced honey and akabanga chili reduction, served over grilled sourdough crostini with pickled red onions.',
         price: 6500,
         image_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
@@ -83,7 +70,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: starterCat?.id || 1,
-        name: 'Roasted Pumpkin & Ginger Velouté',
+        name: 'Pumpkin Soup',
         description: 'Velvety roasted Musanze pumpkin soup infused with fresh ginger root, lemongrass, coconut cream swirl, and spiced pepitas.',
         price: 5500,
         image_url: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=800&q=80',
@@ -96,7 +83,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: starterCat?.id || 1,
-        name: 'Warm Goat Cheese & Fig Bruschetta',
+        name: 'Bruschetta',
         description: 'Artisanal sourdough crostini layered with warm goat cheese, fig reduction, crushed walnuts, and fresh thyme from Kigali gardens.',
         price: 7000,
         image_url: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=800&q=80',
@@ -109,20 +96,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: starterCat?.id || 1,
-        name: 'Truffle Mushroom & Plantain Croquettes',
-        description: 'Crispy golden mashed sweet plantain and wild forest mushroom croquettes filled with melted gruyère cheese, served with garlic herb aioli.',
-        price: 5500,
-        image_url: 'https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 0,
-        prep_time_minutes: 15,
-        is_chef_special: 0,
-        spicy_level: 0
-      },
-      {
-        category_id: starterCat?.id || 1,
-        name: 'Confit Byaldi (Layered Ratatouille)',
+        name: 'Ratatouille',
         description: 'Artfully spiraled medallions of golden squash, green zucchini, Japanese eggplant, and ripe vine tomatoes slow-baked over charred bell pepper and herb de Provence piperade coulis.',
         price: 9500,
         image_url: '/images/confit-byaldi-ratatouille.jpg',
@@ -135,7 +109,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: starterCat?.id || 1,
-        name: 'Kigali Garden Green Salad',
+        name: 'Garden Salad',
         description: 'Crisp organic hydroponic greens, avocado ribbons, cherry tomatoes, toasted pumpkin seeds, and fresh passion fruit vinaigrette.',
         price: 5000,
         image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
@@ -146,24 +120,11 @@ export async function runMigrationsAndSeed(force: boolean = false) {
         is_chef_special: 0,
         spicy_level: 0
       },
-      {
-        category_id: starterCat?.id || 1,
-        name: 'Spiced Gourmet Beef Samosas',
-        description: 'Crispy handmade golden pastry parcels stuffed with aromatic spiced minced beef, spring onions, and coriander, served with sweet tamarind chutney.',
-        price: 4500,
-        image_url: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 0,
-        prep_time_minutes: 15,
-        is_chef_special: 0,
-        spicy_level: 1
-      },
 
       // 2. MAIN COURSES
       {
         category_id: mainCat?.id || 2,
-        name: 'Prime Grilled Ribeye Steak',
+        name: 'Ribeye Steak',
         description: '350g char-grilled aged prime beef ribeye steak cooked to perfection, served with crispy roasted hasselback potato, butter-glazed asparagus, and rich red wine jus.',
         price: 22000,
         image_url: '/images/prime-ribeye-steak.jpg',
@@ -176,7 +137,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Grilled Nile Perch with Lemon Butter',
+        name: 'Grilled Fish',
         description: 'Fresh Lake Victoria perch fillet pan-seared with herb-infused lemon butter sauce, served on a bed of sautéed greens and roasted baby potatoes.',
         price: 15000,
         image_url: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
@@ -189,7 +150,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Moroccan Braised Lamb Tagine',
+        name: 'Lamb Tagine',
         description: 'Slow-braised tender lamb shank with sweet apricots, toasted almonds, aromatic saffron-cinnamon broth, served with steamed couscous.',
         price: 18000,
         image_url: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=800&q=80',
@@ -202,33 +163,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Eko Signature Nyama Choma Platter',
-        description: 'Slow-smoked marinated goat skewers & prime beef cuts with roasted sweet plantains (aloco), fresh kachumbari salad, and fiery pili-pili dip.',
-        price: 16000,
-        image_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 1,
-        prep_time_minutes: 25,
-        is_chef_special: 1,
-        spicy_level: 2
-      },
-      {
-        category_id: mainCat?.id || 2,
-        name: 'Grilled Jumbo King Prawns',
-        description: 'Flame-grilled jumbo prawns basted with roasted garlic herb butter, saffron jasmine rice, and charred lemon.',
-        price: 19500,
-        image_url: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 1,
-        prep_time_minutes: 20,
-        is_chef_special: 1,
-        spicy_level: 0
-      },
-      {
-        category_id: mainCat?.id || 2,
-        name: 'Crispy Chicken Schnitzel Fettuccine',
+        name: 'Chicken Schnitzel',
         description: 'Golden panko-crusted chicken cutlet served atop handmade ribbon fettuccine in a velvety garlic-Parmigiano cream sauce, with roasted cherry tomatoes and crispy sage.',
         price: 14500,
         image_url: '/images/chicken-schnitzel-fettuccine.jpg',
@@ -241,7 +176,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Pan-Roasted Herb Chicken Supreme',
+        name: 'Roast Chicken',
         description: 'Free-range chicken breast with wild thyme jus, velvety potato mousseline, and butter-glazed baby carrots.',
         price: 13500,
         image_url: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80',
@@ -254,7 +189,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Wild Forest Mushroom Risotto',
+        name: 'Risotto',
         description: 'Creamy carnaroli rice simmered in rich vegetable reduction with wild forest mushrooms, Parmigiano-Reggiano, and white truffle oil drizzle.',
         price: 14000,
         image_url: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=800&q=80',
@@ -267,20 +202,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mainCat?.id || 2,
-        name: 'Handcrafted Truffle Tagliatelle',
-        description: 'Fresh artisanal egg pasta tossed in black truffle cream, aged parmesan shavings, and cracked black pepper.',
-        price: 14500,
-        image_url: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281781?auto=format&fit=crop&w=800&q=80',
-        type: 'food',
-        is_available: 1,
-        is_popular: 1,
-        prep_time_minutes: 18,
-        is_chef_special: 1,
-        spicy_level: 0
-      },
-      {
-        category_id: mainCat?.id || 2,
-        name: 'Boho Buddha Quinoa Bowl',
+        name: 'Quinoa Bowl',
         description: 'Organic Rwandan quinoa, grilled zucchini ribbons, spiced chickpeas, creamy avocado fan, and tahini-maple drizzle.',
         price: 12000,
         image_url: '/images/boho-buddha-bowl.jpg',
@@ -295,7 +217,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       // 3. DESSERTS & SWEETS
       {
         category_id: dessertCat?.id || 8,
-        name: 'Valrhona Warm Chocolate Lava Cake',
+        name: 'Lava Cake',
         description: 'Warm Valrhona dark chocolate cake with a molten truffle center, accompanied by house-made bourbon vanilla bean gelato.',
         price: 8000,
         image_url: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80',
@@ -308,7 +230,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: dessertCat?.id || 8,
-        name: 'Rwandan Passion Fruit Cheesecake',
+        name: 'Cheesecake',
         description: 'Velvety baked New York style cheesecake crowned with tart Rwandan passion fruit coulis on a buttery speculoos crust.',
         price: 7500,
         image_url: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=800&q=80',
@@ -321,7 +243,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: dessertCat?.id || 8,
-        name: 'Bourbon Vanilla Bean Crème Brûlée',
+        name: 'Crème Brûlée',
         description: 'Classic French custard infused with Bourbon vanilla, finished with a caramelized brittle sugar crust and fresh berries.',
         price: 7000,
         image_url: 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?auto=format&fit=crop&w=800&q=80',
@@ -334,7 +256,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: dessertCat?.id || 8,
-        name: 'Lake Kivu Artisanal Honey Cake',
+        name: 'Honey Cake',
         description: 'Multi-layered delicate sponge cake infused with raw Rwandan forest honey and whipped sweet sour cream frosting.',
         price: 7000,
         image_url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80',
@@ -347,7 +269,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: dessertCat?.id || 8,
-        name: 'Exotic Mango & Papaya Fruit Tart',
+        name: 'Fruit Tart',
         description: 'Crisp almond sablé pastry shell filled with silky vanilla diplomat cream, topped with fresh seasonal tropical fruits.',
         price: 6500,
         image_url: 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?auto=format&fit=crop&w=800&q=80',
@@ -360,7 +282,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: dessertCat?.id || 8,
-        name: 'Artisanal Tropical Sorbet Trio',
+        name: 'Sorbet',
         description: 'Refreshing trio of house-churned passionfruit, mango-lime, and hibiscus flower sorbets with fresh garden mint.',
         price: 5500,
         image_url: 'https://images.unsplash.com/photo-1560008581-09826d1de69e?auto=format&fit=crop&w=800&q=80',
@@ -375,7 +297,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       // 4. BEVERAGES & SOMMELIER
       {
         category_id: cocktailCat?.id || 12,
-        name: 'Kigali Sunset Spritz',
+        name: 'Aperol Spritz',
         description: 'Craft cocktail featuring artisanal Aperol, prosecco, fresh passion fruit nectar, and sparkling botanical soda.',
         price: 9500,
         image_url: '/images/kigali-sunset-spritz.jpg',
@@ -388,7 +310,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: cocktailCat?.id || 12,
-        name: 'Pornstar Martini & Prosecco',
+        name: 'Pornstar Martini',
         description: 'Exquisite cocktail blending premium vanilla vodka, Passoã passion fruit liqueur, fresh passion fruit puree, and lime, served with a chilled shot of sparkling Prosecco.',
         price: 9000,
         image_url: '/images/pornstar-martini.jpg',
@@ -401,7 +323,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: cocktailCat?.id || 12,
-        name: 'Golden Smoked Bourbon',
+        name: 'Old Fashioned',
         description: 'Premium bourbon, Angostura bitters, raw demerara syrup, smoked with cedar wood and garnished with edible gold leaf.',
         price: 11000,
         image_url: '/images/golden-smoked-cocktail.jpg',
@@ -414,7 +336,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: cocktailCat?.id || 12,
-        name: 'Golden Goss Cocktail',
+        name: 'Margarita',
         description: 'Artisanal golden cocktail with subtle amber botanicals, dried citrus, and delicate honeyed warmth.',
         price: 16500,
         image_url: '/images/golden-goss-cocktail.jpg',
@@ -427,7 +349,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: cocktailCat?.id || 12,
-        name: 'Pink Gin & Tonic Spritz',
+        name: 'Gin & Tonic',
         description: 'Vibrant pink botanical gin infused with wild berries and hibiscus, paired with artisanal Indian tonic, fresh pink grapefruit wheel, and crushed crystal ice.',
         price: 8000,
         image_url: '/images/pink-gin-spritz.jpg',
@@ -440,8 +362,8 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: wineCat?.id || 13,
-        name: 'Bordeaux Grand Réserve Glass',
-        description: 'Deep ruby French red blend with opulent aromas of blackcurrant, dark chocolate, and French oak.',
+        name: 'Red Wine',
+        description: 'Deep ruby French Bordeaux Grand Réserve red blend with opulent aromas of blackcurrant, dark chocolate, and French oak.',
         price: 12500,
         image_url: '/images/bordeaux-grand-reserve.jpg',
         type: 'drink',
@@ -453,8 +375,8 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: wineCat?.id || 13,
-        name: 'Marlborough Sauvignon Blanc Glass',
-        description: 'Crisp, vibrant white wine with bright citrus blossom, passion fruit notes, and a refreshing mineral finish.',
+        name: 'White Wine',
+        description: 'Crisp, vibrant Marlborough Sauvignon Blanc white wine with bright citrus blossom, passion fruit notes, and a refreshing mineral finish.',
         price: 11000,
         image_url: '/images/sauvignon-blanc-wine.jpg',
         type: 'drink',
@@ -466,8 +388,8 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mocktailCat?.id || 11,
-        name: 'Garden Basil & Lime Mocktail',
-        description: 'Signature mocktail with muddled garden basil, cold-pressed lime juice, crushed cucumber, and sparkling ginger beer.',
+        name: 'Virgin Mojito',
+        description: 'Signature mocktail with muddled garden basil and mint, cold-pressed lime juice, crushed cucumber, and sparkling ginger beer.',
         price: 6500,
         image_url: '/images/basil-mocktail.jpg',
         type: 'drink',
@@ -479,7 +401,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: mocktailCat?.id || 11,
-        name: 'Fresh Hibiscus Iced Tea',
+        name: 'Iced Tea',
         description: 'Handcrafted infusion of organic hibiscus petals, wild mint, crushed ginger, and pure Rwandan raw honey over crystal ice.',
         price: 4500,
         image_url: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80',
@@ -492,7 +414,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: coffeeCat?.id || 16,
-        name: 'Rwandan Red Bourbon Espresso',
+        name: 'Espresso',
         description: 'Double shot of high-altitude Lake Kivu Red Bourbon Arabica espresso, featuring rich golden crema, bright citrus blossom undertones, and a velvety dark cocoa finish.',
         price: 3500,
         image_url: '/images/rwanda-bourbon-espresso.jpg',
@@ -505,7 +427,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: coffeeCat?.id || 16,
-        name: 'Artisanal Cinnamon Cappuccino',
+        name: 'Cappuccino',
         description: 'Double shot of Rwandan specialty espresso topped with micro-foamed organic whole milk, handcrafted rosette latte art, and dusted with freshly ground Rwandan hill cinnamon.',
         price: 4500,
         image_url: '/images/artisanal-cappuccino.jpg',
@@ -518,7 +440,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       },
       {
         category_id: coffeeCat?.id || 16,
-        name: 'Iced Nyungwe Vanilla Latte',
+        name: 'Iced Latte',
         description: 'Chilled double-extracted Rwandan Arabica espresso swirled through cold fresh creamy milk and pure Madagascar-Nyungwe vanilla syrup over crystal ice rocks.',
         price: 5000,
         image_url: '/images/iced-bourbon-latte.jpg',
@@ -537,18 +459,35 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     console.log(`[Database] Seeded ${menuItems.length} initial menu items.`);
   }
 
-  // 3. Seed Default Admin
-  if (localStorage.count('admins') === 0) {
-    const salt = bcrypt.genSaltSync(10);
-    const passwordHash = bcrypt.hashSync('Admin@Eko2026!', salt);
+  // 3. Seed Default Admins
+  const defaultAdmins = [
+    { username: 'admin', email: 'admin@eko.rw' },
+    { username: 'mucyo', email: 'mucyo357@gmail.com' },
+    { username: 'mugisha', email: 'mugishamp7@gmail.com' },
+    { username: 'murasa', email: 'murasa320@gmail.com' }
+  ];
 
-    localStorage.insert('admins', {
-      username: 'admin',
-      email: 'mugishamp7@gmail.com',
-      password_hash: passwordHash,
-      role: 'superadmin'
-    });
-    console.log('[Database] Seeded default administrator account.');
+  const salt = bcrypt.genSaltSync(10);
+  const passwordHash = bcrypt.hashSync('admin123', salt);
+
+  for (const adm of defaultAdmins) {
+    const existing = localStorage.findOne('admins', (a: any) => 
+      a.username.toLowerCase() === adm.username.toLowerCase() || 
+      a.email.toLowerCase() === adm.email.toLowerCase()
+    );
+    if (!existing) {
+      localStorage.insert('admins', {
+        username: adm.username,
+        email: adm.email,
+        password_hash: passwordHash,
+        role: 'superadmin'
+      });
+    } else {
+      localStorage.update('admins', existing.id, {
+        password_hash: passwordHash,
+        role: 'superadmin'
+      });
+    }
   }
 
   // 4. Seed Restaurant Settings
@@ -642,21 +581,11 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     console.log(`[Database] Seeded ${galleryItems.length} gallery images.`);
   }
 
-  // Ensure the 6 new menu creations are registered in the menu catalog
+  // Ensure highlighted culinary creations are registered in the menu catalog with famous names
   const newCulinaryCreations = [
     {
       category_slug: 'cocktails',
-      name: 'Pornstar Martini',
-      description: 'Exquisite cocktail blending premium vanilla vodka, Passoã passion fruit liqueur, fresh passion fruit puree, and lime, served with a chilled shot of sparkling Prosecco.',
-      price: 9000,
-      image_url: '/images/pornstar-martini.jpg',
-      type: 'drink',
-      is_available: 1,
-      is_popular: 1
-    },
-    {
-      category_slug: 'cocktails',
-      name: 'Pink Gin & Tonic Spritz',
+      name: 'Gin & Tonic',
       description: 'Vibrant pink botanical gin infused with wild berries and hibiscus, paired with artisanal Indian tonic, fresh pink grapefruit wheel, and crushed crystal ice.',
       price: 8000,
       image_url: '/images/pink-gin-spritz.jpg',
@@ -666,7 +595,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     },
     {
       category_slug: 'cocktails',
-      name: 'Golden Goss Cocktail',
+      name: 'Margarita',
       description: 'Artisanal golden cocktail with subtle amber botanicals, dried citrus, and delicate honeyed warmth.',
       price: 16500,
       image_url: '/images/golden-goss-cocktail.jpg',
@@ -676,7 +605,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     },
     {
       category_slug: 'main-courses',
-      name: 'Prime Grilled Ribeye Steak',
+      name: 'Ribeye Steak',
       description: '350g char-grilled aged prime beef ribeye steak cooked to perfection, served with crispy roasted hasselback potato, butter-glazed asparagus, and rich red wine jus.',
       price: 22000,
       image_url: '/images/prime-ribeye-steak.jpg',
@@ -686,7 +615,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     },
     {
       category_slug: 'main-courses',
-      name: 'Crispy Chicken Schnitzel Fettuccine',
+      name: 'Chicken Schnitzel',
       description: 'Golden panko-crusted chicken cutlet served atop handmade ribbon fettuccine in a velvety garlic-Parmigiano cream sauce, with roasted cherry tomatoes and crispy sage.',
       price: 14500,
       image_url: '/images/chicken-schnitzel-fettuccine.jpg',
@@ -696,7 +625,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     },
     {
       category_slug: 'starters',
-      name: 'Confit Byaldi (Layered Ratatouille)',
+      name: 'Ratatouille',
       description: 'Artfully spiraled medallions of golden squash, green zucchini, Japanese eggplant, and ripe vine tomatoes slow-baked over charred bell pepper and herb de Provence piperade coulis.',
       price: 9500,
       image_url: '/images/confit-byaldi-ratatouille.jpg',
@@ -722,28 +651,94 @@ export async function runMigrationsAndSeed(force: boolean = false) {
         is_available: 1,
         is_popular: 1
       });
-    } else {
-      localStorage.insert('menu_items', {
-        category_id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        image_url: item.image_url,
-        type: item.type,
-        is_available: 1,
-        is_popular: 1
-      });
     }
   }
 
-  // Ensure Avocado Carpaccio has the updated image asset
-  const avocadoItems = localStorage.find('menu_items', (item) => item.name.toLowerCase().includes('avocado'));
-  for (const item of avocadoItems) {
+  // Ensure Avocado Carpaccio has the updated image asset and short famous name
+  const carpaccioItems = localStorage.find('menu_items', (item) => item.name.toLowerCase().includes('carpaccio') || item.name.toLowerCase().includes('avocado'));
+  for (const item of carpaccioItems) {
     localStorage.update('menu_items', item.id, {
-      name: 'Mango & Avocado Carpaccio',
+      name: 'Carpaccio',
       image_url: '/images/avocado-carpaccio.jpg',
       description: 'Delicately sliced ripe Hass avocado and sweet yellow mango arranged in an elegant rosette fan, garnished with whipped goat cheese rosettes, fresh garden basil, and cracked black pepper.'
     });
+  }
+
+  // Purge removed menu items (Sambaza, Truffle Mushroom, Samosas, Nyama Choma, Grilled Jumbo, Handcrafted Truffle)
+  const namesToRemove = [
+    'crispy lake kivu sambaza',
+    'truffle mushroom & plantain croquettes',
+    'spiced gourmet beef samosas',
+    'eko signature nyama choma platter',
+    'grilled jumbo king prawns',
+    'handcrafted truffle tagliatelle'
+  ];
+
+  const menuItemsToDelete = localStorage.find('menu_items', (item) => {
+    const lower = item.name.toLowerCase();
+    return namesToRemove.some(rem => lower.includes(rem) || rem.includes(lower));
+  });
+
+  for (const item of menuItemsToDelete) {
+    localStorage.delete('menu_items', item.id);
+  }
+
+  // Convert all remaining menu items to short single famous names
+  const famousRules: { test: (n: string) => boolean; newName: string }[] = [
+    // Foods
+    { test: (n) => /carpaccio/i.test(n), newName: 'Carpaccio' },
+    { test: (n) => /pumpkin|velout/i.test(n), newName: 'Pumpkin Soup' },
+    { test: (n) => /bruschetta/i.test(n), newName: 'Bruschetta' },
+    { test: (n) => /ratatouille|byaldi/i.test(n), newName: 'Ratatouille' },
+    { test: (n) => /akabenz/i.test(n), newName: 'Akabenz' },
+    { test: (n) => /garden.*salad|green salad/i.test(n), newName: 'Garden Salad' },
+    { test: (n) => /perch|nile perch|grilled fish/i.test(n), newName: 'Grilled Fish' },
+    { test: (n) => /tagine|lamb/i.test(n), newName: 'Lamb Tagine' },
+    { test: (n) => /risotto/i.test(n), newName: 'Risotto' },
+    { test: (n) => /quinoa|buddha/i.test(n), newName: 'Quinoa Bowl' },
+    { test: (n) => /ribeye|steak/i.test(n), newName: 'Ribeye Steak' },
+    { test: (n) => /schnitzel/i.test(n), newName: 'Chicken Schnitzel' },
+    { test: (n) => /chicken supreme|roast chicken|roasted.*chicken/i.test(n), newName: 'Roast Chicken' },
+    { test: (n) => /cheesecake/i.test(n), newName: 'Cheesecake' },
+    { test: (n) => /lava cake|chocolate lava/i.test(n), newName: 'Lava Cake' },
+    { test: (n) => /fruit tart|tart/i.test(n), newName: 'Fruit Tart' },
+    { test: (n) => /brûlée|brule/i.test(n), newName: 'Crème Brûlée' },
+    { test: (n) => /honey cake/i.test(n), newName: 'Honey Cake' },
+    { test: (n) => /sorbet/i.test(n), newName: 'Sorbet' },
+
+    // Drinks
+    { test: (n) => /sunset spritz|aperol/i.test(n), newName: 'Aperol Spritz' },
+    { test: (n) => /bourbon|old fashioned/i.test(n) && !/espresso/i.test(n), newName: 'Old Fashioned' },
+    { test: (n) => /pornstar|martini/i.test(n), newName: 'Pornstar Martini' },
+    { test: (n) => /pink gin|gin & tonic|gin and tonic/i.test(n), newName: 'Gin & Tonic' },
+    { test: (n) => /golden goss|margarita/i.test(n), newName: 'Margarita' },
+    { test: (n) => /iced tea|hibiscus/i.test(n), newName: 'Iced Tea' },
+    { test: (n) => /mocktail|basil & lime|virgin mojito|mojito/i.test(n), newName: 'Virgin Mojito' },
+    { test: (n) => /bordeaux|red wine/i.test(n), newName: 'Red Wine' },
+    { test: (n) => /sauvignon|white wine/i.test(n), newName: 'White Wine' },
+    { test: (n) => /espresso/i.test(n), newName: 'Espresso' },
+    { test: (n) => /cappuccino/i.test(n), newName: 'Cappuccino' },
+    { test: (n) => /latte/i.test(n), newName: 'Iced Latte' }
+  ];
+
+  const currentItems = localStorage.find('menu_items', () => true);
+  for (const item of currentItems) {
+    const match = famousRules.find(r => r.test(item.name));
+    if (match && item.name !== match.newName) {
+      localStorage.update('menu_items', item.id, { name: match.newName });
+    }
+  }
+
+  // Ensure each drink only appears once (deduplicate drinks)
+  const allDrinks = localStorage.find('menu_items', (i) => i.type === 'drink');
+  const seenDrinkNames = new Set<string>();
+  for (const drink of allDrinks) {
+    const normalized = drink.name.toLowerCase().trim();
+    if (seenDrinkNames.has(normalized)) {
+      localStorage.delete('menu_items', drink.id);
+    } else {
+      seenDrinkNames.add(normalized);
+    }
   }
 
   console.log('[Database] Migrations and seeding completed successfully.');

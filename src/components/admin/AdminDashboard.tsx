@@ -89,6 +89,9 @@ export function AdminDashboard({
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
+  const [reservationToDelete, setReservationToDelete] = useState<any | null>(null);
 
   // Filters
   const [reservationFilter, setReservationFilter] = useState<'all' | 'pending' | 'confirmed' | 'seated' | 'completed' | 'cancelled'>('all');
@@ -153,7 +156,7 @@ export function AdminDashboard({
     setTimeout(() => setNotice(null), 4000);
   };
 
-  const loadData = async () => {
+  const loadData = async (manual = false) => {
     if (!authToken) return;
     try {
       setLoading(true);
@@ -176,6 +179,11 @@ export function AdminDashboard({
       setActivityLogs(logsRes.data?.logs || []);
       setGalleryItems(galRes.data?.gallery || []);
       setRestaurantSettings(setRes.data?.settings || {});
+      setLastRefreshed(new Date());
+
+      if (manual) {
+        showToast('success', 'Admin dashboard refreshed successfully with live data');
+      }
     } catch (err: any) {
       showToast('error', err.message || 'Failed to load dashboard data');
     } finally {
@@ -186,6 +194,14 @@ export function AdminDashboard({
   useEffect(() => {
     loadData();
   }, [authToken]);
+
+  useEffect(() => {
+    if (!autoRefreshEnabled || !authToken) return;
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 20000); // 20 seconds live update cycle
+    return () => clearInterval(interval);
+  }, [autoRefreshEnabled, authToken]);
 
   // Reservation Actions
   const handleConfirmReservation = async (resId: number) => {
@@ -269,10 +285,10 @@ export function AdminDashboard({
 
   const handleDeleteReservation = async (resId: number) => {
     if (!authToken) return;
-    if (!window.confirm(`Are you sure you want to remove reservation #${resId}?`)) return;
     try {
       await deleteAdminReservation(authToken, resId);
       showToast('success', `Reservation #${resId} deleted`);
+      setReservationToDelete(null);
       loadData();
     } catch (err: any) {
       showToast('error', err.message || 'Failed to delete reservation');
@@ -463,6 +479,36 @@ export function AdminDashboard({
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Live Refresh Controller */}
+            <div className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 rounded-xl p-1 shadow-inner">
+              <button
+                onClick={() => loadData(true)}
+                disabled={loading}
+                className="px-3 py-1.5 rounded-lg bg-neutral-800/90 hover:bg-[#D4AF37]/20 border border-neutral-700/60 hover:border-[#D4AF37]/50 text-neutral-200 hover:text-[#F3E5AB] text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
+                title={`Last updated: ${lastRefreshed.toLocaleTimeString()}`}
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  const nextState = !autoRefreshEnabled;
+                  setAutoRefreshEnabled(nextState);
+                  showToast('success', nextState ? 'Auto-refresh enabled (20s polling)' : 'Auto-refresh paused');
+                }}
+                className={`px-2 py-1.5 rounded-lg text-[11px] font-mono transition-colors flex items-center gap-1.5 ${
+                  autoRefreshEnabled
+                    ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-800/50'
+                    : 'text-neutral-500 hover:text-neutral-400 border border-transparent'
+                }`}
+                title="Toggle 20-second automatic background sync"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${autoRefreshEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600'}`} />
+                <span className="hidden md:inline">{autoRefreshEnabled ? 'Live Sync' : 'Sync Paused'}</span>
+              </button>
+            </div>
+
             {onNavigateToPublic && (
               <button
                 onClick={onNavigateToPublic}
@@ -470,7 +516,7 @@ export function AdminDashboard({
                 title="Open Public Restaurant Interface"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>Visit Public Site</span>
+                <span className="hidden sm:inline">Visit Site</span>
               </button>
             )}
 
@@ -607,6 +653,33 @@ export function AdminDashboard({
            ========================================================= */}
         {activeSection === 'overview' && (
           <div className="space-y-8 animate-in fade-in">
+            {/* Real-time Summary Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#141312] border border-neutral-800/80 rounded-2xl p-5 shadow-lg">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                  <span>Executive Operations Summary</span>
+                  <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-md">Live</span>
+                </h3>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  Synchronized restaurant bookings, kitchen dispatch, and catalog metrics for KK 554 Kigali
+                </p>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[11px] text-neutral-500 font-mono">
+                  Synced: {lastRefreshed.toLocaleTimeString()}
+                </span>
+                <button
+                  onClick={() => loadData(true)}
+                  disabled={loading}
+                  className="px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-neutral-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow active:scale-95 disabled:opacity-50"
+                  title="Refresh Dashboard"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+                  <span>Refresh Overview</span>
+                </button>
+              </div>
+            </div>
+
             {/* Pending Booking Notice Banner */}
             {pendingReservations.length > 0 && (
               <div className="bg-gradient-to-r from-amber-950/60 via-[#1C1810] to-[#141312] border border-[#D4AF37]/50 rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -860,11 +933,13 @@ export function AdminDashboard({
                   <span>Receive New Booking</span>
                 </button>
                 <button
-                  onClick={loadData}
-                  className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-neutral-300 hover:text-white"
+                  onClick={() => loadData(true)}
+                  disabled={loading}
+                  className="px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-neutral-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
                   title="Reload Bookings"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Refresh Bookings</span>
                 </button>
               </div>
             </div>
@@ -953,8 +1028,35 @@ export function AdminDashboard({
                   <tbody className="divide-y divide-neutral-800/60 font-sans">
                     {filteredReservations.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="p-12 text-center text-neutral-500">
-                          No reservations match the selected filter.
+                        <td colSpan={8} className="py-16 px-4 text-center">
+                          <div className="max-w-md mx-auto space-y-3">
+                            <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-800 text-[#D4AF37] flex items-center justify-center mx-auto shadow-inner">
+                              <Calendar className="w-6 h-6" />
+                            </div>
+                            <h4 className="font-serif text-lg font-bold text-white">No Reservations Found</h4>
+                            <p className="text-xs text-neutral-400 leading-relaxed">
+                              {reservations.length === 0
+                                ? 'There are currently no table bookings in the database. When guests book online or intake records are recorded, they will appear here in real time.'
+                                : 'No reservations match your currently selected filter or search term.'}
+                            </p>
+                            <div className="flex items-center justify-center gap-3 pt-2">
+                              <button
+                                onClick={() => setShowAddReservationModal(true)}
+                                className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-bold text-xs flex items-center gap-1.5 hover:brightness-110 shadow-md transition-all"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Receive New Booking</span>
+                              </button>
+                              <button
+                                onClick={() => loadData(true)}
+                                disabled={loading}
+                                className="px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-neutral-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                              >
+                                <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+                                <span>Refresh</span>
+                              </button>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     ) : (
@@ -1072,7 +1174,7 @@ export function AdminDashboard({
                               </button>
 
                               <button
-                                onClick={() => handleDeleteReservation(r.id)}
+                                onClick={() => setReservationToDelete(r)}
                                 className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-rose-400 hover:border-rose-900"
                                 title="Delete reservation"
                               >
@@ -1102,10 +1204,12 @@ export function AdminDashboard({
               </div>
 
               <button
-                onClick={loadData}
-                className="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-700 text-xs text-neutral-300 hover:text-white flex items-center gap-1.5"
+                onClick={() => loadData(true)}
+                disabled={loading}
+                className="px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-xs text-neutral-200 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                title="Refresh orders from kitchen"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
                 <span>Refresh Orders</span>
               </button>
             </div>
@@ -2114,6 +2218,48 @@ export function AdminDashboard({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Delete Reservation Confirmation Modal */}
+      {reservationToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#141312] border border-rose-900/60 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-950/60 border border-rose-800/50 flex items-center justify-center text-rose-400 shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-serif text-lg font-bold text-white">Delete Reservation?</h4>
+                <p className="text-xs text-neutral-400">
+                  Are you sure you want to permanently remove booking <span className="font-mono text-amber-300 font-bold">{reservationToDelete.reservation_code || `#RES-${reservationToDelete.id}`}</span> for <span className="text-white font-medium">{reservationToDelete.customer_name}</span>?
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[#0D0C0B] border border-neutral-800 rounded-xl p-3.5 text-xs text-neutral-400 space-y-1 font-mono">
+              <div><span className="text-neutral-500">Date & Time:</span> <span className="text-neutral-200">{reservationToDelete.reservation_date} at {reservationToDelete.reservation_time}</span></div>
+              <div><span className="text-neutral-500">Party Size:</span> <span className="text-neutral-200">{reservationToDelete.party_size} Guests</span></div>
+              <div><span className="text-neutral-500">Seating Area:</span> <span className="text-neutral-200 capitalize">{reservationToDelete.seating_area?.replace('_', ' ')}</span></div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setReservationToDelete(null)}
+                className="px-4 py-2.5 rounded-xl text-xs text-neutral-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteReservation(reservationToDelete.id)}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg transition-colors"
+              >
+                Delete Reservation
+              </button>
+            </div>
           </div>
         </div>
       )}

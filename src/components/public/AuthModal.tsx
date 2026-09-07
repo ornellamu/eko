@@ -6,7 +6,6 @@ import {
   Mail, 
   Phone, 
   Key, 
-  Sparkles, 
   CheckCircle2,
   ShieldCheck,
   RefreshCw,
@@ -37,17 +36,16 @@ export function AuthModal({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [username, setUsername] = useState('Admin');
+  const [username, setUsername] = useState('');
 
   // Sync mode whenever initialMode changes or modal opens
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
       setError(null);
-      if (initialMode === 'admin') {
-        setUsername('Admin');
-        setPassword('admin123');
-      }
+      setPassword('');
+      setUsername('');
+      setEmail('');
     }
   }, [initialMode, isOpen]);
 
@@ -61,8 +59,8 @@ export function AuthModal({
     try {
       if (mode === 'admin') {
         const res = await adminLogin({
-          emailOrUsername: username || 'Admin',
-          password: password || 'admin123'
+          emailOrUsername: username.trim(),
+          password: password.trim()
         });
         if (res.data.token && res.data.admin) {
           localStorage.setItem('eko_auth_token', res.data.token);
@@ -71,10 +69,10 @@ export function AuthModal({
         }
       } else if (mode === 'register') {
         const res = await customerRegister({
-          email,
-          password,
-          fullName,
-          phone
+          email: email.trim(),
+          password: password.trim(),
+          fullName: fullName.trim(),
+          phone: phone.trim()
         });
         if (res.data.token && res.data.user) {
           localStorage.setItem('eko_auth_token', res.data.token);
@@ -83,8 +81,8 @@ export function AuthModal({
         }
       } else {
         const res = await customerLogin({
-          emailOrUsername: email,
-          password
+          emailOrUsername: email.trim(),
+          password: password.trim()
         });
         if (res.data.token && (res.data.user || res.data.admin)) {
           const authenticatedUser = res.data.user || res.data.admin!;
@@ -95,26 +93,6 @@ export function AuthModal({
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handle1ClickAdmin = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await adminLogin({
-        emailOrUsername: 'Admin',
-        password: 'admin123'
-      });
-      if (res.data.token && res.data.admin) {
-        localStorage.setItem('eko_auth_token', res.data.token);
-        onLoginSuccess({ ...res.data.admin, role: 'admin' }, res.data.token);
-        onClose();
-      }
-    } catch (err: any) {
-      setError(err.message || 'Quick Admin login failed');
     } finally {
       setLoading(false);
     }
@@ -182,6 +160,8 @@ export function AuthModal({
             onClick={() => {
               setMode('admin');
               setError(null);
+              setUsername('');
+              setPassword('');
             }}
             className={`py-1.5 rounded-lg font-semibold transition-all ${
               mode === 'admin' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
@@ -239,11 +219,11 @@ export function AuthModal({
             </div>
           ) : (
             <div className="space-y-1">
-              <label className="text-neutral-300 font-medium">Email Address</label>
+              <label className="text-neutral-300 font-medium">Email Address or Admin Username</label>
               <input
-                type="email"
+                type="text"
                 required
-                placeholder="user@example.com"
+                placeholder="admin or user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
@@ -273,18 +253,6 @@ export function AuthModal({
               {mode === 'admin' ? 'Login as Admin' : mode === 'register' ? 'Create Guest Profile' : 'Sign In to Eko'}
             </span>
           </button>
-
-          {mode === 'admin' && (
-            <button
-              type="button"
-              onClick={handle1ClickAdmin}
-              disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/50 text-[#E5C158] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#252320]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Instant 1-Click Master Admin Login (Admin / admin123)</span>
-            </button>
-          )}
         </form>
       </div>
     </div>

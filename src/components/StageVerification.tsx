@@ -111,8 +111,8 @@ export function StageVerification() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  const [adminUsername, setAdminUsername] = useState('admin');
-  const [adminPassword, setAdminPassword] = useState('admin123');
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
 
   const [guardTestResult, setGuardTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -156,30 +156,6 @@ export function StageVerification() {
       console.error(err);
     } finally {
       setProdLoading(false);
-    }
-  }
-
-  async function handleQuickAdminLogin() {
-    try {
-      setAuthLoading(true);
-      setAuthMessage(null);
-      const res = await adminLogin({
-        emailOrUsername: 'admin',
-        password: 'Admin@Eko2026!'
-      });
-      if (res.data.token && res.data.admin) {
-        localStorage.setItem('eko_auth_token', res.data.token);
-        setAuthToken(res.data.token);
-        setCurrentUser(res.data.admin);
-        setCurrentRole('admin');
-        setAuthMessage({ type: 'success', text: `Logged in as Admin ('${res.data.admin.username}')` });
-        setActiveTab('admin');
-        loadTable('activity_logs');
-      }
-    } catch (err: any) {
-      setAuthMessage({ type: 'error', text: err.message || 'Quick Admin login failed' });
-    } finally {
-      setAuthLoading(false);
     }
   }
 
@@ -435,12 +411,11 @@ export function StageVerification() {
               </button>
             ) : (
               <button
-                onClick={handleQuickAdminLogin}
-                disabled={authLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d4af37] hover:bg-[#c59e2b] text-black font-semibold rounded-lg text-xs transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+                onClick={() => setActiveTab('auth')}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d4af37]/20 hover:bg-[#d4af37]/30 border border-[#d4af37]/50 rounded-lg text-xs font-semibold text-[#f3e5ab] transition-all"
               >
-                {authLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Key className="w-3.5 h-3.5" />}
-                <span>Quick Admin Login</span>
+                <Key className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span>Admin Login</span>
               </button>
             )}
 
@@ -822,9 +797,9 @@ export function StageVerification() {
                       value={adminUsername}
                       onChange={(e) => setAdminUsername(e.target.value)}
                       required
+                      placeholder="Username or email"
                       className="w-full bg-[#09090b] border border-[#27272a] focus:border-[#d4af37] rounded-lg px-3 py-2 text-xs text-white outline-none"
                     />
-                    <span className="text-[10px] text-[#71717a] mt-0.5 block">Seeded: <code>admin</code> or <code>mugishamp7@gmail.com</code></span>
                   </div>
                   <div>
                     <label className="text-[11px] text-[#a1a1aa] block font-mono mb-1">Password</label>
@@ -833,12 +808,12 @@ export function StageVerification() {
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
                       required
+                      placeholder="••••••••"
                       className="w-full bg-[#09090b] border border-[#27272a] focus:border-[#d4af37] rounded-lg px-3 py-2 text-xs text-white outline-none"
                     />
-                    <span className="text-[10px] text-[#71717a] mt-0.5 block">Constant: <code>admin123</code></span>
                   </div>
 
-                  <div className="pt-2 space-y-2">
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={authLoading}
@@ -846,15 +821,6 @@ export function StageVerification() {
                     >
                       {authLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Key className="w-3.5 h-3.5 text-[#d4af37]" />}
                       Login as Administrator
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleQuickAdminLogin}
-                      disabled={authLoading}
-                      className="w-full py-2 bg-[#d4af37] hover:bg-[#c59e2b] text-black font-bold rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md"
-                    >
-                      <Sparkles className="w-3 h-3 text-black" /> Instant 1-Click Admin Login
                     </button>
                   </div>
                 </form>
@@ -966,7 +932,7 @@ export function StageVerification() {
                   </div>
                 ) : (
                   <div className="p-4 bg-[#09090b] rounded-lg border border-[#27272a] text-center text-xs text-[#71717a]">
-                    Click "Test Server-Side Cart Calculation" to execute validation on a test payload (2x Nile Perch + 3x Hibiscus Tea + 1x Passion Fruit Cheesecake = 51,000 RWF).
+                    Click "Test Server-Side Cart Calculation" to execute validation on a test payload (2x Grilled Fish + 3x Iced Tea + 1x Cheesecake = 51,000 RWF).
                   </div>
                 )}
               </div>
@@ -1245,20 +1211,15 @@ export function StageVerification() {
                   </p>
                 </div>
 
-                <div className="bg-[#09090b] p-4 rounded-xl border border-[#27272a] text-left text-xs font-mono space-y-1">
-                  <p className="text-[#71717a]">Seeded Master Admin Credentials:</p>
-                  <p className="text-white">Username: <span className="text-[#d4af37]">admin</span></p>
-                  <p className="text-white">Password: <span className="text-[#d4af37]">Admin@Eko2026!</span></p>
+                <div>
+                  <button
+                    onClick={() => setActiveTab('auth')}
+                    className="w-full py-2.5 bg-[#d4af37]/20 hover:bg-[#d4af37]/30 text-[#f3e5ab] border border-[#d4af37]/50 font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Key className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>Go to Administrator Sign In</span>
+                  </button>
                 </div>
-
-                <button
-                  onClick={handleQuickAdminLogin}
-                  disabled={authLoading}
-                  className="w-full py-3 bg-[#d4af37] hover:bg-[#c59e2b] text-black font-bold rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2"
-                >
-                  {authLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  <span>Instant 1-Click Admin Login</span>
-                </button>
               </div>
             )}
           </div>
