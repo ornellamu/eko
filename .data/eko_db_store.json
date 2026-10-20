@@ -70,37 +70,37 @@
         "id": 1,
         "username": "admin",
         "email": "admin@eko.rw",
-        "password_hash": "$2b$10$rkvf7RTaxenSQCDZgUN9wO5iKGvr1mpGsiRXR.1epfc4v1vdCCWwS",
+        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.469Z",
-        "updated_at": "2026-09-07T15:30:42.726Z"
+        "updated_at": "2026-10-20T16:48:41.669Z"
       },
       {
         "id": 2,
         "username": "mucyo",
         "email": "mucyo357@gmail.com",
-        "password_hash": "$2b$10$rkvf7RTaxenSQCDZgUN9wO5iKGvr1mpGsiRXR.1epfc4v1vdCCWwS",
+        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.470Z",
-        "updated_at": "2026-09-07T15:30:42.727Z"
+        "updated_at": "2026-10-20T16:48:41.671Z"
       },
       {
         "id": 3,
         "username": "murasa",
         "email": "murasa320@gmail.com",
-        "password_hash": "$2b$10$rkvf7RTaxenSQCDZgUN9wO5iKGvr1mpGsiRXR.1epfc4v1vdCCWwS",
+        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.471Z",
-        "updated_at": "2026-09-07T15:30:42.728Z"
+        "updated_at": "2026-10-20T16:48:41.673Z"
       },
       {
         "id": 4,
         "username": "mugisha",
         "email": "mugishamp7@gmail.com",
-        "password_hash": "$2b$10$rkvf7RTaxenSQCDZgUN9wO5iKGvr1mpGsiRXR.1epfc4v1vdCCWwS",
+        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.472Z",
-        "updated_at": "2026-09-07T15:30:42.728Z"
+        "updated_at": "2026-10-20T16:48:41.672Z"
       }
     ],
     "categories": [
@@ -200,7 +200,7 @@
         "spicy_level": 0,
         "id": 1,
         "created_at": "2026-08-27T03:23:50.817Z",
-        "updated_at": "2026-09-07T15:30:42.733Z"
+        "updated_at": "2026-10-20T16:48:41.678Z"
       },
       {
         "category_id": 1,
@@ -248,7 +248,7 @@
         "spicy_level": 0,
         "id": 22,
         "created_at": "2026-08-27T14:09:12.425Z",
-        "updated_at": "2026-09-07T15:30:42.732Z"
+        "updated_at": "2026-10-20T16:48:41.677Z"
       },
       {
         "category_id": 1,
@@ -360,7 +360,7 @@
         "spicy_level": 0,
         "id": 20,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-09-07T15:30:42.731Z"
+        "updated_at": "2026-10-20T16:48:41.675Z"
       },
       {
         "category_id": 2,
@@ -376,7 +376,7 @@
         "spicy_level": 0,
         "id": 21,
         "created_at": "2026-08-27T14:09:12.425Z",
-        "updated_at": "2026-09-07T15:30:42.731Z"
+        "updated_at": "2026-10-20T16:48:41.676Z"
       },
       {
         "category_id": 2,
@@ -552,7 +552,7 @@
         "spicy_level": 0,
         "id": 18,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-09-07T15:30:42.729Z"
+        "updated_at": "2026-10-20T16:48:41.673Z"
       },
       {
         "category_id": 12,
@@ -568,7 +568,7 @@
         "spicy_level": 0,
         "id": 19,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-09-07T15:30:42.730Z"
+        "updated_at": "2026-10-20T16:48:41.674Z"
       },
       {
         "category_id": 11,
