@@ -15,7 +15,7 @@ import { PageView } from '../../types';
 
 interface FooterProps {
   onNavigate: (page: PageView) => void;
-  onOpenAuth: (mode?: 'login' | 'register' | 'admin') => void;
+  onOpenAuth: (mode?: 'login' | 'register') => void;
 }
 
 export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
@@ -186,17 +186,16 @@ export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
             <div className="pt-2 space-y-2">
               <button
                 onClick={() => onNavigate('reservation')}
-                className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-bold text-xs uppercase tracking-wider transition-all"
+                className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md"
               >
                 Inquire For VIP Suite
               </button>
 
               <button
-                onClick={() => onOpenAuth('admin')}
-                className="w-full py-1.5 px-3 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 text-[11px] font-mono flex items-center justify-center gap-1.5 transition-colors"
+                onClick={() => onOpenAuth('register')}
+                className="w-full py-2 px-3 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>Admin Management Portal</span>
+                <span>Create Guest Profile</span>
               </button>
             </div>
           </div>

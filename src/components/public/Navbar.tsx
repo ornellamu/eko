@@ -19,7 +19,7 @@ interface NavbarProps {
   currentPage: PageView;
   onNavigate: (page: PageView) => void;
   currentUser: AuthUser | null;
-  onOpenAuth: (mode?: 'login' | 'register' | 'admin') => void;
+  onOpenAuth: (mode?: 'login' | 'register') => void;
   onLogout: () => void;
   onToggleDevTracker: () => void;
 }
@@ -141,23 +141,6 @@ export function Navbar({
               <span>Book a Table</span>
             </button>
 
-            {/* Admin Portal Direct Button */}
-            <button
-              onClick={() => {
-                if (currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin') {
-                  onNavigate('admin');
-                } else {
-                  onOpenAuth('admin');
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#E5C158] bg-[#1C1A17] border border-[#D4AF37]/40 hover:bg-[#2A2620] hover:border-[#D4AF37] transition-all shadow-sm"
-              title="Restaurant Executive Management"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="hidden sm:inline">Admin Portal</span>
-              <span className="sm:hidden">Admin</span>
-            </button>
-
             {/* User Account / Auth Dropdown */}
             {currentUser ? (
               <div className="hidden sm:flex items-center gap-2 bg-[#181715] border border-neutral-800 px-3 py-1.5 rounded-xl text-xs">
@@ -243,27 +226,11 @@ export function Navbar({
               <span>Book a Table</span>
             </button>
 
-            {/* Direct Admin Portal link in mobile */}
-            <button
-              onClick={() => {
-                if (currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin') {
-                  onNavigate('admin');
-                } else {
-                  onOpenAuth('admin');
-                }
-                setMobileMenuOpen(false);
-              }}
-              className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/40 text-[#E5C158] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm hover:bg-[#2A2620]"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
-              <span>Admin Portal</span>
-            </button>
-
             {currentUser ? (
               <div className="space-y-2">
                 <button
                   onClick={() => {
-                    onNavigate(currentUser.role === 'admin' || (currentUser as any)?.role === 'superadmin' ? 'admin' : 'account');
+                    onNavigate('account');
                     setMobileMenuOpen(false);
                   }}
                   className="w-full py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-semibold flex items-center justify-center gap-2 border border-neutral-700"

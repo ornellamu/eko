@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  User, 
   Lock, 
   Mail, 
   Phone, 
-  Key, 
+  User,
   CheckCircle2,
-  ShieldCheck,
-  RefreshCw,
-  HelpCircle
+  RefreshCw
 } from 'lucide-react';
 import { AuthUser } from '../../types';
-import { customerLogin, customerRegister, adminLogin } from '../../services/api';
+import { customerLogin, customerRegister } from '../../services/api';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'register' | 'admin';
+  initialMode?: 'login' | 'register';
   onLoginSuccess: (user: AuthUser, token: string) => void;
 }
 
@@ -27,7 +24,7 @@ export function AuthModal({
   initialMode = 'login',
   onLoginSuccess
 }: AuthModalProps) {
-  const [mode, setMode] = useState<'login' | 'register' | 'admin'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,17 +54,7 @@ export function AuthModal({
     setLoading(true);
 
     try {
-      if (mode === 'admin') {
-        const res = await adminLogin({
-          emailOrUsername: username.trim(),
-          password: password.trim()
-        });
-        if (res.data.token && res.data.admin) {
-          localStorage.setItem('eko_auth_token', res.data.token);
-          onLoginSuccess({ ...res.data.admin, role: 'admin' }, res.data.token);
-          onClose();
-        }
-      } else if (mode === 'register') {
+      if (mode === 'register') {
         const res = await customerRegister({
           email: email.trim(),
           password: password.trim(),
@@ -117,9 +104,14 @@ export function AuthModal({
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
-            <h3 className="font-serif text-xl font-bold text-white">
-              {mode === 'admin' ? 'Administrator Login' : mode === 'register' ? 'Join Eko Kigali' : 'Guest Sign In'}
-            </h3>
+            <div>
+              <h3 className="font-serif text-xl font-bold text-white">
+                {mode === 'register' ? 'Join Éko Kigali' : 'Client Sign In'}
+              </h3>
+              <p className="text-[11px] text-neutral-400">
+                {mode === 'register' ? 'Register to reserve tables and track dining' : 'Sign in to access your table bookings'}
+              </p>
+            </div>
           </div>
           <button 
             onClick={onClose}
@@ -130,15 +122,15 @@ export function AuthModal({
         </div>
 
         {/* Tab Toggle */}
-        <div className="grid grid-cols-3 gap-1 bg-[#0D0C0B] p-1 rounded-xl border border-neutral-800 text-xs">
+        <div className="grid grid-cols-2 gap-1 bg-[#0D0C0B] p-1 rounded-xl border border-neutral-800 text-xs">
           <button
             type="button"
             onClick={() => {
               setMode('login');
               setError(null);
             }}
-            className={`py-1.5 rounded-lg font-semibold transition-all ${
-              mode === 'login' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
+            className={`py-2 rounded-lg font-semibold transition-all ${
+              mode === 'login' ? 'bg-[#D4AF37] text-black font-bold shadow-sm' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Sign In
@@ -149,25 +141,11 @@ export function AuthModal({
               setMode('register');
               setError(null);
             }}
-            className={`py-1.5 rounded-lg font-semibold transition-all ${
-              mode === 'register' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
+            className={`py-2 rounded-lg font-semibold transition-all ${
+              mode === 'register' ? 'bg-[#D4AF37] text-black font-bold shadow-sm' : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Register
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('admin');
-              setError(null);
-              setUsername('');
-              setPassword('');
-            }}
-            className={`py-1.5 rounded-lg font-semibold transition-all ${
-              mode === 'admin' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Admin
+            Create Account
           </button>
         </div>
 
@@ -196,6 +174,7 @@ export function AuthModal({
                 <label className="text-neutral-300 font-medium">Phone / WhatsApp</label>
                 <input
                   type="tel"
+                  required
                   placeholder="e.g. 0788 123 456"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -205,31 +184,17 @@ export function AuthModal({
             </>
           )}
 
-          {mode === 'admin' ? (
-            <div className="space-y-1">
-              <label className="text-neutral-300 font-medium">Admin Username or Email</label>
-              <input
-                type="text"
-                required
-                placeholder="admin"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
-              />
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <label className="text-neutral-300 font-medium">Email Address or Admin Username</label>
-              <input
-                type="text"
-                required
-                placeholder="admin or user@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
-              />
-            </div>
-          )}
+          <div className="space-y-1">
+            <label className="text-neutral-300 font-medium">Email Address</label>
+            <input
+              type="email"
+              required
+              placeholder="e.g. client@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+            />
+          </div>
 
           <div className="space-y-1">
             <label className="text-neutral-300 font-medium">Password</label>
@@ -250,7 +215,7 @@ export function AuthModal({
           >
             {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
             <span>
-              {mode === 'admin' ? 'Login as Admin' : mode === 'register' ? 'Create Guest Profile' : 'Sign In to Eko'}
+              {mode === 'register' ? 'Create Client Profile' : 'Sign In as Client'}
             </span>
           </button>
         </form>

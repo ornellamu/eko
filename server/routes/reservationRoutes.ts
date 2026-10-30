@@ -18,8 +18,8 @@ const reservationSchema = z.object({
   occasion: z.string().max(100).optional()
 });
 
-// Create table reservation
-router.post('/', validateBody(reservationSchema), createReservation);
+// Create table reservation - requires registered and logged-in client
+router.post('/', requireAuth, validateBody(reservationSchema), createReservation);
 
 // Look up reservation by confirmation code
 router.get('/lookup/:code', getReservationByCode);

@@ -17,16 +17,30 @@ import { GalleryPage } from './public/GalleryPage';
 import { ContactPage } from './public/ContactPage';
 import { CustomerDashboard } from './public/CustomerDashboard';
 import { AuthModal } from './public/AuthModal';
-import { AdminDashboard } from './admin/AdminDashboard';
+import { AdminPortalPage } from './admin/AdminPortalPage';
 import { StageVerification } from './StageVerification';
 import { Sparkles } from 'lucide-react';
 
+const checkIsAdminRoute = () => {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  return (
+    path === '/admin' || 
+    path.startsWith('/admin/') || 
+    hash === '#admin' || 
+    hash === '#/admin' || 
+    hash.startsWith('#/admin/')
+  );
+};
+
 export function EkoApp() {
+  const [isAdminRoute, setIsAdminRoute] = useState(checkIsAdminRoute);
   const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'admin'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   
   // Auth state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -34,6 +48,19 @@ export function EkoApp() {
   
   // Toggle between public live restaurant and Dev Verification Matrix
   const [showDevTracker, setShowDevTracker] = useState(false);
+
+  // Sync route changes (popstate & hashchange)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setIsAdminRoute(checkIsAdminRoute());
+    };
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
 
   // Load initial data
   useEffect(() => {
@@ -71,8 +98,6 @@ export function EkoApp() {
     setCurrentPage('home');
   };
 
-  const isAdmin = currentUser?.role === 'admin' || (currentUser as any)?.role === 'superadmin';
-
   // If developer toggles the Verification Matrix
   if (showDevTracker) {
     return (
@@ -90,14 +115,22 @@ export function EkoApp() {
     );
   }
 
-  // If Admin is active on Admin Dashboard
-  if (currentPage === 'admin' && isAdmin) {
+  // SPECIAL ROUTE: If accessing /admin or #/admin, render isolated AdminPortalPage without user page
+  if (isAdminRoute) {
     return (
-      <AdminDashboard
+      <AdminPortalPage
         currentUser={currentUser}
         authToken={authToken}
+        onAdminLoginSuccess={(adminUser, token) => {
+          setCurrentUser(adminUser);
+          setAuthToken(token);
+        }}
         onLogout={handleLogout}
-        onNavigateToPublic={() => setCurrentPage('home')}
+        onNavigateToPublic={() => {
+          window.history.pushState(null, '', '/');
+          setIsAdminRoute(false);
+          setCurrentPage('home');
+        }}
         onOpenStageVerification={() => setShowDevTracker(true)}
       />
     );
@@ -109,12 +142,7 @@ export function EkoApp() {
       <Navbar
         currentPage={currentPage}
         onNavigate={(page) => {
-          if (page === 'admin' && !isAdmin) {
-            setAuthMode('admin');
-            setIsAuthOpen(true);
-          } else {
-            setCurrentPage(page);
-          }
+          setCurrentPage(page);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         currentUser={currentUser}
@@ -153,6 +181,14 @@ export function EkoApp() {
           <ReservationPage 
             authToken={authToken}
             currentUser={currentUser}
+            onOpenAuth={(mode) => {
+              setAuthMode(mode || 'login');
+              setIsAuthOpen(true);
+            }}
+            onAuthSuccess={(user, token) => {
+              setCurrentUser(user);
+              setAuthToken(token);
+            }}
           />
         )}
 
@@ -187,15 +223,10 @@ export function EkoApp() {
         {currentPage === 'contact' && <ContactPage />}
       </main>
 
-      {/* Footer */}
+      {/* Footer (without admin portal button) */}
       <Footer
         onNavigate={(page) => {
-          if (page === 'admin' && !isAdmin) {
-            setAuthMode('admin');
-            setIsAuthOpen(true);
-          } else {
-            setCurrentPage(page);
-          }
+          setCurrentPage(page);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenAuth={(mode) => {
@@ -204,7 +235,7 @@ export function EkoApp() {
         }}
       />
 
-      {/* Auth Modal */}
+      {/* Auth Modal (client registration and login only) */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
@@ -212,12 +243,7 @@ export function EkoApp() {
         onLoginSuccess={(user, token) => {
           setCurrentUser(user);
           setAuthToken(token);
-          const userIsAdmin = user.role === 'admin' || (user as any).role === 'superadmin';
-          if (userIsAdmin) {
-            setCurrentPage('admin');
-          } else {
-            setCurrentPage('account');
-          }
+          setCurrentPage('account');
         }}
       />
     </div>

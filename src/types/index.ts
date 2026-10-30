@@ -211,7 +211,20 @@ export interface ReservationData {
   special_requests?: string;
   occasion?: string;
   status: 'confirmed' | 'seated' | 'cancelled' | 'completed';
+  table_number?: string;
   admin_notes?: string;
+  registered_customer?: {
+    id: number;
+    username: string;
+    email: string;
+    phone: string;
+    full_name?: string;
+    created_at?: string;
+    role?: string;
+    total_orders?: number;
+    total_reservations?: number;
+    is_registered?: boolean;
+  } | null;
   created_at: string;
   updated_at: string;
 }

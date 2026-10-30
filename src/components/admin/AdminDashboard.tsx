@@ -32,8 +32,8 @@ import {
   Edit3,
   CheckCircle,
   ChevronRight,
-  Filter,
   User,
+  UserCheck,
   Coffee,
   Wine,
   FileText
@@ -119,6 +119,7 @@ export function AdminDashboard({
 
   // 2. Edit / Assign Table Modal
   const [editingReservation, setEditingReservation] = useState<any | null>(null);
+  const [selectedClientInfo, setSelectedClientInfo] = useState<any | null>(null);
   const [editResForm, setEditResForm] = useState({
     status: 'confirmed',
     tableNumber: '',
@@ -1066,15 +1067,40 @@ export function AdminDashboard({
                             {r.reservation_code || `#RES-${r.id}`}
                           </td>
                           <td className="p-4">
-                            <span className="font-bold text-white block text-sm">{r.customer_name || 'Guest'}</span>
-                            <span className="text-[11px] text-neutral-400 flex items-center gap-1">
-                              <Phone className="w-3 h-3 text-neutral-500" />
-                              {r.customer_phone || '—'}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-bold text-white block text-sm">{r.customer_name || 'Guest'}</span>
+                              {r.registered_customer ? (
+                                <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-semibold border border-emerald-500/30 flex items-center gap-1">
+                                  <UserCheck className="w-2.5 h-2.5" />
+                                  <span>Registered Client</span>
+                                </span>
+                              ) : r.user_id ? (
+                                <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-mono font-semibold border border-blue-500/30">
+                                  Member #{r.user_id}
+                                </span>
+                              ) : null}
+                            </div>
+                            <span className="text-[11px] text-neutral-300 flex items-center gap-1 mt-0.5 font-mono">
+                              <Phone className="w-3 h-3 text-[#D4AF37]" />
+                              {r.customer_phone || r.registered_customer?.phone || '—'}
                             </span>
-                            {r.customer_email && (
-                              <span className="text-[11px] text-neutral-500 block truncate max-w-[150px]">
-                                {r.customer_email}
+                            {(r.customer_email || r.registered_customer?.email) && (
+                              <span className="text-[11px] text-neutral-400 block truncate max-w-[170px]">
+                                {r.customer_email || r.registered_customer?.email}
                               </span>
+                            )}
+                            {r.registered_customer && (
+                              <div className="mt-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedClientInfo(r.registered_customer)}
+                                  className="px-2 py-0.5 rounded-md bg-neutral-900 hover:bg-[#D4AF37]/20 border border-neutral-700 hover:border-[#D4AF37] text-[10px] text-[#D4AF37] hover:text-white font-mono flex items-center gap-1 transition-colors"
+                                  title="View client account & dining profile"
+                                >
+                                  <UserCheck className="w-3 h-3" />
+                                  <span>Client Dossier (@{r.registered_customer.username})</span>
+                                </button>
+                              </div>
                             )}
                           </td>
                           <td className="p-4">
@@ -2258,6 +2284,97 @@ export function AdminDashboard({
                 className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg transition-colors"
               >
                 Delete Reservation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Registered Client Profile Modal */}
+      {selectedClientInfo && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#141312] border border-[#D4AF37]/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif text-xl font-bold text-white">
+                      {selectedClientInfo.full_name || selectedClientInfo.username}
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-semibold border border-emerald-500/30">
+                      Registered Client
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-400 font-mono">
+                    @{selectedClientInfo.username} • Account #{selectedClientInfo.id}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedClientInfo(null)}
+                className="p-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Client Info Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 bg-[#0D0C0B] border border-neutral-800 rounded-2xl space-y-1">
+                <span className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider block">Verified Email</span>
+                <span className="text-white font-mono break-all">{selectedClientInfo.email || '—'}</span>
+              </div>
+              <div className="p-3.5 bg-[#0D0C0B] border border-neutral-800 rounded-2xl space-y-1">
+                <span className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider block">Phone Number</span>
+                <span className="text-amber-300 font-mono">{selectedClientInfo.phone || '—'}</span>
+              </div>
+              <div className="p-3.5 bg-[#0D0C0B] border border-neutral-800 rounded-2xl space-y-1">
+                <span className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider block">Member Since</span>
+                <span className="text-neutral-200">{selectedClientInfo.created_at ? new Date(selectedClientInfo.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</span>
+              </div>
+              <div className="p-3.5 bg-[#0D0C0B] border border-neutral-800 rounded-2xl space-y-1">
+                <span className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider block">Dining Activity</span>
+                <span className="text-[#D4AF37] font-semibold">{selectedClientInfo.total_reservations || 0} Bookings • {selectedClientInfo.total_orders || 0} Orders</span>
+              </div>
+            </div>
+
+            {/* Direct Concierge Communications */}
+            <div className="space-y-2 pt-2 border-t border-neutral-800">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 block">Maître d’ Direct Concierge</span>
+              <div className="grid grid-cols-2 gap-3">
+                {selectedClientInfo.phone && (
+                  <a
+                    href={`tel:${selectedClientInfo.phone}`}
+                    className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>Call Client</span>
+                  </a>
+                )}
+                {selectedClientInfo.phone && (
+                  <a
+                    href={`https://wa.me/${selectedClientInfo.phone.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-emerald-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>WhatsApp VIP</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedClientInfo(null)}
+                className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-md"
+              >
+                Close Dossier
               </button>
             </div>
           </div>

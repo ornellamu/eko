@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar as CalendarIcon, 
   Clock, 
@@ -15,17 +15,29 @@ import {
   Search,
   Copy,
   Smartphone,
-  AlertCircle
+  AlertCircle,
+  Lock,
+  UserCheck,
+  LogIn,
+  UserPlus,
+  RefreshCw
 } from 'lucide-react';
-import { createReservation, lookupReservation } from '../../services/api';
+import { createReservation, lookupReservation, customerLogin, customerRegister } from '../../services/api';
 import { ReservationData } from '../../types';
 
 interface ReservationPageProps {
   authToken?: string | null;
   currentUser?: any | null;
+  onOpenAuth?: (mode?: 'login' | 'register') => void;
+  onAuthSuccess?: (user: any, token: string) => void;
 }
 
-export function ReservationPage({ authToken, currentUser }: ReservationPageProps) {
+export function ReservationPage({ 
+  authToken, 
+  currentUser,
+  onOpenAuth,
+  onAuthSuccess
+}: ReservationPageProps) {
   const [activeTab, setActiveTab] = useState<'book' | 'lookup'>('book');
 
   // Booking Form State
@@ -41,6 +53,8 @@ export function ReservationPage({ authToken, currentUser }: ReservationPageProps
     specialRequests: ''
   });
 
+  const isAuthenticated = Boolean(currentUser && authToken);
+
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmedReservation, setConfirmedReservation] = useState<ReservationData | null>(null);
@@ -52,23 +66,86 @@ export function ReservationPage({ authToken, currentUser }: ReservationPageProps
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
+  // Sync formData with currentUser when logged in
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.full_name || currentUser.username || prev.name,
+        phone: currentUser.phone || prev.phone,
+        email: currentUser.email || prev.email
+      }));
+    }
+  }, [currentUser]);
+
+  // Quick inline auth state for clients who are not yet logged in
+  const [inlineAuthMode, setInlineAuthMode] = useState<'login' | 'register'>('login');
+  const [inlineEmail, setInlineEmail] = useState('');
+  const [inlinePassword, setInlinePassword] = useState('');
+  const [inlineName, setInlineName] = useState('');
+  const [inlinePhone, setInlinePhone] = useState('');
+  const [inlineLoading, setInlineLoading] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
+
+  const handleInlineAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInlineError(null);
+    setInlineLoading(true);
+
+    try {
+      if (inlineAuthMode === 'register') {
+        const res = await customerRegister({
+          email: inlineEmail.trim(),
+          password: inlinePassword.trim(),
+          fullName: inlineName.trim(),
+          phone: inlinePhone.trim()
+        });
+        if (res.data?.token && res.data?.user) {
+          localStorage.setItem('eko_auth_token', res.data.token);
+          onAuthSuccess?.(res.data.user, res.data.token);
+        }
+      } else {
+        const res = await customerLogin({
+          emailOrUsername: inlineEmail.trim(),
+          password: inlinePassword.trim()
+        });
+        if (res.data?.token && (res.data?.user || res.data?.admin)) {
+          const user = res.data.user || res.data.admin;
+          localStorage.setItem('eko_auth_token', res.data.token);
+          onAuthSuccess?.(user, res.data.token);
+        }
+      }
+    } catch (err: any) {
+      setInlineError(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setInlineLoading(false);
+    }
+  };
+
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+
+    if (!isAuthenticated || !authToken) {
+      setErrorMessage('You must be registered and signed in as a client to reserve a table at Éko Kigali.');
+      onOpenAuth?.('login');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const res = await createReservation({
-        customerName: formData.name,
-        customerPhone: formData.phone,
-        customerEmail: formData.email || 'guest@eko-kigali.rw',
+        customerName: formData.name || currentUser.full_name || currentUser.username,
+        customerPhone: formData.phone || currentUser.phone || '0780000000',
+        customerEmail: formData.email || currentUser.email,
         reservationDate: formData.date,
         reservationTime: formData.time,
         partySize: parseInt(formData.guests, 10),
         seatingArea: formData.seatingArea,
         occasion: formData.occasion,
         specialRequests: formData.specialRequests
-      }, authToken || undefined);
+      }, authToken);
 
       if (res.data && res.data.reservation) {
         setConfirmedReservation(res.data.reservation);
@@ -223,8 +300,179 @@ export function ReservationPage({ authToken, currentUser }: ReservationPageProps
                   </button>
                 </div>
               </div>
+            ) : !isAuthenticated ? (
+              /* Client Authentication Requirement Screen */
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="text-center space-y-3 pb-4 border-b border-neutral-800">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-950/60 border border-[#D4AF37]/50 flex items-center justify-center mx-auto text-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                    <Lock className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold text-white">
+                    Client Account Required
+                  </h3>
+                  <p className="text-xs text-neutral-300 max-w-lg mx-auto leading-relaxed">
+                    To reserve a table at Éko Kigali and receive personalized seating, table preparations, and live booking updates, guests must be registered and signed in.
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => onOpenAuth?.('login')}
+                      className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-serif font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all flex items-center gap-1.5 shadow-md"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Sign In to Account</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenAuth?.('register')}
+                      className="px-5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-[#D4AF37] text-white font-medium text-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-[#D4AF37]" />
+                      <span>Create New Account</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Inline Authentication Box */}
+                <div className="p-6 bg-[#0D0C0B] border border-neutral-800 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#D4AF37]">
+                      {inlineAuthMode === 'login' ? 'Quick Client Sign In' : 'Quick Client Registration'}
+                    </span>
+                    <div className="flex items-center gap-1 bg-neutral-900 p-0.5 rounded-lg border border-neutral-800 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInlineAuthMode('login');
+                          setInlineError(null);
+                        }}
+                        className={`px-2.5 py-1 rounded-md font-semibold ${
+                          inlineAuthMode === 'login' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInlineAuthMode('register');
+                          setInlineError(null);
+                        }}
+                        className={`px-2.5 py-1 rounded-md font-semibold ${
+                          inlineAuthMode === 'register' ? 'bg-[#D4AF37] text-black' : 'text-neutral-400 hover:text-white'
+                        }`}
+                      >
+                        Register
+                      </button>
+                    </div>
+                  </div>
+
+                  {inlineError && (
+                    <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/40 text-rose-300 text-xs">
+                      {inlineError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleInlineAuth} className="space-y-3 text-xs">
+                    {inlineAuthMode === 'register' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-neutral-400">Full Name *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Eric Manzi"
+                            value={inlineName}
+                            onChange={(e) => setInlineName(e.target.value)}
+                            className="w-full px-3 py-2 bg-[#141312] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-neutral-400">Phone / WhatsApp *</label>
+                          <input
+                            type="tel"
+                            required
+                            placeholder="e.g. 0788 123 456"
+                            value={inlinePhone}
+                            onChange={(e) => setInlinePhone(e.target.value)}
+                            className="w-full px-3 py-2 bg-[#141312] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400">Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="client@example.com"
+                        value={inlineEmail}
+                        onChange={(e) => setInlineEmail(e.target.value)}
+                        className="w-full px-3 py-2 bg-[#141312] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400">Password *</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={inlinePassword}
+                        onChange={(e) => setInlinePassword(e.target.value)}
+                        className="w-full px-3 py-2 bg-[#141312] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={inlineLoading}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:brightness-110 text-black font-serif font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {inlineLoading ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Authenticating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>{inlineAuthMode === 'register' ? 'Register & Unlock Booking' : 'Sign In & Unlock Booking'}</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleBookingSubmit} className="space-y-6">
+                {/* Authenticated Client Status Banner */}
+                <div className="p-4 rounded-2xl bg-[#0D0C0B] border border-[#D4AF37]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-600/50 flex items-center justify-center text-emerald-400 shrink-0">
+                      <UserCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs">
+                          {currentUser.full_name || currentUser.username}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-semibold border border-emerald-500/30">
+                          Verified Client
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-neutral-400 font-mono">
+                        {currentUser.email} • {currentUser.phone || formData.phone || 'Phone verified'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-[#D4AF37] font-mono px-2 py-1 rounded bg-[#181715] border border-neutral-800">
+                    Linked to Member #{currentUser.id}
+                  </span>
+                </div>
+
                 {errorMessage && (
                   <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
                     {errorMessage}

@@ -96,7 +96,47 @@ export class ReservationService {
       reservations = reservations.filter((r: any) => r.status === statusFilter);
     }
     reservations.sort((a, b) => new Date(b.reservation_date + 'T' + b.reservation_time).getTime() - new Date(a.reservation_date + 'T' + a.reservation_time).getTime());
-    return reservations;
+
+    // Enrich each reservation with registered customer information
+    const users = localStorage.getTable('users') || [];
+    const orders = localStorage.getTable('orders') || [];
+    const allReservations = localStorage.getTable('reservations') || [];
+
+    return reservations.map((r: any) => {
+      let registeredUser = null;
+      if (r.user_id) {
+        registeredUser = users.find((u: any) => u.id === r.user_id);
+      }
+      if (!registeredUser && r.customer_email) {
+        registeredUser = users.find((u: any) => u.email?.toLowerCase() === r.customer_email?.toLowerCase());
+      }
+
+      if (registeredUser) {
+        const userOrders = orders.filter((o: any) => o.user_id === registeredUser.id || (o.customer_email && o.customer_email.toLowerCase() === registeredUser.email?.toLowerCase()));
+        const userResCount = allReservations.filter((resItem: any) => resItem.user_id === registeredUser.id || (resItem.customer_email && resItem.customer_email.toLowerCase() === registeredUser.email?.toLowerCase())).length;
+
+        return {
+          ...r,
+          registered_customer: {
+            id: registeredUser.id,
+            username: registeredUser.username,
+            email: registeredUser.email,
+            phone: registeredUser.phone || r.customer_phone,
+            full_name: registeredUser.full_name || r.customer_name,
+            created_at: registeredUser.created_at,
+            role: registeredUser.role,
+            total_orders: userOrders.length,
+            total_reservations: userResCount,
+            is_registered: true
+          }
+        };
+      }
+
+      return {
+        ...r,
+        registered_customer: null
+      };
+    });
   }
 
   public static async updateReservationStatus(
