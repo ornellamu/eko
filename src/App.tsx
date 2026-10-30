@@ -1,5 +1,6 @@
-import { EkoApp } from './components/EkoApp';
+import { EccoApp } from './components/EkoApp';
 
 export default function App() {
-  return <EkoApp />;
+  return <EccoApp />;
 }
+

@@ -31,12 +31,12 @@ export interface UpdateOrderStatusDTO {
 
 export class OrderService {
   /**
-   * Generates a unique luxury order reference code (e.g. EKO-2026-8942)
+   * Generates a unique luxury order reference code (e.g. ECCO-2026-8942)
    */
   private static generateOrderNumber(): string {
     const year = new Date().getFullYear();
     const random = Math.floor(1000 + Math.random() * 9000);
-    return `EKO-${year}-${random}`;
+    return `ECCO-${year}-${random}`;
   }
 
   /**

@@ -92,11 +92,11 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Eko Restaurant] Server running on http://0.0.0.0:${PORT} [${config.nodeEnv}]`);
+    console.log(`[Ecco Restaurant] Server running on http://0.0.0.0:${PORT} [${config.nodeEnv}]`);
   });
 }
 
 startServer().catch((err) => {
-  console.error('[Eko Restaurant] Failed to start server:', err);
+  console.error('[Ecco Restaurant] Failed to start server:', err);
   process.exit(1);
 });

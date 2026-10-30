@@ -101,6 +101,7 @@ export function ReservationPage({
           phone: inlinePhone.trim()
         });
         if (res.data?.token && res.data?.user) {
+          localStorage.setItem('ecco_auth_token', res.data.token);
           localStorage.setItem('eko_auth_token', res.data.token);
           onAuthSuccess?.(res.data.user, res.data.token);
         }
@@ -111,6 +112,7 @@ export function ReservationPage({
         });
         if (res.data?.token && (res.data?.user || res.data?.admin)) {
           const user = res.data.user || res.data.admin;
+          localStorage.setItem('ecco_auth_token', res.data.token);
           localStorage.setItem('eko_auth_token', res.data.token);
           onAuthSuccess?.(user, res.data.token);
         }
@@ -195,7 +197,7 @@ export function ReservationPage({
           Reserve Your Dining Experience
         </h1>
         <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-light">
-          We invite you to reserve your table at Eko Restaurant Kigali (<strong className="text-white">KK 554</strong>). Every reservation is verified and prepared with personalized table settings.
+          We invite you to reserve your table at Ecco Restaurant Kigali (<strong className="text-white">KK 554</strong>). Every reservation is verified and prepared with personalized table settings.
         </p>
 
         {/* Tab Toggle */}
@@ -270,7 +272,7 @@ export function ReservationPage({
 
                 <div className="space-y-3 max-w-md mx-auto">
                   <a
-                    href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Eko Maître d', I booked table ${confirmedReservation.reservation_code} for ${confirmedReservation.party_size} guests on ${confirmedReservation.reservation_date} at ${confirmedReservation.reservation_time}.`)}`}
+                    href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Ecco Maître d', I booked table ${confirmedReservation.reservation_code} for ${confirmedReservation.party_size} guests on ${confirmedReservation.reservation_date} at ${confirmedReservation.reservation_time}.`)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-3 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/40 text-white font-mono text-xs flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors"
@@ -639,7 +641,7 @@ export function ReservationPage({
             <div className="bg-[#141312] border border-neutral-800 p-6 sm:p-8 rounded-3xl space-y-6">
               <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-[#D4AF37]" />
-                <span>The Eko Reservation Protocol</span>
+                <span>The Ecco Reservation Protocol</span>
               </h3>
 
               <div className="space-y-4 text-xs text-neutral-300 leading-relaxed font-light">

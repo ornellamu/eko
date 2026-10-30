@@ -62,6 +62,7 @@ export function AuthModal({
           phone: phone.trim()
         });
         if (res.data.token && res.data.user) {
+          localStorage.setItem('ecco_auth_token', res.data.token);
           localStorage.setItem('eko_auth_token', res.data.token);
           onLoginSuccess(res.data.user, res.data.token);
           onClose();
@@ -73,6 +74,7 @@ export function AuthModal({
         });
         if (res.data.token && (res.data.user || res.data.admin)) {
           const authenticatedUser = res.data.user || res.data.admin!;
+          localStorage.setItem('ecco_auth_token', res.data.token);
           localStorage.setItem('eko_auth_token', res.data.token);
           onLoginSuccess(authenticatedUser, res.data.token);
           onClose();
@@ -98,15 +100,15 @@ export function AuthModal({
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] p-[1px] overflow-hidden flex items-center justify-center bg-[#0D0C0B]">
               <img 
-                src="/images/eko-logo.jpg" 
-                alt="Eko Logo" 
+                src="/images/ecco-logo.svg" 
+                alt="Ecco Logo" 
                 referrerPolicy="no-referrer" 
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
             <div>
               <h3 className="font-serif text-xl font-bold text-white">
-                {mode === 'register' ? 'Join Éko Kigali' : 'Client Sign In'}
+                {mode === 'register' ? 'Join Ecco Kigali' : 'Client Sign In'}
               </h3>
               <p className="text-[11px] text-neutral-400">
                 {mode === 'register' ? 'Register to reserve tables and track dining' : 'Sign in to access your table bookings'}

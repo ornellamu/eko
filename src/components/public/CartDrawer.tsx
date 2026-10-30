@@ -80,7 +80,7 @@ export function CartDrawer({
     try {
       const payload = {
         customerName: customerName || 'Valued Guest',
-        customerEmail: customerEmail || 'guest@eko-kigali.rw',
+        customerEmail: customerEmail || 'guest@ecco-kigali.rw',
         customerPhone: customerPhone || '0788000000',
         orderType: orderMode,
         deliveryAddress: orderMode === 'delivery' ? deliveryAddress : undefined,
@@ -155,7 +155,7 @@ export function CartDrawer({
                 <div>
                   <h3 className="font-serif text-2xl font-bold text-white">Order Confirmed!</h3>
                   <p className="text-xs text-neutral-300 mt-1">
-                    Thank you, <strong className="text-white">{completedOrder.customer_name}</strong>. The Eko kitchen has received your order ticket.
+                    Thank you, <strong className="text-white">{completedOrder.customer_name}</strong>. The Ecco kitchen has received your order ticket.
                   </p>
                 </div>
 
@@ -208,7 +208,7 @@ export function CartDrawer({
                   </button>
 
                   <a
-                    href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Eko Kigali Concierge, I just placed order ${completedOrder.order_number} for ${completedOrder.total_amount.toLocaleString()} RWF.`)}`}
+                    href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Ecco Kigali Concierge, I just placed order ${completedOrder.order_number} for ${completedOrder.total_amount.toLocaleString()} RWF.`)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-neutral-700 text-neutral-300 hover:text-white font-mono text-xs flex items-center justify-center gap-2"

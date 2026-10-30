@@ -63,6 +63,25 @@
         "id": 8,
         "created_at": "2026-09-07T15:23:52.749Z",
         "updated_at": "2026-09-07T15:23:52.749Z"
+      },
+      {
+        "full_name": "Jean Paul Mugisha",
+        "email": "jeanpaul_138@ecco.rw",
+        "phone": "0788123456",
+        "password_hash": "$2b$10$RUt4jHu3PHkdn35nxzfht.tJEPXNrMkR2oB0vKwZLLdXz5pP36ql2",
+        "id": 9,
+        "created_at": "2026-10-30T10:27:18.353Z",
+        "updated_at": "2026-10-30T10:27:18.353Z"
+      },
+      {
+        "full_name": "Senator James Kabera",
+        "email": "jkabera@parliament.rw",
+        "phone": "+250788001122",
+        "tier": "VIP Patron",
+        "notes": "Prefers VIP suite table 1",
+        "created_at": "2026-10-30T10:29:34.550Z",
+        "updated_at": "2026-10-30T10:29:34.550Z",
+        "id": 10
       }
     ],
     "admins": [
@@ -70,37 +89,37 @@
         "id": 1,
         "username": "admin",
         "email": "admin@eko.rw",
-        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
+        "password_hash": "$2b$10$T8N5UvuJ3nokXNff1iU8Gevf3njjmV1q3rZYSDV3XFHy4zMOPXkw2",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.469Z",
-        "updated_at": "2026-10-20T16:48:41.669Z"
+        "updated_at": "2026-10-30T10:29:15.724Z"
       },
       {
         "id": 2,
         "username": "mucyo",
         "email": "mucyo357@gmail.com",
-        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
+        "password_hash": "$2b$10$T8N5UvuJ3nokXNff1iU8Gevf3njjmV1q3rZYSDV3XFHy4zMOPXkw2",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.470Z",
-        "updated_at": "2026-10-20T16:48:41.671Z"
+        "updated_at": "2026-10-30T10:29:15.726Z"
       },
       {
         "id": 3,
         "username": "murasa",
         "email": "murasa320@gmail.com",
-        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
+        "password_hash": "$2b$10$T8N5UvuJ3nokXNff1iU8Gevf3njjmV1q3rZYSDV3XFHy4zMOPXkw2",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.471Z",
-        "updated_at": "2026-10-20T16:48:41.673Z"
+        "updated_at": "2026-10-30T10:29:15.728Z"
       },
       {
         "id": 4,
         "username": "mugisha",
         "email": "mugishamp7@gmail.com",
-        "password_hash": "$2b$10$b3yfbUuhDRu.xDntCuOHLu6.00QCPH45u0oZbQWfvkxe72sCVAG06",
+        "password_hash": "$2b$10$T8N5UvuJ3nokXNff1iU8Gevf3njjmV1q3rZYSDV3XFHy4zMOPXkw2",
         "role": "superadmin",
         "created_at": "2026-08-27T14:48:15.472Z",
-        "updated_at": "2026-10-20T16:48:41.672Z"
+        "updated_at": "2026-10-30T10:29:15.727Z"
       }
     ],
     "categories": [
@@ -200,7 +219,7 @@
         "spicy_level": 0,
         "id": 1,
         "created_at": "2026-08-27T03:23:50.817Z",
-        "updated_at": "2026-10-20T16:48:41.678Z"
+        "updated_at": "2026-10-30T10:29:15.737Z"
       },
       {
         "category_id": 1,
@@ -248,7 +267,7 @@
         "spicy_level": 0,
         "id": 22,
         "created_at": "2026-08-27T14:09:12.425Z",
-        "updated_at": "2026-10-20T16:48:41.677Z"
+        "updated_at": "2026-10-30T10:29:15.736Z"
       },
       {
         "category_id": 1,
@@ -360,7 +379,7 @@
         "spicy_level": 0,
         "id": 20,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-10-20T16:48:41.675Z"
+        "updated_at": "2026-10-30T10:29:15.731Z"
       },
       {
         "category_id": 2,
@@ -376,7 +395,7 @@
         "spicy_level": 0,
         "id": 21,
         "created_at": "2026-08-27T14:09:12.425Z",
-        "updated_at": "2026-10-20T16:48:41.676Z"
+        "updated_at": "2026-10-30T10:29:15.734Z"
       },
       {
         "category_id": 2,
@@ -552,7 +571,7 @@
         "spicy_level": 0,
         "id": 18,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-10-20T16:48:41.673Z"
+        "updated_at": "2026-10-30T10:29:15.729Z"
       },
       {
         "category_id": 12,
@@ -568,7 +587,7 @@
         "spicy_level": 0,
         "id": 19,
         "created_at": "2026-08-27T14:09:12.424Z",
-        "updated_at": "2026-10-20T16:48:41.674Z"
+        "updated_at": "2026-10-30T10:29:15.730Z"
       },
       {
         "category_id": 11,
@@ -683,9 +702,146 @@
         "updated_at": "2026-08-31T08:05:00.000Z"
       }
     ],
-    "orders": [],
+    "orders": [
+      {
+        "order_number": "ECCO-2026-1042",
+        "customer_name": "Arthur Mugabe",
+        "customer_email": "arthur.m@gmail.com",
+        "customer_phone": "+250 788 776 554",
+        "order_type": "dine_in",
+        "table_number": "Table M-04",
+        "delivery_address": "",
+        "payment_method": "momo",
+        "subtotal": 43000,
+        "delivery_fee": 0,
+        "total_amount": 43000,
+        "status": "preparing",
+        "created_at": "2026-10-30T10:29:15.744Z",
+        "updated_at": "2026-10-30T10:29:15.744Z",
+        "id": 15
+      },
+      {
+        "order_number": "ECCO-2026-1043",
+        "customer_name": "Beatrice Uwimana",
+        "customer_email": "buwimana@kigali.rw",
+        "customer_phone": "+250 789 654 321",
+        "order_type": "delivery",
+        "delivery_address": "Kiyovu Hill, KK 24 Ave, Villa 12",
+        "delivery_landmark": "Near German Embassy",
+        "payment_method": "card",
+        "subtotal": 79500,
+        "delivery_fee": 1500,
+        "total_amount": 81000,
+        "status": "confirmed",
+        "created_at": "2026-10-30T10:29:15.744Z",
+        "updated_at": "2026-10-30T10:29:15.744Z",
+        "id": 16
+      },
+      {
+        "order_number": "ECCO-2026-1044",
+        "customer_name": "Eric Nshimiyimana",
+        "customer_email": "eric.n@techrwanda.com",
+        "customer_phone": "+250 785 112 233",
+        "order_type": "pickup",
+        "delivery_address": "",
+        "payment_method": "momo",
+        "subtotal": 18500,
+        "delivery_fee": 0,
+        "total_amount": 18500,
+        "status": "ready",
+        "created_at": "2026-10-30T10:29:15.744Z",
+        "updated_at": "2026-10-30T10:29:15.744Z",
+        "id": 17
+      },
+      {
+        "order_number": "ECCO-2026-1045",
+        "customer_name": "Sonia Mukamana",
+        "customer_email": "sonia.m@diplomat.org",
+        "customer_phone": "+250 781 224 556",
+        "order_type": "dine_in",
+        "table_number": "VIP Suite 2",
+        "delivery_address": "",
+        "payment_method": "card",
+        "subtotal": 109000,
+        "delivery_fee": 0,
+        "total_amount": 109000,
+        "status": "delivered",
+        "created_at": "2026-10-30T10:29:15.744Z",
+        "updated_at": "2026-10-30T10:29:15.744Z",
+        "id": 18
+      }
+    ],
     "order_items": [],
-    "reservations": [],
+    "reservations": [
+      {
+        "reservation_code": "RES-2026-X8B2",
+        "customer_name": "Marcelle Kalisa",
+        "customer_email": "mkalisa@kigalifinance.rw",
+        "customer_phone": "+250 788 123 456",
+        "reservation_date": "2026-10-30",
+        "reservation_time": "19:30",
+        "party_size": 4,
+        "seating_area": "sunset_terrace",
+        "table_number": "Terrace T-02",
+        "occasion": "Anniversary Celebration",
+        "special_requests": "Champagne bucket ready upon arrival on the terrace",
+        "status": "confirmed",
+        "created_at": "2026-10-30T10:29:15.741Z",
+        "updated_at": "2026-10-30T10:29:15.741Z",
+        "id": 1
+      },
+      {
+        "reservation_code": "RES-2026-V9P1",
+        "customer_name": "David Gasana",
+        "customer_email": "dgasana@bankofkigali.rw",
+        "customer_phone": "+250 788 456 789",
+        "reservation_date": "2026-10-30",
+        "reservation_time": "20:00",
+        "party_size": 2,
+        "seating_area": "vip_suite",
+        "table_number": "VIP Salon Suite 1",
+        "occasion": "Executive Business Dinner",
+        "special_requests": "Private sommelier pairing requested",
+        "status": "seated",
+        "created_at": "2026-10-30T10:29:15.741Z",
+        "updated_at": "2026-10-30T10:29:15.741Z",
+        "id": 2
+      },
+      {
+        "reservation_code": "RES-2026-M3T4",
+        "customer_name": "Diane Uwase",
+        "customer_email": "diane.uwase@gmail.com",
+        "customer_phone": "+250 783 998 877",
+        "reservation_date": "2026-10-30",
+        "reservation_time": "18:30",
+        "party_size": 6,
+        "seating_area": "main_dining",
+        "table_number": "Dining Table M-06",
+        "occasion": "Birthday Gathering",
+        "special_requests": "Celebratory dessert presentation",
+        "status": "pending",
+        "created_at": "2026-10-30T10:29:15.741Z",
+        "updated_at": "2026-10-30T10:29:15.741Z",
+        "id": 3
+      },
+      {
+        "reservation_code": "RES-2026-T7K8",
+        "customer_name": "Patrick Habimana",
+        "customer_email": "phabimana@innovate.rw",
+        "customer_phone": "+250 781 224 556",
+        "reservation_date": "2026-10-31",
+        "reservation_time": "20:30",
+        "party_size": 3,
+        "seating_area": "sunset_terrace",
+        "table_number": "Terrace T-05",
+        "occasion": "Evening Dinner & Cocktails",
+        "special_requests": "Sunset view table",
+        "status": "confirmed",
+        "created_at": "2026-10-30T10:29:15.741Z",
+        "updated_at": "2026-10-30T10:29:15.741Z",
+        "id": 4
+      }
+    ],
     "payments": [
       {
         "order_id": 1,
@@ -957,7 +1113,7 @@
     "restaurant_settings": [
       {
         "setting_key": "restaurant_name",
-        "setting_value": "Eko Restaurant",
+        "setting_value": "Ecco Restaurant",
         "description": "Official Restaurant Brand",
         "id": 1,
         "created_at": "2026-08-27T03:23:50.950Z",
@@ -1029,7 +1185,7 @@
       },
       {
         "setting_key": "about_story",
-        "setting_value": "Eko Restaurant in Kigali celebrates the harmony of authentic Rwandan ingredients elevated by French and international culinary techniques.",
+        "setting_value": "Ecco Restaurant in Kigali celebrates the harmony of authentic Rwandan ingredients elevated by French and international culinary techniques.",
         "description": "Brand Story",
         "id": 10,
         "created_at": "2026-08-27T03:23:50.952Z",
@@ -1078,7 +1234,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-4208\",\"totalAmount\":12000,\"orderType\":\"dine_in\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-4208\",\"totalAmount\":12000,\"orderType\":\"dine_in\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T15:23:56.029Z",
         "id": 105,
@@ -1098,7 +1254,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-3551\",\"totalAmount\":12000,\"orderType\":\"dine_in\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-3551\",\"totalAmount\":12000,\"orderType\":\"dine_in\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T15:23:52.885Z",
         "id": 103,
@@ -1118,7 +1274,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-2567\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-2567\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T15:23:48.585Z",
         "id": 101,
@@ -1558,7 +1714,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-6977\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-6977\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T13:48:46.894Z",
         "id": 64,
@@ -1590,7 +1746,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-6205\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-6205\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T13:42:14.967Z",
         "id": 61,
@@ -1622,7 +1778,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-3237\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-3237\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-07T13:42:12.105Z",
         "id": 58,
@@ -1724,7 +1880,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-8350\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-8350\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:26:29.889Z",
         "id": 49,
@@ -1756,7 +1912,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-9339\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-9339\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:26:27.363Z",
         "id": 46,
@@ -1788,7 +1944,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-1976\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-1976\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:26:13.903Z",
         "id": 43,
@@ -1820,7 +1976,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-9518\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-9518\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:24:11.438Z",
         "id": 40,
@@ -1852,7 +2008,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-1901\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-1901\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:24:06.467Z",
         "id": 37,
@@ -1884,7 +2040,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-6923\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-6923\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T12:23:53.387Z",
         "id": 34,
@@ -2148,7 +2304,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-2344\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-2344\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T11:40:38.451Z",
         "id": 11,
@@ -2180,7 +2336,7 @@
         "actor_type": "guest",
         "actor_id": null,
         "action": "ORDER_PLACED",
-        "details": "{\"orderNumber\":\"EKO-2026-7371\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
+        "details": "{\"orderNumber\":\"ECCO-2026-7371\",\"totalAmount\":9000,\"orderType\":\"delivery\",\"paymentMethod\":\"momo\"}",
         "ip_address": "127.0.0.1",
         "created_at": "2026-09-06T11:39:56.584Z",
         "id": 8,
@@ -2322,13 +2478,13 @@
     "notifications": []
   },
   "autoIncrements": {
-    "users": 9,
+    "users": 11,
     "admins": 8,
     "categories": 17,
     "menu_items": 28,
-    "orders": 15,
+    "orders": 19,
     "order_items": 15,
-    "reservations": 1,
+    "reservations": 5,
     "payments": 15,
     "gallery": 13,
     "restaurant_settings": 14,

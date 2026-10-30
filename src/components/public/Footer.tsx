@@ -29,15 +29,15 @@ export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8C6B0D] p-[1.5px] shadow-[0_0_12px_rgba(212,175,55,0.25)] overflow-hidden bg-[#080707] flex items-center justify-center">
                 <img 
-                  src="/images/eko-logo.jpg" 
-                  alt="Eko Restaurant Logo" 
+                  src="/images/ecco-logo.svg" 
+                  alt="Ecco Restaurant Logo" 
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
               <div>
                 <span className="font-serif text-xl font-bold tracking-widest text-white block">
-                  EKO RESTAURANT
+                  ECCO RESTAURANT
                 </span>
                 <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] uppercase">
                   Fine Dining Kigali
@@ -205,7 +205,7 @@ export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
       {/* Bottom Copyright Strip */}
       <div className="border-t border-neutral-900 bg-[#040404] py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
-          <p>© {new Date().getFullYear()} Eko Restaurant Kigali. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Ecco Restaurant Kigali. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <span>Currency: <strong>RWF</strong></span>
             <span>•</span>

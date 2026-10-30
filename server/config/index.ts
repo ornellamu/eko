@@ -9,7 +9,7 @@ export const config = {
   sessionSecret: process.env.SESSION_SECRET || 'eko-luxury-fine-dining-secret-key-kigali-2026',
   appUrl: process.env.APP_URL || 'http://localhost:3000',
   restaurant: {
-    name: 'Eko Restaurant',
+    name: 'Ecco Restaurant',
     type: 'Luxury Fine-Dining Restaurant',
     location: 'Kigali, KK 554',
     phone: '0701537890',

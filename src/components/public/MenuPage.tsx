@@ -42,7 +42,11 @@ export interface EkoSection {
   items?: EkoMenuItem[];
 }
 
-// Canonical Official 17-Section Menu Data for ÉKO RESTAURANT
+export type EccoMenuItem = EkoMenuItem;
+export type EccoSubCategory = EkoSubCategory;
+export type EccoSection = EkoSection;
+
+// Canonical Official 17-Section Menu Data for ECCO RESTAURANT
 export const OFFICIAL_EKO_MENU: EkoSection[] = [
   {
     number: 1,
@@ -480,6 +484,7 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
 
   const proceedToReservation = (dishName?: string) => {
     if (dishName) {
+      sessionStorage.setItem('ecco_selected_dish', dishName);
       sessionStorage.setItem('eko_selected_dish', dishName);
     }
     onNavigate('reservation');
@@ -504,18 +509,18 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
             <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-l from-transparent via-[#D4AF37]/60 to-[#D4AF37]" />
           </div>
 
-          {/* Title exactly as requested: # EKO RESTAURANT */}
+          {/* Title: # ECCO RESTAURANT */}
           <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white drop-shadow-sm">
-            EKO RESTAURANT
+            ECCO RESTAURANT
           </h1>
 
-          {/* Subtitle exactly as requested: **Good Food, Great Moments!** */}
+          {/* Subtitle: **Good Food, Great Moments!** */}
           <p className="font-serif text-xl sm:text-2xl text-[#E5C158] italic font-medium tracking-wide">
             Good Food, Great Moments!
           </p>
 
           <p className="max-w-2xl mx-auto text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
-            Welcome to the official dining & cellar catalog of Éko Restaurant. Explore our 17 culinary sections, 
+            Welcome to the official dining & cellar catalog of Ecco Restaurant. Explore our 17 culinary sections, 
             crafted fresh daily using premium local ingredients and international fine spirits.
           </p>
 
@@ -817,7 +822,7 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
 
           {/* Heading verbatim from prompt */}
           <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-wider text-[#F3E5AB] uppercase">
-            THANK YOU FOR CHOOSING EKO RESTAURANT!
+            THANK YOU FOR CHOOSING ECCO RESTAURANT!
           </h3>
 
           {/* Subtitle verbatim from prompt */}
@@ -837,7 +842,7 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C59B27] text-neutral-950 font-bold font-mono text-xs sm:text-sm uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.3)]"
             >
               <Calendar className="w-4 h-4 text-neutral-950" />
-              <span>Book Your Table at Eko</span>
+              <span>Book Your Table at Ecco</span>
               <ArrowUpRight className="w-4 h-4 text-neutral-950" />
             </button>
           </div>
@@ -857,7 +862,7 @@ export function MenuPage({ onNavigate }: MenuPageProps) {
 
             <div className="space-y-2 text-center">
               <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#D4AF37]">
-                EKO GASTRONOMY SELECTION
+                ECCO GASTRONOMY SELECTION
               </span>
               <h4 className="font-serif text-2xl font-bold text-white">
                 {selectedDishForReservation.name}

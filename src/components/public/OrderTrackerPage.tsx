@@ -95,10 +95,10 @@ export function OrderTrackerPage({ initialReference, onNavigateToMenu }: OrderTr
           <span>Real-Time Kitchen & Dispatch Tracking</span>
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          Track Your Eko Order
+          Track Your Ecco Order
         </h1>
         <p className="text-xs sm:text-sm text-neutral-400 font-light">
-          Enter your order reference code (e.g. <strong className="text-neutral-300">EKO-2026-XXXX</strong>) to view real-time preparation progress and delivery status.
+          Enter your order reference code (e.g. <strong className="text-neutral-300">ECCO-2026-XXXX</strong>) to view real-time preparation progress and delivery status.
         </p>
       </div>
 
@@ -109,7 +109,7 @@ export function OrderTrackerPage({ initialReference, onNavigateToMenu }: OrderTr
           <input
             type="text"
             required
-            placeholder="Enter Order Ref (e.g. EKO-2026-8942)"
+            placeholder="Enter Order Ref (e.g. ECCO-2026-8942)"
             value={referenceInput}
             onChange={(e) => setReferenceInput(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-transparent border-none text-sm text-white placeholder-neutral-500 focus:outline-none uppercase font-mono"
@@ -291,7 +291,7 @@ export function OrderTrackerPage({ initialReference, onNavigateToMenu }: OrderTr
 
               <div className="pt-3 border-t border-neutral-800 space-y-2">
                 <a
-                  href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Eko Concierge, inquiry regarding order ${order.order_number}`)}`}
+                  href={`https://wa.me/250701537890?text=${encodeURIComponent(`Hello Ecco Concierge, inquiry regarding order ${order.order_number}`)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full py-2.5 rounded-xl bg-[#1C1A17] border border-[#D4AF37]/30 text-white font-mono text-xs flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors"

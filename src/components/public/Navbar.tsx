@@ -87,8 +87,8 @@ export function Navbar({
           >
             <div className="relative w-11 h-11 rounded-full p-[1.5px] bg-gradient-to-br from-[#D4AF37] via-[#AA7C11] to-[#6A4E08] shadow-[0_0_16px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_24px_rgba(212,175,55,0.5)] transition-all overflow-hidden flex items-center justify-center bg-[#0D0C0B]">
               <img 
-                src="/images/eko-logo.jpg" 
-                alt="Eko Restaurant Emblem" 
+                src="/images/ecco-logo.svg" 
+                alt="Ecco Restaurant Emblem" 
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
               />
@@ -96,7 +96,7 @@ export function Navbar({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-serif text-2xl font-bold tracking-[0.2em] text-white group-hover:text-[#E5C158] transition-colors">
-                  EKO
+                  ECCO
                 </span>
                 <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-1.5 py-0.2 rounded uppercase">
                   Kigali

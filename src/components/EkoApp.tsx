@@ -64,7 +64,7 @@ export function EkoApp() {
 
   // Load initial data
   useEffect(() => {
-    const token = localStorage.getItem('eko_auth_token');
+    const token = localStorage.getItem('ecco_auth_token') || localStorage.getItem('eko_auth_token');
     if (token) {
       setAuthToken(token);
       getMe(token)
@@ -74,6 +74,7 @@ export function EkoApp() {
           }
         })
         .catch(() => {
+          localStorage.removeItem('ecco_auth_token');
           localStorage.removeItem('eko_auth_token');
           setAuthToken(null);
           setCurrentUser(null);
@@ -92,6 +93,7 @@ export function EkoApp() {
 
   const handleLogout = async () => {
     await userLogout().catch(() => {});
+    localStorage.removeItem('ecco_auth_token');
     localStorage.removeItem('eko_auth_token');
     setAuthToken(null);
     setCurrentUser(null);
@@ -108,7 +110,7 @@ export function EkoApp() {
           className="fixed top-4 right-4 z-50 px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black font-bold text-xs uppercase rounded-xl shadow-2xl flex items-center gap-2 hover:scale-105 transition-transform"
         >
           <Sparkles className="w-4 h-4" />
-          <span>Return to Live Eko Restaurant</span>
+          <span>Return to Live Ecco Restaurant</span>
         </button>
         <StageVerification />
       </div>
@@ -127,6 +129,9 @@ export function EkoApp() {
         }}
         onLogout={handleLogout}
         onNavigateToPublic={() => {
+          if (window.location.hash.toLowerCase().includes('admin')) {
+            window.location.hash = '';
+          }
           window.history.pushState(null, '', '/');
           setIsAdminRoute(false);
           setCurrentPage('home');
@@ -249,3 +254,6 @@ export function EkoApp() {
     </div>
   );
 }
+
+export const EccoApp = EkoApp;
+

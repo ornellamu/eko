@@ -128,7 +128,7 @@ export function GalleryPage({ onNavigate }: GalleryPageProps) {
           <span>Ambiance & Culinary Visuals</span>
         </div>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white tracking-tight">
-          The Eko Visual Sanctuary
+          The Ecco Visual Sanctuary
         </h1>
         <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-light">
           Glimpse the refined atmospheres, dining rooms, and epicurean creations awaiting you at <strong className="text-white">KK 554, Kigali</strong>.
@@ -194,7 +194,7 @@ export function GalleryPage({ onNavigate }: GalleryPageProps) {
           onClick={() => onNavigate('reservation')}
           className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-serif font-bold text-xs uppercase tracking-wider transition-all shadow-lg"
         >
-          Experience Eko in Person — Book a Table
+          Experience Ecco in Person — Book a Table
         </button>
       </div>
     </div>

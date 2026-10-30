@@ -231,7 +231,7 @@ export class TestSuiteService {
       const settings = SettingsService.getAllSettings();
       const address = settings.location_address || settings.address || 'Kigali, KK 554';
       const phone = settings.phone_number || settings.phone || '0701537890';
-      const restaurantName = settings.restaurant_name || 'Eko Restaurant';
+      const restaurantName = settings.restaurant_name || 'Ecco Restaurant';
 
       results.push({
         id: 'SET-01',
@@ -290,7 +290,7 @@ export class TestSuiteService {
 
   public static getProductionReadinessReport() {
     return {
-      appName: 'Eko Restaurant',
+      appName: 'Ecco Restaurant',
       environment: process.env.NODE_ENV || 'development',
       port: 3000,
       host: '0.0.0.0',

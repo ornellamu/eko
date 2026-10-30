@@ -40,7 +40,7 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2000&q=85"
-            alt="Eko Restaurant Fine Dining Kigali Ambiance"
+            alt="Ecco Restaurant Fine Dining Kigali Ambiance"
             className="w-full h-full object-cover scale-105 filter brightness-[0.38] contrast-125"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0D0C0B] via-[#0D0C0B]/60 to-black/80" />
@@ -53,8 +53,8 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-[2px] bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#8C6B0D] shadow-[0_0_35px_rgba(212,175,55,0.4)] overflow-hidden bg-[#0D0C0B]">
               <img 
-                src="/images/eko-logo.jpg" 
-                alt="Eko Restaurant Crest Logo" 
+                src="/images/ecco-logo.svg" 
+                alt="Ecco Restaurant Crest Logo" 
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover rounded-full"
               />
@@ -258,7 +258,7 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
               <div className="space-y-4">
                 <img
                   src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=600&q=80"
-                  alt="Fine Dining Table Setting at Eko"
+                  alt="Fine Dining Table Setting at Ecco"
                   className="rounded-2xl object-cover aspect-[3/4] border border-neutral-800 shadow-xl"
                 />
                 <div className="p-4 rounded-2xl bg-[#1A1917] border border-[#D4AF37]/30 text-center space-y-1">
@@ -273,7 +273,7 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
                 </div>
                 <img
                   src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80"
-                  alt="Artisanal Wine Pouring at Eko"
+                  alt="Artisanal Wine Pouring at Ecco"
                   className="rounded-2xl object-cover aspect-[3/4] border border-neutral-800 shadow-xl"
                 />
               </div>
@@ -291,7 +291,7 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
               </h2>
 
               <p className="text-sm text-neutral-300 leading-relaxed font-light">
-                At Eko Restaurant, we believe that dinner is not merely a meal, but an unforgettable sensory performance. Nestled in Kigali, we harmoniously blend rich African heritage with refined modern gastronomy.
+                At Ecco Restaurant, we believe that dinner is not merely a meal, but an unforgettable sensory performance. Nestled in Kigali, we harmoniously blend rich African heritage with refined modern gastronomy.
               </p>
 
               <div className="space-y-3 text-xs text-neutral-400">
@@ -460,7 +460,7 @@ export function HomePage({ onNavigate, featuredItems }: HomePageProps) {
                     <Info className="w-3.5 h-3.5 text-[#D4AF37]" />
                     <span>Dietary & Kitchen Notes</span>
                   </div>
-                  <p>Prepared fresh at Eko Restaurant Kigali (KK 554). Available for dine-in guests across our main dining room, terrace, and private suites.</p>
+                  <p>Prepared fresh at Ecco Restaurant Kigali (KK 554). Available for dine-in guests across our main dining room, terrace, and private suites.</p>
                 </div>
               </div>
             </div>

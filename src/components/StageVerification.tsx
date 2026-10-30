@@ -98,15 +98,15 @@ export function StageVerification() {
   // Stage 4: Authentication State
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [currentRole, setCurrentRole] = useState<'customer' | 'admin' | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('eko_auth_token'));
+  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('ecco_auth_token') || localStorage.getItem('eko_auth_token'));
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authMessage, setAuthMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Forms state
   const [regFullName, setRegFullName] = useState('Jean Paul Mugisha');
-  const [regEmail, setRegEmail] = useState(`jeanpaul_${Math.floor(Math.random() * 1000)}@eko.rw`);
+  const [regEmail, setRegEmail] = useState(`jeanpaul_${Math.floor(Math.random() * 1000)}@ecco.rw`);
   const [regPhone, setRegPhone] = useState('0788123456');
-  const [regPassword, setRegPassword] = useState('EkoKigali2026!');
+  const [regPassword, setRegPassword] = useState('EccoKigali2026!');
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -393,7 +393,7 @@ export function StageVerification() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif text-2xl font-bold tracking-wider text-white">EKO RESTAURANT</span>
+                <span className="font-serif text-2xl font-bold tracking-wider text-white">ECCO RESTAURANT</span>
                 <span className="text-xs bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/40 px-2 py-0.5 rounded-full font-medium">Stage 4 Active</span>
               </div>
               <p className="text-xs text-[#a1a1aa] tracking-widest uppercase">Luxury Fine Dining • Kigali, KK 554</p>
@@ -473,7 +473,7 @@ export function StageVerification() {
               <ShieldCheck className="w-3.5 h-3.5" /> Stage 4: Customer & Administrator Authentication
             </div>
             <h1 className="font-serif text-3xl md:text-5xl font-semibold text-white tracking-wide leading-tight">
-              Eko Restaurant Kigali
+              Ecco Restaurant Kigali
             </h1>
             <p className="font-serif italic text-lg md:text-xl text-[#d4af37] font-normal">
               "A Symphony of Flavors, Where Kigali Meets Culinary Artistry"
@@ -752,7 +752,7 @@ export function StageVerification() {
                       type="email"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="e.g. jeanpaul@eko.rw"
+                      placeholder="e.g. jeanpaul@ecco.rw"
                       required
                       className="w-full bg-[#09090b] border border-[#27272a] focus:border-[#d4af37] rounded-lg px-3 py-2 text-xs text-white outline-none"
                     />
@@ -1371,7 +1371,7 @@ export function StageVerification() {
             <div className="flex items-center justify-between border-b border-[#27272a] pb-4">
               <div>
                 <h3 className="font-serif text-xl font-semibold text-white">16-Stage Development Blueprint</h3>
-                <p className="text-xs text-[#a1a1aa]">Sequential milestone roadmap for Eko Restaurant Kigali</p>
+                <p className="text-xs text-[#a1a1aa]">Sequential milestone roadmap for Ecco Restaurant Kigali</p>
               </div>
               <span className="text-xs font-mono bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/40 font-semibold">
                 16 / 16 Stages Completed & Verified
@@ -1415,7 +1415,7 @@ export function StageVerification() {
       <footer className="border-t border-[#27272a] bg-[#0c0c0e] py-8 text-xs text-[#71717a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-serif text-white font-bold tracking-wider">EKO RESTAURANT</span>
+            <span className="font-serif text-white font-bold tracking-wider">ECCO RESTAURANT</span>
             <span>• Kigali, KK 554 • 0701537890</span>
           </div>
           <div>Stage 4 Authentication Verified • Ready for Stage 5</div>

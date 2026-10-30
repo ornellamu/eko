@@ -17,7 +17,12 @@ import {
   updateRestaurantSettings,
   addGalleryItem,
   updateGalleryItem,
-  deleteGalleryItem
+  deleteGalleryItem,
+  getCustomers,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+  getDetailedStatistics
 } from '../controllers/adminController';
 import { validateBody } from '../middleware/validate';
 import { requireAdmin } from '../middleware/auth';
@@ -98,5 +103,14 @@ const gallerySchema = z.object({
 router.post('/gallery', validateBody(gallerySchema), addGalleryItem);
 router.put('/gallery/:id', updateGalleryItem);
 router.delete('/gallery/:id', deleteGalleryItem);
+
+// Customer Management Routes
+router.get('/customers', getCustomers);
+router.post('/customers', createCustomer);
+router.put('/customers/:id', updateCustomer);
+router.delete('/customers/:id', deleteCustomer);
+
+// Restaurant Detailed Statistics
+router.get('/statistics', getDetailedStatistics);
 
 export default router;

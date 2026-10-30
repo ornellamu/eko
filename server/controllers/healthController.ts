@@ -4,7 +4,7 @@ import { config } from '../config';
 export function getHealthStatus(_req: Request, res: Response) {
   res.json({
     status: 'ok',
-    service: 'Eko Restaurant API',
+    service: 'Ecco Restaurant API',
     stage: 'Stage 1 - Project Initialization',
     environment: config.nodeEnv,
     timestamp: new Date().toISOString(),

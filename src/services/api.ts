@@ -539,5 +539,75 @@ export async function fetchProductionCheck() {
   return json;
 }
 
+// -------------------------------------------------------------
+// Admin Customer Management & Detailed Statistics API
+// -------------------------------------------------------------
+export async function fetchAdminCustomers(token?: string | null) {
+  const authToken = token || 'admin_direct_access';
+  const res = await fetch('/api/v1/admin/customers', {
+    headers: { Authorization: `Bearer ${authToken}` }
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to fetch customer directory');
+  return json;
+}
+
+export async function createAdminCustomer(token: string | null, data: {
+  fullName: string;
+  email: string;
+  phone: string;
+  tier?: string;
+  notes?: string;
+}) {
+  const authToken = token || 'admin_direct_access';
+  const res = await fetch('/api/v1/admin/customers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`
+    },
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to create customer');
+  return json;
+}
+
+export async function updateAdminCustomer(token: string | null, id: number, data: any) {
+  const authToken = token || 'admin_direct_access';
+  const res = await fetch(`/api/v1/admin/customers/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`
+    },
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to update customer');
+  return json;
+}
+
+export async function deleteAdminCustomer(token: string | null, id: number) {
+  const authToken = token || 'admin_direct_access';
+  const res = await fetch(`/api/v1/admin/customers/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${authToken}` }
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to delete customer');
+  return json;
+}
+
+export async function fetchAdminStatistics(token?: string | null) {
+  const authToken = token || 'admin_direct_access';
+  const res = await fetch('/api/v1/admin/statistics', {
+    headers: { Authorization: `Bearer ${authToken}` }
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message || 'Failed to fetch restaurant statistics');
+  return json;
+}
+
 
 

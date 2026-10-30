@@ -22,13 +22,13 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
       <div className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#181715] border border-[#D4AF37]/30 text-[#E5C158] text-xs font-mono uppercase">
           <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-          <span>The Story of Eko Restaurant</span>
+          <span>The Story of Ecco Restaurant</span>
         </div>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white tracking-tight">
           Where Kigali Meets Culinary Artistry
         </h1>
         <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-light">
-          Founded with an uncompromising commitment to gastronomic excellence, Eko Restaurant is Kigali’s crown jewel for fine dining, blending continental mastery with indigenous culinary treasures.
+          Founded with an uncompromising commitment to gastronomic excellence, Ecco Restaurant is Kigali’s crown jewel for fine dining, blending continental mastery with indigenous culinary treasures.
         </p>
       </div>
 
@@ -39,7 +39,7 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
             A Symphony of Flavors Born in the Heart of Rwanda
           </h2>
           <p>
-            Located at <strong className="text-white">KK 554, Kigali</strong>, Eko was established to redefine how fine dining is experienced in East Africa. We honor Rwanda’s rich agricultural bounty—from organic volcanic highland produce to prime meats and fresh Lake Kivu offerings.
+            Located at <strong className="text-white">KK 554, Kigali</strong>, Ecco was established to redefine how fine dining is experienced in East Africa. We honor Rwanda’s rich agricultural bounty—from organic volcanic highland produce to prime meats and fresh Lake Kivu offerings.
           </p>
           <p>
             Our master culinary team pairs time-honored charcoal grilling and classic French sous-vide techniques with vibrant African spices, resulting in a 35-item menu that balances comfort with unforgettable surprise.
@@ -69,7 +69,7 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
           <div className="rounded-3xl overflow-hidden border border-[#D4AF37]/30 shadow-2xl">
             <img
               src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80"
-              alt="Eko Restaurant Interior Ambiance"
+              alt="Ecco Restaurant Interior Ambiance"
               className="w-full h-full object-cover aspect-[4/3]"
             />
           </div>

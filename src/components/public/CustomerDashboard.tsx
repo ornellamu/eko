@@ -63,7 +63,7 @@ export function CustomerDashboard({
                 {user.full_name || user.username}
               </h1>
               <span className="px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#E5C158] text-[10px] font-mono uppercase tracking-wider">
-                Eko Patron
+                Ecco Patron
               </span>
             </div>
             <p className="text-xs text-neutral-400 mt-1 font-mono">

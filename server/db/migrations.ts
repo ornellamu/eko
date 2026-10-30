@@ -493,7 +493,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
   // 4. Seed Restaurant Settings
   if (localStorage.count('restaurant_settings') === 0) {
     const settings = [
-      { setting_key: 'restaurant_name', setting_value: 'Eko Restaurant', description: 'Official Restaurant Brand' },
+      { setting_key: 'restaurant_name', setting_value: 'Ecco Restaurant', description: 'Official Restaurant Brand' },
       { setting_key: 'restaurant_type', setting_value: 'Luxury Fine-Dining Restaurant', description: 'Dining Classification' },
       { setting_key: 'location_address', setting_value: 'Kigali, KK 554', description: 'Physical Address' },
       { setting_key: 'phone_number', setting_value: '0701537890', description: 'Primary Phone' },
@@ -502,7 +502,7 @@ export async function runMigrationsAndSeed(force: boolean = false) {
       { setting_key: 'opening_hours', setting_value: 'Every day, 10:00–23:00', description: 'Operating Hours' },
       { setting_key: 'currency', setting_value: 'RWF', description: 'Currency Code' },
       { setting_key: 'slogan', setting_value: 'A Symphony of Flavors, Where Kigali Meets Culinary Artistry', description: 'Official Slogan' },
-      { setting_key: 'about_story', setting_value: 'Eko Restaurant in Kigali celebrates the harmony of authentic Rwandan ingredients elevated by French and international culinary techniques.', description: 'Brand Story' },
+      { setting_key: 'about_story', setting_value: 'Ecco Restaurant in Kigali celebrates the harmony of authentic Rwandan ingredients elevated by French and international culinary techniques.', description: 'Brand Story' },
       { setting_key: 'max_table_capacity', setting_value: '60', description: 'Configurable Table Seating Capacity' },
       { setting_key: 'delivery_base_fee', setting_value: '1500', description: 'Base Kigali Delivery Fee (RWF)' },
       { setting_key: 'delivery_fee_per_km', setting_value: '500', description: 'Delivery Fee Per KM (RWF)' }
@@ -739,6 +739,158 @@ export async function runMigrationsAndSeed(force: boolean = false) {
     } else {
       seenDrinkNames.add(normalized);
     }
+  }
+
+  // Seed sample initial reservations if empty
+  if (localStorage.count('reservations') === 0) {
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
+    const sampleReservations = [
+      {
+        reservation_code: 'RES-2026-X8B2',
+        customer_name: 'Marcelle Kalisa',
+        customer_email: 'mkalisa@kigalifinance.rw',
+        customer_phone: '+250 788 123 456',
+        reservation_date: today,
+        reservation_time: '19:30',
+        party_size: 4,
+        seating_area: 'sunset_terrace',
+        table_number: 'Terrace T-02',
+        occasion: 'Anniversary Celebration',
+        special_requests: 'Champagne bucket ready upon arrival on the terrace',
+        status: 'confirmed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        reservation_code: 'RES-2026-V9P1',
+        customer_name: 'David Gasana',
+        customer_email: 'dgasana@bankofkigali.rw',
+        customer_phone: '+250 788 456 789',
+        reservation_date: today,
+        reservation_time: '20:00',
+        party_size: 2,
+        seating_area: 'vip_suite',
+        table_number: 'VIP Salon Suite 1',
+        occasion: 'Executive Business Dinner',
+        special_requests: 'Private sommelier pairing requested',
+        status: 'seated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        reservation_code: 'RES-2026-M3T4',
+        customer_name: 'Diane Uwase',
+        customer_email: 'diane.uwase@gmail.com',
+        customer_phone: '+250 783 998 877',
+        reservation_date: today,
+        reservation_time: '18:30',
+        party_size: 6,
+        seating_area: 'main_dining',
+        table_number: 'Dining Table M-06',
+        occasion: 'Birthday Gathering',
+        special_requests: 'Celebratory dessert presentation',
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        reservation_code: 'RES-2026-T7K8',
+        customer_name: 'Patrick Habimana',
+        customer_email: 'phabimana@innovate.rw',
+        customer_phone: '+250 781 224 556',
+        reservation_date: tomorrow,
+        reservation_time: '20:30',
+        party_size: 3,
+        seating_area: 'sunset_terrace',
+        table_number: 'Terrace T-05',
+        occasion: 'Evening Dinner & Cocktails',
+        special_requests: 'Sunset view table',
+        status: 'confirmed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+
+    for (const r of sampleReservations) {
+      localStorage.insert('reservations', r);
+    }
+    console.log(`[Database] Seeded ${sampleReservations.length} initial dining reservations.`);
+  }
+
+  // Seed sample initial orders if empty
+  if (localStorage.count('orders') === 0) {
+    const sampleOrders = [
+      {
+        order_number: 'ECCO-2026-1042',
+        customer_name: 'Arthur Mugabe',
+        customer_email: 'arthur.m@gmail.com',
+        customer_phone: '+250 788 776 554',
+        order_type: 'dine_in',
+        table_number: 'Table M-04',
+        delivery_address: '',
+        payment_method: 'momo',
+        subtotal: 43000,
+        delivery_fee: 0,
+        total_amount: 43000,
+        status: 'preparing',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        order_number: 'ECCO-2026-1043',
+        customer_name: 'Beatrice Uwimana',
+        customer_email: 'buwimana@kigali.rw',
+        customer_phone: '+250 789 654 321',
+        order_type: 'delivery',
+        delivery_address: 'Kiyovu Hill, KK 24 Ave, Villa 12',
+        delivery_landmark: 'Near German Embassy',
+        payment_method: 'card',
+        subtotal: 79500,
+        delivery_fee: 1500,
+        total_amount: 81000,
+        status: 'confirmed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        order_number: 'ECCO-2026-1044',
+        customer_name: 'Eric Nshimiyimana',
+        customer_email: 'eric.n@techrwanda.com',
+        customer_phone: '+250 785 112 233',
+        order_type: 'pickup',
+        delivery_address: '',
+        payment_method: 'momo',
+        subtotal: 18500,
+        delivery_fee: 0,
+        total_amount: 18500,
+        status: 'ready',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        order_number: 'ECCO-2026-1045',
+        customer_name: 'Sonia Mukamana',
+        customer_email: 'sonia.m@diplomat.org',
+        customer_phone: '+250 781 224 556',
+        order_type: 'dine_in',
+        table_number: 'VIP Suite 2',
+        delivery_address: '',
+        payment_method: 'card',
+        subtotal: 109000,
+        delivery_fee: 0,
+        total_amount: 109000,
+        status: 'delivered',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+
+    for (const o of sampleOrders) {
+      localStorage.insert('orders', o);
+    }
+    console.log(`[Database] Seeded ${sampleOrders.length} initial restaurant orders.`);
   }
 
   console.log('[Database] Migrations and seeding completed successfully.');

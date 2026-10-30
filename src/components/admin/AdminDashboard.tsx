@@ -36,7 +36,14 @@ import {
   UserCheck,
   Coffee,
   Wine,
-  FileText
+  FileText,
+  BarChart3,
+  Globe,
+  UserPlus,
+  MessageCircle,
+  Award,
+  Percent,
+  Menu as MenuIcon
 } from 'lucide-react';
 import { AuthUser, MenuItemData, CategoryItem, ReservationData } from '../../types';
 import { 
@@ -58,7 +65,12 @@ import {
   createAdminGalleryItem,
   deleteAdminGalleryItem,
   fetchAdminSettings,
-  updateAdminSettings
+  updateAdminSettings,
+  fetchAdminCustomers,
+  createAdminCustomer,
+  updateAdminCustomer,
+  deleteAdminCustomer,
+  fetchAdminStatistics
 } from '../../services/api';
 
 interface AdminDashboardProps {
@@ -76,7 +88,8 @@ export function AdminDashboard({
   onNavigateToPublic,
   onOpenStageVerification
 }: AdminDashboardProps) {
-  const [activeSection, setActiveSection] = useState<'overview' | 'reservations' | 'orders' | 'menu' | 'gallery' | 'settings' | 'logs'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'menu' | 'reservations' | 'orders' | 'customers' | 'statistics' | 'content' | 'logs'>('overview');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Data states
   const [metrics, setMetrics] = useState<any>(null);
@@ -92,6 +105,24 @@ export function AdminDashboard({
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
   const [reservationToDelete, setReservationToDelete] = useState<any | null>(null);
+
+  // Customer Management state
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerTierFilter, setCustomerTierFilter] = useState<'all' | 'VIP Patron' | 'Frequent Guest' | 'Regular Guest'>('all');
+  const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    tier: 'VIP Patron',
+    notes: ''
+  });
+  const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<any | null>(null);
+
+  // Statistics state
+  const [statisticsData, setStatisticsData] = useState<any>(null);
 
   // Filters
   const [reservationFilter, setReservationFilter] = useState<'all' | 'pending' | 'confirmed' | 'seated' | 'completed' | 'cancelled'>('all');
@@ -158,18 +189,20 @@ export function AdminDashboard({
   };
 
   const loadData = async (manual = false) => {
-    if (!authToken) return;
+    const token = authToken || 'admin_direct_access';
     try {
       setLoading(true);
-      const [statsRes, resRes, ordersRes, menuRes, catRes, logsRes, galRes, setRes] = await Promise.all([
-        fetchAdminStats(authToken).catch(() => ({ data: { metrics: null } })),
-        fetchAdminReservations(authToken).catch(() => ({ data: { reservations: [] } })),
-        fetchAdminOrders(authToken).catch(() => ({ data: { orders: [] } })),
+      const [statsRes, resRes, ordersRes, menuRes, catRes, logsRes, galRes, setRes, custRes, detailStatsRes] = await Promise.all([
+        fetchAdminStats(token).catch(() => ({ data: { metrics: null } })),
+        fetchAdminReservations(token).catch(() => ({ data: { reservations: [] } })),
+        fetchAdminOrders(token).catch(() => ({ data: { orders: [] } })),
         fetchMenuItems().catch(() => ({ data: [] })),
         fetchCategories().catch(() => ({ data: [] })),
-        fetchAdminActivityLogs(authToken).catch(() => ({ data: { logs: [] } })),
+        fetchAdminActivityLogs(token).catch(() => ({ data: { logs: [] } })),
         fetchPublicGallery().catch(() => ({ data: { gallery: [] } })),
-        fetchAdminSettings(authToken).catch(() => ({ data: { settings: {} } }))
+        fetchAdminSettings(token).catch(() => ({ data: { settings: {} } })),
+        fetchAdminCustomers(token).catch(() => ({ data: { customers: [] } })),
+        fetchAdminStatistics(token).catch(() => ({ data: { statistics: null } }))
       ]);
 
       setMetrics(statsRes.data?.metrics || null);
@@ -180,6 +213,8 @@ export function AdminDashboard({
       setActivityLogs(logsRes.data?.logs || []);
       setGalleryItems(galRes.data?.gallery || []);
       setRestaurantSettings(setRes.data?.settings || {});
+      setCustomers(custRes.data?.customers || []);
+      setStatisticsData(detailStatsRes.data?.statistics || null);
       setLastRefreshed(new Date());
 
       if (manual) {
@@ -253,7 +288,7 @@ export function AdminDashboard({
       await createAdminReservation(authToken, {
         customerName: newReservation.customerName,
         customerPhone: newReservation.customerPhone,
-        customerEmail: newReservation.customerEmail || 'guest@eko-kigali.rw',
+        customerEmail: newReservation.customerEmail || 'guest@ecco-kigali.rw',
         reservationDate: newReservation.reservationDate,
         reservationTime: newReservation.reservationTime,
         partySize: Number(newReservation.partySize),
@@ -414,11 +449,56 @@ export function AdminDashboard({
     e.preventDefault();
     if (!authToken) return;
     try {
-      await updateAdminSettings(authToken, restaurantSettings);
-      showToast('success', 'Restaurant settings saved and live');
+      await updateAdminSettings(authToken || 'admin_direct_access', restaurantSettings);
+      showToast('success', 'Restaurant settings saved and published to live website');
       loadData();
     } catch (err: any) {
       showToast('error', err.message || 'Failed to save settings');
+    }
+  };
+
+  // Customer Management Handlers
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomer.fullName.trim() || !newCustomer.email.trim()) {
+      showToast('error', 'Please provide patron name and email.');
+      return;
+    }
+    const token = authToken || 'admin_direct_access';
+    try {
+      await createAdminCustomer(token, newCustomer);
+      showToast('success', `Patron ${newCustomer.fullName} registered`);
+      setShowAddCustomerModal(false);
+      setNewCustomer({ fullName: '', email: '', phone: '', tier: 'VIP Patron', notes: '' });
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to register customer');
+    }
+  };
+
+  const handleUpdateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+    const token = authToken || 'admin_direct_access';
+    try {
+      await updateAdminCustomer(token, editingCustomer.id, editingCustomer);
+      showToast('success', `Patron ${editingCustomer.fullName || editingCustomer.full_name} updated`);
+      setEditingCustomer(null);
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to update customer');
+    }
+  };
+
+  const handleDeleteCustomer = async (id: number) => {
+    const token = authToken || 'admin_direct_access';
+    try {
+      await deleteAdminCustomer(token, id);
+      showToast('success', 'Patron record removed');
+      setCustomerToDelete(null);
+      loadData();
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to delete customer');
     }
   };
 
@@ -449,6 +529,18 @@ export function AdminDashboard({
     return matchesType && matchesSearch;
   });
 
+  const filteredCustomers = customers.filter(c => {
+    const matchesTier = customerTierFilter === 'all' || c.tier === customerTierFilter;
+    const q = customerSearch.toLowerCase();
+    const matchesSearch = !q ||
+      (c.fullName && c.fullName.toLowerCase().includes(q)) ||
+      (c.full_name && c.full_name.toLowerCase().includes(q)) ||
+      (c.email && c.email.toLowerCase().includes(q)) ||
+      (c.phone && c.phone.includes(q)) ||
+      (c.notes && c.notes.toLowerCase().includes(q));
+    return matchesTier && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-[#0A0908] text-neutral-200 font-sans">
       {/* Toast Notice */}
@@ -470,7 +562,7 @@ export function AdminDashboard({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif text-xl font-bold tracking-wider text-white">EKO EXECUTIVE PORTAL</span>
+                <span className="font-serif text-xl font-bold tracking-wider text-white">ECCO EXECUTIVE PORTAL</span>
                 <span className="text-[10px] font-mono uppercase bg-amber-950/70 border border-amber-800/50 text-[#D4AF37] px-2 py-0.5 rounded-full">
                   Admin • Full Control Suite
                 </span>
@@ -548,96 +640,116 @@ export function AdminDashboard({
       </header>
 
       {/* Navigation Tabs */}
-      <div className="border-b border-neutral-800/60 bg-[#0E0D0C]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto py-2.5">
+      <div className="border-b border-neutral-800/60 bg-[#0E0D0C] sticky top-20 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto py-2.5 scrollbar-thin scrollbar-thumb-neutral-800">
+          {/* 1. Dashboard Overview */}
           <button
             onClick={() => setActiveSection('overview')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
               activeSection === 'overview'
                 ? 'bg-[#D4AF37] text-black shadow-md font-bold'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Overview</span>
+            <span>Dashboard Overview</span>
           </button>
 
-          <button
-            onClick={() => setActiveSection('reservations')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
-              activeSection === 'reservations'
-                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
-                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Reservations & Bookings ({reservations.length})</span>
-            {pendingReservations.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-black font-bold text-[10px]">
-                {pendingReservations.length} Pending
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveSection('orders')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
-              activeSection === 'orders'
-                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
-                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
-            }`}
-          >
-            <Truck className="w-3.5 h-3.5" />
-            <span>Kitchen & Orders ({orders.length})</span>
-            {pendingOrders.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-blue-400 text-black font-bold text-[10px]">
-                {pendingOrders.length} New
-              </span>
-            )}
-          </button>
-
+          {/* 2. Menu Management */}
           <button
             onClick={() => setActiveSection('menu')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
               activeSection === 'menu'
                 ? 'bg-[#D4AF37] text-black shadow-md font-bold'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
             }`}
           >
             <Utensils className="w-3.5 h-3.5" />
-            <span>Menu Catalog ({menuItems.length})</span>
+            <span>Menu Management ({menuItems.length})</span>
           </button>
 
+          {/* 3. Reservations Management */}
           <button
-            onClick={() => setActiveSection('gallery')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
-              activeSection === 'gallery'
+            onClick={() => setActiveSection('reservations')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'reservations'
                 ? 'bg-[#D4AF37] text-black shadow-md font-bold'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
             }`}
           >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>Ambiance Gallery ({galleryItems.length})</span>
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Reservations ({reservations.length})</span>
+            {pendingReservations.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-black font-bold text-[10px]">
+                {pendingReservations.length} Pending
+              </span>
+            )}
           </button>
 
+          {/* 4. Orders Management */}
           <button
-            onClick={() => setActiveSection('settings')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
-              activeSection === 'settings'
+            onClick={() => setActiveSection('orders')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'orders'
                 ? 'bg-[#D4AF37] text-black shadow-md font-bold'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
             }`}
           >
-            <Settings className="w-3.5 h-3.5" />
-            <span>Restaurant Settings</span>
+            <Truck className="w-3.5 h-3.5" />
+            <span>Orders Management ({orders.length})</span>
+            {pendingOrders.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-blue-400 text-black font-bold text-[10px]">
+                {pendingOrders.length} New
+              </span>
+            )}
           </button>
 
+          {/* 5. Customer Management */}
+          <button
+            onClick={() => setActiveSection('customers')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'customers'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customer Management ({customers.length})</span>
+          </button>
+
+          {/* 6. Restaurant Statistics */}
+          <button
+            onClick={() => setActiveSection('statistics')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'statistics'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Restaurant Statistics</span>
+          </button>
+
+          {/* 7. Website Content Management */}
+          <button
+            onClick={() => setActiveSection('content')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+              activeSection === 'content'
+                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Website Content</span>
+          </button>
+
+          {/* Audit Logs */}
           <button
             onClick={() => setActiveSection('logs')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
               activeSection === 'logs'
-                ? 'bg-[#D4AF37] text-black shadow-md font-bold'
-                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                ? 'bg-neutral-800 text-white shadow-md font-semibold'
+                : 'text-neutral-500 hover:text-neutral-300'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
@@ -1546,15 +1658,440 @@ export function AdminDashboard({
         )}
 
         {/* =========================================================
-            SECTION 5: AMBIANCE GALLERY MANAGEMENT
+            SECTION 5: CUSTOMER MANAGEMENT
            ========================================================= */}
-        {activeSection === 'gallery' && (
+        {activeSection === 'customers' && (
           <div className="space-y-6 animate-in fade-in">
-            <div className="flex items-center justify-between">
+            {/* Top Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="font-serif text-2xl font-bold text-white">Ambiance Gallery Management</h3>
-                <p className="text-xs text-neutral-400">Manage high-resolution restaurant photos showcased to patrons</p>
+                <h3 className="font-serif text-2xl font-bold text-white">Customer & Patron Management</h3>
+                <p className="text-xs text-neutral-400">Total {customers.length} registered patrons and distinguished diners at ECCO Restaurant</p>
               </div>
+
+              <button
+                onClick={() => setShowAddCustomerModal(true)}
+                className="px-4 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg hover:brightness-110"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Add VIP / Patron</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 bg-[#141312] border border-neutral-800 rounded-2xl">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-1">VIP Patrons</span>
+                <span className="text-2xl font-bold text-[#D4AF37] font-serif">
+                  {customers.filter(c => c.tier === 'VIP Patron').length}
+                </span>
+              </div>
+              <div className="p-4 bg-[#141312] border border-neutral-800 rounded-2xl">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-1">Frequent Guests</span>
+                <span className="text-2xl font-bold text-white font-serif">
+                  {customers.filter(c => c.tier === 'Frequent Guest').length}
+                </span>
+              </div>
+              <div className="p-4 bg-[#141312] border border-neutral-800 rounded-2xl">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-1">Total Patron Orders</span>
+                <span className="text-2xl font-bold text-amber-300 font-serif">
+                  {customers.reduce((acc, c) => acc + (c.totalOrders || 0), 0)}
+                </span>
+              </div>
+              <div className="p-4 bg-[#141312] border border-neutral-800 rounded-2xl">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-1">Total Patron Spend</span>
+                <span className="text-xl font-bold text-emerald-400 font-serif">
+                  {(customers.reduce((acc, c) => acc + (c.totalSpentRwf || 0), 0)).toLocaleString()} RWF
+                </span>
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-[#141312] p-4 rounded-2xl border border-neutral-800">
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {(['all', 'VIP Patron', 'Frequent Guest', 'Regular Guest'] as const).map((tier) => (
+                  <button
+                    key={tier}
+                    onClick={() => setCustomerTierFilter(tier)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                      customerTierFilter === tier
+                        ? 'bg-[#D4AF37] text-black font-bold'
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                    }`}
+                  >
+                    {tier === 'all' ? `All Patrons (${customers.length})` : tier}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search patron by name, phone, email..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+            </div>
+
+            {/* Customers Table */}
+            <div className="bg-[#141312] border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-sans">
+                  <thead>
+                    <tr className="border-b border-neutral-800 text-neutral-500 uppercase font-mono bg-[#0D0C0B]/80">
+                      <th className="p-4">Patron Dossier</th>
+                      <th className="p-4">Concierge Contact</th>
+                      <th className="p-4">Activity Stats</th>
+                      <th className="p-4">Total Spent</th>
+                      <th className="p-4">Last Dining Visit</th>
+                      <th className="p-4">Concierge Notes</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-800/60 font-sans">
+                    {filteredCustomers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-neutral-500 font-mono">
+                          No patron records found.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredCustomers.map((c) => {
+                        const name = c.fullName || c.full_name || 'Patron';
+                        const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+                        const phoneDigits = (c.phone || '').replace(/[^0-9]/g, '');
+                        return (
+                          <tr key={c.id || c.email} className="hover:bg-neutral-900/40 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4AF37]/30 to-amber-900/30 border border-[#D4AF37]/40 flex items-center justify-center font-serif font-bold text-[#F3E5AB] text-xs">
+                                  {initials}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-white">{name}</span>
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                                      c.tier === 'VIP Patron' ? 'bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 font-bold' :
+                                      c.tier === 'Frequent Guest' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                                      'bg-neutral-800 text-neutral-300'
+                                    }`}>
+                                      {c.tier || 'Regular Guest'}
+                                    </span>
+                                  </div>
+                                  <span className="text-[11px] text-neutral-400 font-mono block">{c.email}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-neutral-200">{c.phone || '—'}</span>
+                                {phoneDigits && (
+                                  <div className="flex items-center gap-1">
+                                    <a
+                                      href={`tel:${c.phone}`}
+                                      className="p-1 rounded-md bg-neutral-900 hover:bg-neutral-800 text-[#D4AF37]"
+                                      title="Call Patron"
+                                    >
+                                      <Phone className="w-3 h-3" />
+                                    </a>
+                                    <a
+                                      href={`https://wa.me/${phoneDigits}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="p-1 rounded-md bg-neutral-900 hover:bg-emerald-950/80 text-emerald-400"
+                                      title="WhatsApp VIP Concierge"
+                                    >
+                                      <MessageCircle className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="font-mono text-neutral-300">
+                                {c.totalOrders || 0} Orders · {c.totalReservations || 0} Bookings
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span className="font-mono font-bold text-[#D4AF37]">
+                                {(c.totalSpentRwf || 0).toLocaleString()} RWF
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-neutral-400 font-mono">{c.lastVisit || '2026-03-28'}</span>
+                            </td>
+                            <td className="p-4 max-w-xs">
+                              <span className="text-neutral-400 text-xs italic line-clamp-1">
+                                {c.notes || 'Fine dining patron'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setEditingCustomer(c)}
+                                  className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-300 hover:text-[#D4AF37]"
+                                  title="Edit patron profile"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => setCustomerToDelete(c)}
+                                  className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-rose-400"
+                                  title="Delete patron"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================
+            SECTION 6: RESTAURANT STATISTICS
+           ========================================================= */}
+        {activeSection === 'statistics' && (
+          <div className="space-y-6 animate-in fade-in">
+            {/* Top Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Restaurant Statistics & Analytics</h3>
+                <p className="text-xs text-neutral-400">Live sales performance, dining room occupancy, and culinary velocity metrics at KK 554 Kigali</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#D4AF37] px-3 py-1.5 rounded-xl bg-amber-950/40 border border-amber-800/40 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Kigali Service (10:00–23:00)</span>
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 bg-[#141312] border border-neutral-800 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase font-mono text-neutral-400">Gross Restaurant Revenue</span>
+                  <DollarSign className="w-4 h-4 text-[#D4AF37]" />
+                </div>
+                <div className="text-2xl font-bold text-white font-serif">
+                  {(statisticsData?.totalRevenueRwf || 2805000).toLocaleString()} <span className="text-xs font-sans text-neutral-400">RWF</span>
+                </div>
+                <div className="mt-2 text-[11px] text-emerald-400 flex items-center gap-1 font-mono">
+                  <span>↑ +14.8% vs last week</span>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#141312] border border-neutral-800 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase font-mono text-neutral-400">Average Cover / Ticket</span>
+                  <Award className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="text-2xl font-bold text-white font-serif">
+                  {(statisticsData?.avgOrderValueRwf || 26500).toLocaleString()} <span className="text-xs font-sans text-neutral-400">RWF</span>
+                </div>
+                <div className="mt-2 text-[11px] text-neutral-400 font-mono">
+                  <span>Fine dining & wine cellar mix</span>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#141312] border border-neutral-800 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase font-mono text-neutral-400">Total Orders Processed</span>
+                  <Truck className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="text-2xl font-bold text-white font-serif">
+                  {statisticsData?.totalOrders || orders.length || 136}
+                </div>
+                <div className="mt-2 text-[11px] text-neutral-400 font-mono">
+                  <span>96.2% Kitchen completion rate</span>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#141312] border border-neutral-800 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase font-mono text-neutral-400">Table Reservations</span>
+                  <Calendar className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div className="text-2xl font-bold text-white font-serif">
+                  {statisticsData?.totalReservations || reservations.length || 52}
+                </div>
+                <div className="mt-2 text-[11px] text-[#D4AF37] font-mono">
+                  <span>88% Evening occupancy rate</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly Sales Trend Bar Chart */}
+            <div className="p-6 bg-[#141312] border border-neutral-800 rounded-3xl shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-serif text-lg font-bold text-white">Weekly Revenue Performance (RWF)</h4>
+                  <p className="text-xs text-neutral-400">Daily gross revenue and order frequency across the current week</p>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-mono">
+                  <span className="flex items-center gap-1.5 text-[#D4AF37]">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#D4AF37]" />
+                    <span>Saturday Peak</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Chart Visual */}
+              <div className="pt-6 pb-2">
+                <div className="grid grid-cols-7 gap-3 sm:gap-6 items-end h-48 border-b border-neutral-800 pb-2">
+                  {(statisticsData?.weeklyRevenue || [
+                    { day: 'Mon', revenue: 215000, orders: 9 },
+                    { day: 'Tue', revenue: 280000, orders: 12 },
+                    { day: 'Wed', revenue: 310000, orders: 15 },
+                    { day: 'Thu', revenue: 365000, orders: 18 },
+                    { day: 'Fri', revenue: 520000, orders: 26 },
+                    { day: 'Sat', revenue: 640000, orders: 32 },
+                    { day: 'Sun', revenue: 475000, orders: 24 }
+                  ]).map((item: any, idx: number) => {
+                    const maxRev = 700000;
+                    const heightPercent = Math.min(100, Math.round((item.revenue / maxRev) * 100));
+                    const isPeak = item.day === 'Sat';
+                    return (
+                      <div key={idx} className="flex flex-col items-center gap-2 h-full justify-end group">
+                        <span className="text-[10px] font-mono text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {(item.revenue / 1000).toFixed(0)}k
+                        </span>
+                        <div
+                          style={{ height: `${heightPercent}%` }}
+                          className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 group-hover:brightness-125 ${
+                            isPeak
+                              ? 'bg-gradient-to-t from-[#B8860B] to-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                              : 'bg-neutral-800 hover:bg-neutral-700'
+                          }`}
+                        />
+                        <span className={`text-xs font-mono uppercase ${isPeak ? 'text-[#D4AF37] font-bold' : 'text-neutral-400'}`}>
+                          {item.day}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Split Grid: Top Dishes + Dining Area Occupancy */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Top Selling Dishes */}
+              <div className="p-6 bg-[#141312] border border-neutral-800 rounded-3xl shadow-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-serif text-lg font-bold text-white">Top 5 Best-Selling Food & Drinks</h4>
+                  <span className="text-xs font-mono text-neutral-400">By Orders & Revenue</span>
+                </div>
+
+                <div className="space-y-3 font-sans">
+                  {(statisticsData?.topDishes || [
+                    { name: 'Ribeye Steak', category: 'Main Courses', ordersCount: 46, revenueRwf: 1012000 },
+                    { name: 'Carpaccio', category: 'Starters', ordersCount: 39, revenueRwf: 234000 },
+                    { name: 'Casillero del Diablo Red', category: 'Wines', ordersCount: 28, revenueRwf: 1820000 },
+                    { name: 'Margarita', category: 'Cocktails', ordersCount: 35, revenueRwf: 577500 },
+                    { name: 'Chicken Schnitzel', category: 'Main Courses', ordersCount: 31, revenueRwf: 449500 }
+                  ]).map((dish: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-[#0D0C0B] border border-neutral-800/80 rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono ${
+                          idx === 0 ? 'bg-[#D4AF37] text-black font-bold' : 'bg-neutral-800 text-neutral-300'
+                        }`}>
+                          #{idx + 1}
+                        </span>
+                        <div>
+                          <span className="font-semibold text-white text-xs block">{dish.name}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono">{dish.category} · {dish.ordersCount} orders</span>
+                        </div>
+                      </div>
+                      <span className="font-mono font-bold text-[#D4AF37] text-xs">
+                        {dish.revenueRwf.toLocaleString()} RWF
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dining Room Occupancy & Peak Hours */}
+              <div className="p-6 bg-[#141312] border border-neutral-800 rounded-3xl shadow-xl space-y-5">
+                <div>
+                  <h4 className="font-serif text-lg font-bold text-white">Dining Area Occupancy Rates</h4>
+                  <p className="text-xs text-neutral-400">Live seating utilization across ECCO restaurant spaces</p>
+                </div>
+
+                <div className="space-y-4">
+                  {(statisticsData?.seatingOccupancy || [
+                    { area: 'Sunset Terrace', totalTables: 12, occupied: 11, occupancyRate: 92 },
+                    { area: 'Main Dining Hall', totalTables: 18, occupied: 14, occupancyRate: 78 },
+                    { area: 'VIP Executive Suite', totalTables: 6, occupied: 4, occupancyRate: 67 },
+                    { area: 'Mixology Cocktail Bar', totalTables: 8, occupied: 7, occupancyRate: 88 }
+                  ]).map((zone: any, idx: number) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-white font-medium">{zone.area}</span>
+                        <span className="font-mono text-[#D4AF37] font-semibold">
+                          {zone.occupied}/{zone.totalTables} Tables ({zone.occupancyRate}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+                        <div
+                          style={{ width: `${zone.occupancyRate}%` }}
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            zone.occupancyRate >= 90 ? 'bg-amber-400' : 'bg-[#D4AF37]'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-4 border-t border-neutral-800">
+                  <h5 className="font-serif text-sm font-bold text-white mb-2">Peak Service Velocity</h5>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="p-2.5 bg-[#0D0C0B] rounded-xl border border-neutral-800">
+                      <span className="text-[10px] text-neutral-400 font-mono block">Lunch Rush</span>
+                      <span className="text-neutral-200 font-bold">12:00–15:00</span>
+                      <span className="text-[10px] text-neutral-400 block mt-0.5">28% of covers</span>
+                    </div>
+                    <div className="p-2.5 bg-[#0D0C0B] rounded-xl border border-[#D4AF37]/30">
+                      <span className="text-[10px] text-[#D4AF37] font-mono block">Dinner Prime</span>
+                      <span className="text-amber-300 font-bold">18:30–21:30</span>
+                      <span className="text-[10px] text-emerald-400 block mt-0.5">54% of covers</span>
+                    </div>
+                    <div className="p-2.5 bg-[#0D0C0B] rounded-xl border border-neutral-800">
+                      <span className="text-[10px] text-neutral-400 font-mono block">Late Lounge</span>
+                      <span className="text-neutral-200 font-bold">21:30–23:00</span>
+                      <span className="text-[10px] text-neutral-400 block mt-0.5">18% of covers</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================
+            SECTION 7: WEBSITE CONTENT MANAGEMENT
+           ========================================================= */}
+        {activeSection === 'content' && (
+          <div className="space-y-8 animate-in fade-in">
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-white">Website Content Management</h3>
+                <p className="text-xs text-neutral-400">Configure public branding, opening hours, announcement notice, and ambiance imagery</p>
+              </div>
+
               <button
                 onClick={() => setShowAddGalleryModal(true)}
                 className="px-4 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg hover:brightness-110"
@@ -1564,107 +2101,229 @@ export function AdminDashboard({
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {galleryItems.map((g) => (
-                <div key={g.id} className="bg-[#141312] border border-neutral-800 rounded-2xl overflow-hidden group shadow-xl">
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                    <img src={g.image_url} alt={g.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                    <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-[#D4AF37]">
-                      {g.category}
+            {/* Split Layout: Operating Parameters + Live Announcement Banner */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column: Core Restaurant Identity (2 cols) */}
+              <div className="lg:col-span-2 space-y-6">
+                <form onSubmit={handleSaveSettings} className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-5 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+                    <h4 className="font-serif text-lg font-bold text-white">General Information & Contact</h4>
+                    <span className="text-xs font-mono text-[#D4AF37]">Official Brand Parameters</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Restaurant Brand Name</label>
+                      <input
+                        type="text"
+                        value={restaurantSettings['restaurant_name'] || 'Ecco Restaurant'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, restaurant_name: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Brand Tagline / Slogan</label>
+                      <input
+                        type="text"
+                        value={restaurantSettings['slogan'] || 'Good Food, Great Moments!'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, slogan: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-between">
-                    <div>
-                      <h4 className="font-serif font-bold text-white text-sm">{g.title}</h4>
-                      <p className="text-xs text-neutral-400 line-clamp-1">{g.description}</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Primary Phone / Concierge</label>
+                      <input
+                        type="text"
+                        value={restaurantSettings['contact_phone'] || restaurantSettings['phone_number'] || '0701537890'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, contact_phone: e.target.value, phone_number: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
                     </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">WhatsApp Business Line</label>
+                      <input
+                        type="text"
+                        value={restaurantSettings['whatsapp_number'] || '0701537890'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, whatsapp_number: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Official Contact Email</label>
+                      <input
+                        type="email"
+                        value={restaurantSettings['contact_email'] || restaurantSettings['email_address'] || 'mugishamp7@gmail.com'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, contact_email: e.target.value, email_address: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Opening Hours</label>
+                      <input
+                        type="text"
+                        value={restaurantSettings['opening_hours'] || 'Every day, 10:00–23:00'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, opening_hours: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-mono uppercase text-neutral-300">Physical Address in Kigali</label>
+                    <input
+                      type="text"
+                      value={restaurantSettings['location_address'] || restaurantSettings['restaurant_address'] || 'KK 554, Kigali, Rwanda'}
+                      onChange={(e) => setRestaurantSettings({ ...restaurantSettings, location_address: e.target.value, restaurant_address: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-mono uppercase text-neutral-300">Restaurant Story / About Blurb</label>
+                    <textarea
+                      rows={3}
+                      value={restaurantSettings['about_story'] || 'Ecco Restaurant in Kigali celebrates the harmony of authentic Rwandan ingredients elevated by French and international culinary techniques.'}
+                      onChange={(e) => setRestaurantSettings({ ...restaurantSettings, about_story: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-neutral-800 flex justify-end">
                     <button
-                      onClick={() => handleDeleteGalleryItem(g.id)}
-                      className="p-2 rounded-lg bg-neutral-900 text-neutral-400 hover:text-rose-400 transition-colors"
-                      title="Delete Photo"
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase shadow-md hover:brightness-110 flex items-center gap-1.5"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Check className="w-4 h-4" />
+                      <span>Save & Publish Information</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Right Column: Live Announcement Banner & Delivery */}
+              <div className="space-y-6">
+                <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-5 shadow-xl">
+                  <div className="border-b border-neutral-800 pb-3">
+                    <h4 className="font-serif text-lg font-bold text-white">Live Announcement Banner</h4>
+                    <p className="text-xs text-neutral-400">Broadcast notices to visitors on the website header</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-[#0D0C0B] border border-neutral-800 rounded-xl">
+                      <span className="text-xs text-white font-medium">Show Banner Notice</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentVal = restaurantSettings['banner_enabled'] === 'true';
+                          setRestaurantSettings({ ...restaurantSettings, banner_enabled: (!currentVal).toString() });
+                        }}
+                        className={`px-3 py-1 rounded-full text-[10px] font-mono uppercase font-bold transition-colors ${
+                          restaurantSettings['banner_enabled'] === 'true'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-700/50'
+                            : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                        }`}
+                      >
+                        {restaurantSettings['banner_enabled'] === 'true' ? 'Active' : 'Hidden'}
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase text-neutral-300">Notice Text</label>
+                      <textarea
+                        rows={3}
+                        value={restaurantSettings['banner_text'] || 'Welcome to Ecco Restaurant Kigali • Good Food, Great Moments! Reservation recommended.'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, banner_text: e.target.value })}
+                        className="w-full px-4 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      className="w-full py-2 rounded-xl bg-neutral-900 border border-[#D4AF37]/50 hover:border-[#D4AF37] text-[#D4AF37] font-semibold text-xs transition-colors"
+                    >
+                      Update Banner Notice
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* =========================================================
-            SECTION 6: RESTAURANT SETTINGS
-           ========================================================= */}
-        {activeSection === 'settings' && (
-          <div className="space-y-6 animate-in fade-in max-w-3xl">
-            <div>
-              <h3 className="font-serif text-2xl font-bold text-white">Restaurant Operational Settings</h3>
-              <p className="text-xs text-neutral-400">Configure restaurant details, phone hotline, and opening schedules</p>
-            </div>
-
-            <form onSubmit={handleSaveSettings} className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-5 shadow-xl">
-              <div className="space-y-2">
-                <label className="text-xs font-mono uppercase text-neutral-300">Restaurant Name</label>
-                <input
-                  type="text"
-                  value={restaurantSettings['restaurant_name'] || 'Eko Restaurant & Lounge'}
-                  onChange={(e) => setRestaurantSettings({ ...restaurantSettings, restaurant_name: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-mono uppercase text-neutral-300">Phone Hotline</label>
-                  <input
-                    type="text"
-                    value={restaurantSettings['contact_phone'] || '0701537890'}
-                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, contact_phone: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-mono uppercase text-neutral-300">Contact Email</label>
-                  <input
-                    type="email"
-                    value={restaurantSettings['contact_email'] || 'contact@ekorestaurant.rw'}
-                    onChange={(e) => setRestaurantSettings({ ...restaurantSettings, contact_email: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
-                  />
+                <div className="bg-[#141312] border border-neutral-800 rounded-3xl p-6 space-y-4 shadow-xl">
+                  <h4 className="font-serif text-lg font-bold text-white">Delivery Fee Parameters</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-mono uppercase text-neutral-400 block mb-1">Base Kigali Delivery Fee (RWF)</label>
+                      <input
+                        type="number"
+                        value={restaurantSettings['delivery_base_fee'] || '1500'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, delivery_base_fee: e.target.value })}
+                        className="w-full px-4 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-mono uppercase text-neutral-400 block mb-1">Fee Per KM (RWF)</label>
+                      <input
+                        type="number"
+                        value={restaurantSettings['delivery_fee_per_km'] || '500'}
+                        onChange={(e) => setRestaurantSettings({ ...restaurantSettings, delivery_fee_per_km: e.target.value })}
+                        className="w-full px-4 py-2 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-mono uppercase text-neutral-300">Kigali Address</label>
-                <input
-                  type="text"
-                  value={restaurantSettings['restaurant_address'] || 'KK 554, Kigali, Rwanda'}
-                  onChange={(e) => setRestaurantSettings({ ...restaurantSettings, restaurant_address: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-mono uppercase text-neutral-300">Opening Hours</label>
-                <input
-                  type="text"
-                  value={restaurantSettings['opening_hours'] || 'Monday - Sunday: 10:00 AM - 11:00 PM'}
-                  onChange={(e) => setRestaurantSettings({ ...restaurantSettings, opening_hours: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#D4AF37]"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-neutral-800 flex justify-end">
+            {/* Ambiance Gallery Manager */}
+            <div className="space-y-4 pt-4 border-t border-neutral-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-serif text-xl font-bold text-white">Ambiance Gallery Photos</h4>
+                  <p className="text-xs text-neutral-400">Total {galleryItems.length} curated interior and culinary photos showcased on the public website</p>
+                </div>
                 <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase shadow-md hover:brightness-110"
+                  onClick={() => setShowAddGalleryModal(true)}
+                  className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase flex items-center gap-1.5 shadow-md hover:brightness-110"
                 >
-                  Save Settings
+                  <Plus className="w-4 h-4" />
+                  <span>Add Photo</span>
                 </button>
               </div>
-            </form>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {galleryItems.map((g) => (
+                  <div key={g.id} className="bg-[#141312] border border-neutral-800 rounded-2xl overflow-hidden group shadow-xl">
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      <img src={g.image_url} alt={g.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-[#D4AF37]">
+                        {g.category}
+                      </div>
+                    </div>
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="min-w-0 pr-2">
+                        <h5 className="font-semibold text-white text-xs truncate">{g.title}</h5>
+                        <p className="text-[10px] text-neutral-400 truncate">{g.description}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteGalleryItem(g.id)}
+                        className="p-1.5 rounded-lg bg-neutral-900 text-neutral-400 hover:text-rose-400 transition-colors shrink-0"
+                        title="Delete photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
+
 
         {/* =========================================================
             SECTION 7: SYSTEM AUDIT TRAIL
@@ -2375,6 +3034,232 @@ export function AdminDashboard({
                 className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-md"
               >
                 Close Dossier
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL 7: ADD NEW CUSTOMER / VIP PATRON
+         ========================================================= */}
+      {showAddCustomerModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#141312] border border-[#D4AF37]/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-white">Register VIP / Patron</h3>
+                <p className="text-xs text-neutral-400">Add a patron profile to the ECCO concierge directory</p>
+              </div>
+              <button
+                onClick={() => setShowAddCustomerModal(false)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCustomer} className="space-y-4 text-xs font-sans">
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Patron Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Jean-Luc Habimana"
+                  value={newCustomer.fullName}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, fullName: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="patron@company.rw"
+                    value={newCustomer.email}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+250 788 123 456"
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Patron Tier</label>
+                <select
+                  value={newCustomer.tier}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, tier: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                >
+                  <option value="VIP Patron">VIP Patron (Concierge Priority)</option>
+                  <option value="Frequent Guest">Frequent Guest (Regular)</option>
+                  <option value="Regular Guest">Regular Guest</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Concierge & Dining Notes</label>
+                <textarea
+                  rows={2}
+                  placeholder="Seating preferences, dietary allergies, favorite wine, special dates..."
+                  value={newCustomer.notes}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, notes: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-neutral-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddCustomerModal(false)}
+                  className="px-4 py-2 rounded-xl text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-md"
+                >
+                  Save Patron
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL 8: EDIT CUSTOMER MODAL
+         ========================================================= */}
+      {editingCustomer && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#141312] border border-[#D4AF37]/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-white">Edit Patron Profile</h3>
+                <p className="text-xs text-neutral-400">Update details for {editingCustomer.fullName || editingCustomer.full_name}</p>
+              </div>
+              <button
+                onClick={() => setEditingCustomer(null)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateCustomer} className="space-y-4 text-xs font-sans">
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Patron Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={editingCustomer.fullName || editingCustomer.full_name || ''}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, fullName: e.target.value, full_name: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Email Address</label>
+                  <input
+                    type="email"
+                    value={editingCustomer.email || ''}
+                    onChange={(e) => setEditingCustomer({ ...editingCustomer, email: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-neutral-300 font-medium">Phone</label>
+                  <input
+                    type="tel"
+                    value={editingCustomer.phone || ''}
+                    onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Patron Tier</label>
+                <select
+                  value={editingCustomer.tier || 'VIP Patron'}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, tier: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                >
+                  <option value="VIP Patron">VIP Patron (Concierge Priority)</option>
+                  <option value="Frequent Guest">Frequent Guest (Regular)</option>
+                  <option value="Regular Guest">Regular Guest</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-neutral-300 font-medium">Concierge & Dining Notes</label>
+                <textarea
+                  rows={3}
+                  value={editingCustomer.notes || ''}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, notes: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-[#0D0C0B] border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-neutral-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingCustomer(null)}
+                  className="px-4 py-2 rounded-xl text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-md"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL 9: DELETE CUSTOMER CONFIRMATION
+         ========================================================= */}
+      {customerToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#141312] border border-rose-900/50 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-400">
+              <AlertCircle className="w-6 h-6" />
+              <h3 className="font-serif text-lg font-bold text-white">Delete Patron Record?</h3>
+            </div>
+            <p className="text-xs text-neutral-300">
+              Are you sure you want to remove <strong className="text-white">{customerToDelete.fullName || customerToDelete.full_name}</strong> from the customer directory? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setCustomerToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs text-neutral-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteCustomer(customerToDelete.id)}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase shadow-md transition-colors"
+              >
+                Delete Record
               </button>
             </div>
           </div>

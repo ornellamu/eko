@@ -14,7 +14,7 @@ export function getPublicInfo(_req: Request, res: Response, next: NextFunction) 
 
     return sendSuccess({
       res,
-      message: 'Eko Restaurant information retrieved successfully',
+      message: 'Ecco Restaurant information retrieved successfully',
       data: {
         restaurant: {
           name: settings.restaurant_name || config.restaurant.name,
@@ -25,7 +25,7 @@ export function getPublicInfo(_req: Request, res: Response, next: NextFunction) 
           email: settings.email || config.restaurant.email,
           openingHours: settings.opening_hours || config.restaurant.openingHours,
           currency: settings.currency || config.restaurant.currency,
-          about: settings.about_story || 'Eko Restaurant offers fine dining in Kigali with rich African and continental culinary inspirations.'
+          about: settings.about_story || 'Ecco Restaurant offers fine dining in Kigali with rich African and continental culinary inspirations.'
         },
         counts: {
           categories: categoriesCount,
@@ -118,7 +118,7 @@ export function submitContact(req: Request, res: Response, next: NextFunction) {
     return sendSuccess({
       res,
       statusCode: 201,
-      message: 'Your message has been received by the Eko Restaurant team. We will contact you promptly.',
+      message: 'Your message has been received by the Ecco Restaurant team. We will contact you promptly.',
       data: inserted
     });
   } catch (err) {

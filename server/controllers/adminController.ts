@@ -197,3 +197,52 @@ export async function deleteGalleryItem(req: Request, res: Response, next: NextF
     next(error);
   }
 }
+
+// Customer Management & Advanced Statistics
+export async function getCustomers(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const customers = await AdminService.getCustomers();
+    return sendSuccess({ res, data: { customers }, message: 'Customer directory retrieved' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createCustomer(req: Request, res: Response, next: NextFunction) {
+  try {
+    const customer = await AdminService.createCustomer(req.body);
+    return sendSuccess({ res, data: { customer }, message: 'Customer profile recorded', statusCode: 201 });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateCustomer(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const updated = await AdminService.updateCustomer(id, req.body);
+    return sendSuccess({ res, data: { customer: updated }, message: 'Customer profile updated' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteCustomer(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await AdminService.deleteCustomer(id);
+    return sendSuccess({ res, data: { success: true }, message: 'Customer removed' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getDetailedStatistics(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const stats = await AdminService.getDetailedStatistics();
+    return sendSuccess({ res, data: { statistics: stats }, message: 'Restaurant statistics retrieved' });
+  } catch (error) {
+    next(error);
+  }
+}
+
