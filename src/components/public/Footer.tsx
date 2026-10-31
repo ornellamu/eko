@@ -183,20 +183,8 @@ export function Footer({ onNavigate, onOpenAuth }: FooterProps) {
               Host your private corporate banquets, anniversaries, and VIP sunset dinners at our Kigali terrace suites.
             </p>
 
-            <div className="pt-2 space-y-2">
-              <button
-                onClick={() => onNavigate('reservation')}
-                className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md"
-              >
-                Inquire For VIP Suite
-              </button>
-
-              <button
-                onClick={() => onOpenAuth('register')}
-                className="w-full py-2 px-3 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <span>Create Guest Profile</span>
-              </button>
+            <div className="pt-2 text-xs text-neutral-400 space-y-1">
+              <p>For dedicated salon bookings, call <a href="tel:0701537890" className="text-[#E5C158] font-mono hover:underline">0701537890</a> or visit our reception at KK 554.</p>
             </div>
           </div>
         </div>

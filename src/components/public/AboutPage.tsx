@@ -68,8 +68,8 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
         <div className="relative">
           <div className="rounded-3xl overflow-hidden border border-[#D4AF37]/30 shadow-2xl">
             <img
-              src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80"
-              alt="Ecco Restaurant Interior Ambiance"
+              src="/assets/aistudio/Modern_Fine_Dining_47c95ceb.jpg"
+              alt="Ecco Restaurant Grand Dining Hall"
               className="w-full h-full object-cover aspect-[4/3]"
             />
           </div>

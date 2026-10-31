@@ -37,6 +37,7 @@ export function Navbar({
   const navLinks: { label: string; page: PageView; icon?: any }[] = [
     { label: 'Home', page: 'home' },
     { label: 'Menu (35)', page: 'menu' },
+    { label: 'Reservations', page: 'reservation' },
     { label: 'About Us', page: 'about' },
     { label: 'Ambiance Gallery', page: 'gallery' },
     { label: 'Contact & Hours', page: 'contact' },
@@ -128,18 +129,16 @@ export function Navbar({
 
           {/* Right Action Cluster */}
           <div className="flex items-center gap-3">
-            {/* Table Reservation Button */}
-            <button
-              onClick={() => onNavigate('reservation')}
-              className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-xs uppercase tracking-wider font-bold transition-all ${
-                currentPage === 'reservation'
-                  ? 'bg-[#E5C158] text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]'
-                  : 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black shadow-md'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Book a Table</span>
-            </button>
+            {/* Table Reservation Button — only displayed on home page and menu */}
+            {(currentPage === 'home' || currentPage === 'menu') && (
+              <button
+                onClick={() => onNavigate('reservation')}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-xs uppercase tracking-wider font-bold transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-amber-300 hover:to-amber-400 text-black shadow-md cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Book a Table</span>
+              </button>
+            )}
 
             {/* User Account / Auth Dropdown */}
             {currentUser ? (
@@ -215,16 +214,18 @@ export function Navbar({
           </div>
 
           <div className="pt-2 border-t border-neutral-800/80 flex flex-col gap-2">
-            <button
-              onClick={() => {
-                onNavigate('reservation');
-                setMobileMenuOpen(false);
-              }}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Book a Table</span>
-            </button>
+            {(currentPage === 'home' || currentPage === 'menu') && (
+              <button
+                onClick={() => {
+                  onNavigate('reservation');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Book a Table</span>
+              </button>
+            )}
 
             {currentUser ? (
               <div className="space-y-2">

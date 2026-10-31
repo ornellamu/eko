@@ -142,27 +142,40 @@ export function EkoApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D0C0B] text-neutral-200 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-[#F3E5AB]">
-      {/* Navigation Header */}
-      <Navbar
-        currentPage={currentPage}
-        onNavigate={(page) => {
-          setCurrentPage(page);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        currentUser={currentUser}
-        onOpenAuth={(mode) => {
-          setAuthMode(mode || 'login');
-          setIsAuthOpen(true);
-        }}
-        onLogout={handleLogout}
-        onToggleDevTracker={() => setShowDevTracker(true)}
-      />
+    <div className="min-h-screen relative text-neutral-200 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-[#F3E5AB]">
+      {/* Global Cinematic Website Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <img
+          src="/assets/aistudio/Chef_Apron_Design___Restaurant_Uniform_Branding_for_Principino_5105f53f.jpg"
+          alt="Ecco Fine Dining Culinary Background"
+          className="w-full h-full object-cover object-center scale-105 filter brightness-[0.24] contrast-[1.15] saturate-[1.1]"
+        />
+        {/* Luxury Vignette & Deep Atmosphere Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#080706]/92 via-[#0A0908]/82 to-[#080706]/95" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.06)_0%,transparent_75%)]" />
+      </div>
 
-      {/* Main Page View Router */}
-      <main className="flex-1">
-        {currentPage === 'home' && (
-          <HomePage
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Navigation Header */}
+        <Navbar
+          currentPage={currentPage}
+          onNavigate={(page) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          currentUser={currentUser}
+          onOpenAuth={(mode) => {
+            setAuthMode(mode || 'login');
+            setIsAuthOpen(true);
+          }}
+          onLogout={handleLogout}
+          onToggleDevTracker={() => setShowDevTracker(true)}
+        />
+
+        {/* Main Page View Router */}
+        <main className="flex-1">
+          {currentPage === 'home' && (
+            <HomePage
             onNavigate={(page) => {
               setCurrentPage(page);
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -251,6 +264,7 @@ export function EkoApp() {
           setCurrentPage('account');
         }}
       />
+      </div>
     </div>
   );
 }
