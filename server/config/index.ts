@@ -2,12 +2,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const config = {
-  port: 3000,
-  nodeEnv: process.env.NODE_ENV || 'development',
-  isProduction: process.env.NODE_ENV === 'production',
+  port,
+  nodeEnv: process.env.NODE_ENV || (isProduction ? 'production' : 'development'),
+  isProduction,
   sessionSecret: process.env.SESSION_SECRET || 'eko-luxury-fine-dining-secret-key-kigali-2026',
-  appUrl: process.env.APP_URL || 'http://localhost:3000',
+  appUrl: process.env.APP_URL || `http://localhost:${port}`,
   restaurant: {
     name: 'Ecco Restaurant',
     type: 'Luxury Fine-Dining Restaurant',
